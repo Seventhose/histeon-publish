@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://histos.example/schemas/site-reference-v2.schema.json",
+  "title": "Histos site transfer reference v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ownerId", "blockUid", "path", "targetId", "role"],
+  "properties": {
+    "ownerId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "blockUid": { "type": "string", "pattern": "^[a-z0-9]{8,16}$" },
+    "path": { "type": "string", "minLength": 1, "maxLength": 500 },
+    "targetId": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "role": { "enum": ["media", "document"] },
+    "index": { "type": "integer", "minimum": 0 }
+  }
+}

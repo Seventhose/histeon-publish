@@ -1,0 +1,10 @@
+<section xb:label="Hero" class="hero section--l" id="top">
+  <div class="hero__inner">
+    <h1 class="hero__title">{this.title}</h1>
+    <p class="hero__lead">
+      Costruito con <strong>XB</strong> e <a href="https://example.org" target="_blank" rel="noopener">framework aperti</a>.
+    </p>
+    <a class="btn btn--primary" href={site.url}>Inizia</a>
+    <img src="/logo.svg" alt="" width="120" height="40">
+  </div>
+</section>

@@ -1,0 +1,15 @@
+<ul class="post-list">
+  {#loop posts(limit: 6, type: "post", order: props.order ?? "desc") as post, i}
+    <li class="post-list__item" data-index={i}>
+      <a href={post.url} class="post-list__link">{post.title.upper()}</a>
+      {#if post.excerpt}
+        <p>{post.excerpt.truncateWords(20)}</p>
+      {:else if post.subtitle != null}
+        <p class="muted">{post.subtitle}</p>
+      {:else}
+        <p class="muted">Nessun estratto</p>
+      {/if}
+    </li>
+  {/loop}
+</ul>
+{#loop [1, 2, 3] as n}<span class="dot">{n}</span>{/loop}

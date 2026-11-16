@@ -1,0 +1,18 @@
+{
+  "name": "@xb/spec",
+  "version": "0.1.0",
+  "description": "Normative JSON Schemas for XB blocks and Histos site-transfer contracts.",
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "exports": {
+    "./blocks.schema.json": "./schemas/blocks.schema.json",
+    "./site-transfer-v2.schema.json": "./schemas/site-transfer-v2.schema.json",
+    "./site-entity-v2.schema.json": "./schemas/site-entity-v2.schema.json",
+    "./site-reference-v2.schema.json": "./schemas/site-reference-v2.schema.json",
+    "./histos-static-page-v1.schema.json": "./schemas/histos-static-page-v1.schema.json"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p ."
+  }
+}

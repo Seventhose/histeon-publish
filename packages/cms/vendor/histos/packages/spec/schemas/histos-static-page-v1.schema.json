@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://histos.example/schemas/histos-static-page-v1.schema.json",
+  "title": "Executable Histos static page transfer profile v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifest", "entities", "references"],
+  "properties": {
+    "manifest": { "$ref": "site-transfer-v2.schema.json" },
+    "entities": { "type": "array", "minItems": 1, "maxItems": 10000, "items": { "$ref": "site-entity-v2.schema.json" } },
+    "references": { "type": "array", "maxItems": 100000, "items": { "$ref": "site-reference-v2.schema.json" } }
+  }
+}

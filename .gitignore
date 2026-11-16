@@ -1,0 +1,26 @@
+node_modules/
+/.histos-release-linux.json
+**/dist/
+packages/cms/.generated/
+packages/ui/public/histos-builder/
+packages/desktop/release/
+*.tsbuildinfo
+coverage/
+*.log
+test-results/
+playwright-report/
+.DS_Store
+Thumbs.db
+desktop.ini
+.env
+.env.*
+!.env.example
+.test-data/
+
+# Archivi prodotti a mano: restano su disco, non nel repository
+deliverables/
+integrations/*.tgz
+
+# Worktrees of Claude Code agents
+.claude/worktrees/
+packages/cms/dist-browser/

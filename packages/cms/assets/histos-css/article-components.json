@@ -1,0 +1,476 @@
+[
+	{
+		"ref": "articolo/riquadro",
+		"title": "Riquadro",
+		"schema": {
+			"props": {
+				"variant": {
+					"type": "enum",
+					"label": "Tipo",
+					"options": [
+						"nota",
+						"avviso",
+						"approfondimento"
+					],
+					"default": "nota"
+				},
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				},
+				"text": {
+					"type": "rich-text",
+					"label": "Testo"
+				}
+			}
+		},
+		"areas": [
+			"text"
+		],
+		"content": "<!-- wp:xb/element {\"uid\":\"riq00007\",\"tag\":\"aside\",\"attributes\":{\"class\":\"xb-art-riquadro xb-art-riquadro-{props.variant}\"}} --><!-- wp:xb/if {\"uid\":\"riq00004\"} --><!-- wp:xb/branch {\"uid\":\"riq00003\",\"test\":\"props.title\"} --><!-- wp:xb/element {\"uid\":\"riq00002\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"riq00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/element {\"uid\":\"riq00006\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-testo\"}} --><!-- wp:xb/text {\"uid\":\"riq00005\",\"content\":\"{props.text.inline()}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/citazione",
+		"title": "Citazione grande",
+		"schema": {
+			"props": {
+				"text": {
+					"type": "string",
+					"label": "Testo"
+				},
+				"author": {
+					"type": "string",
+					"label": "Autore"
+				}
+			}
+		},
+		"areas": [
+			"text"
+		],
+		"content": "<!-- wp:xb/element {\"uid\":\"cit00007\",\"tag\":\"figure\",\"attributes\":{\"class\":\"xb-art-citazione\"}} --><!-- wp:xb/element {\"uid\":\"cit00002\",\"tag\":\"blockquote\"} --><!-- wp:xb/text {\"uid\":\"cit00001\",\"content\":\"{props.text}\"} /--><!-- /wp:xb/element --><!-- wp:xb/if {\"uid\":\"cit00006\"} --><!-- wp:xb/branch {\"uid\":\"cit00005\",\"test\":\"props.author\"} --><!-- wp:xb/element {\"uid\":\"cit00004\",\"tag\":\"figcaption\"} --><!-- wp:xb/text {\"uid\":\"cit00003\",\"content\":\"{props.author}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/libro",
+		"title": "Scheda libro",
+		"schema": {
+			"props": {
+				"image": {
+					"type": "image",
+					"label": "Copertina"
+				},
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				},
+				"author": {
+					"type": "string",
+					"label": "Autore"
+				},
+				"publisher": {
+					"type": "string",
+					"label": "Editore"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				},
+				"linkLabel": {
+					"type": "string",
+					"label": "Testo del collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"lib0000j\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-libro\"}} --><!-- wp:xb/if {\"uid\":\"lib00003\"} --><!-- wp:xb/branch {\"uid\":\"lib00002\",\"test\":\"props.image\"} --><!-- wp:xb/element {\"uid\":\"lib00001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.image}\",\"alt\":\"{props.title}\",\"loading\":\"lazy\"}} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/element {\"uid\":\"lib0000i\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-corpo\"}} --><!-- wp:xb/element {\"uid\":\"lib00005\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"lib00004\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/if {\"uid\":\"lib00009\"} --><!-- wp:xb/branch {\"uid\":\"lib00008\",\"test\":\"props.author\"} --><!-- wp:xb/element {\"uid\":\"lib00007\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-autore-nome\"}} --><!-- wp:xb/text {\"uid\":\"lib00006\",\"content\":\"{props.author}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"lib0000d\"} --><!-- wp:xb/branch {\"uid\":\"lib0000c\",\"test\":\"props.publisher\"} --><!-- wp:xb/element {\"uid\":\"lib0000b\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-editore\"}} --><!-- wp:xb/text {\"uid\":\"lib0000a\",\"content\":\"{props.publisher}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"lib0000h\"} --><!-- wp:xb/branch {\"uid\":\"lib0000g\",\"test\":\"props.link\"} --><!-- wp:xb/element {\"uid\":\"lib0000f\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-link\",\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"lib0000e\",\"content\":\"{props.linkLabel}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/autore",
+		"title": "Scheda autore",
+		"schema": {
+			"props": {
+				"image": {
+					"type": "image",
+					"label": "Ritratto"
+				},
+				"name": {
+					"type": "string",
+					"label": "Nome"
+				},
+				"bio": {
+					"type": "rich-text",
+					"label": "Biografia"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				},
+				"linkLabel": {
+					"type": "string",
+					"label": "Testo del collegamento"
+				}
+			}
+		},
+		"areas": [
+			"bio"
+		],
+		"content": "<!-- wp:xb/element {\"uid\":\"aut0000f\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-autore\"}} --><!-- wp:xb/if {\"uid\":\"aut00003\"} --><!-- wp:xb/branch {\"uid\":\"aut00002\",\"test\":\"props.image\"} --><!-- wp:xb/element {\"uid\":\"aut00001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.image}\",\"alt\":\"{props.name}\",\"loading\":\"lazy\"}} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/element {\"uid\":\"aut0000e\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-corpo\"}} --><!-- wp:xb/element {\"uid\":\"aut00005\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"aut00004\",\"content\":\"{props.name}\"} /--><!-- /wp:xb/element --><!-- wp:xb/if {\"uid\":\"aut00009\"} --><!-- wp:xb/branch {\"uid\":\"aut00008\",\"test\":\"props.bio\"} --><!-- wp:xb/element {\"uid\":\"aut00007\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-testo\"}} --><!-- wp:xb/text {\"uid\":\"aut00006\",\"content\":\"{props.bio.inline()}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"aut0000d\"} --><!-- wp:xb/branch {\"uid\":\"aut0000c\",\"test\":\"props.link\"} --><!-- wp:xb/element {\"uid\":\"aut0000b\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-link\",\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"aut0000a\",\"content\":\"{props.linkLabel}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/documento",
+		"title": "Documento da scaricare",
+		"schema": {
+			"props": {
+				"label": {
+					"type": "string",
+					"label": "Nome del documento"
+				},
+				"href": {
+					"type": "url",
+					"label": "Indirizzo del documento"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"doc00002\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-documento\",\"href\":\"{props.href}\"}} --><!-- wp:xb/text {\"uid\":\"doc00001\",\"content\":\"{props.label}\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/fonte",
+		"title": "Fonte",
+		"schema": {
+			"props": {
+				"label": {
+					"type": "string",
+					"label": "Testo del collegamento",
+					"default": "Leggi l'articolo originale"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"fon00003\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-fonte\"}} --><!-- wp:xb/element {\"uid\":\"fon00002\",\"tag\":\"a\",\"attributes\":{\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"fon00001\",\"content\":\"{props.label}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/video",
+		"title": "Video",
+		"schema": {
+			"props": {
+				"url": {
+					"type": "url",
+					"label": "Indirizzo del video"
+				},
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"vid00002\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-video\",\"href\":\"{props.url}\",\"rel\":\"noopener\"}} --><!-- wp:xb/text {\"uid\":\"vid00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/galleria",
+		"title": "Galleria",
+		"schema": {
+			"props": {}
+		},
+		"areas": [],
+		"rows": "articolo/foto",
+		"content": "<!-- wp:xb/element {\"uid\":\"gal00002\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-galleria\"}} --><!-- wp:xb/slot {\"uid\":\"gal00001\",\"name\":\"default\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/foto",
+		"title": "Foto",
+		"schema": {
+			"props": {
+				"src": {
+					"type": "image",
+					"label": "Immagine"
+				},
+				"alt": {
+					"type": "string",
+					"label": "Descrizione"
+				},
+				"caption": {
+					"type": "rich-text",
+					"label": "Didascalia"
+				}
+			}
+		},
+		"areas": [
+			"caption"
+		],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"fot00006\",\"tag\":\"figure\",\"attributes\":{\"class\":\"xb-art-foto\"}} --><!-- wp:xb/element {\"uid\":\"fot00001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.src}\",\"alt\":\"{props.alt}\",\"loading\":\"lazy\"}} /--><!-- wp:xb/if {\"uid\":\"fot00005\"} --><!-- wp:xb/branch {\"uid\":\"fot00004\",\"test\":\"props.caption\"} --><!-- wp:xb/element {\"uid\":\"fot00003\",\"tag\":\"figcaption\"} --><!-- wp:xb/text {\"uid\":\"fot00002\",\"content\":\"{props.caption.inline()}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/pulsante",
+		"title": "Pulsante",
+		"schema": {
+			"props": {
+				"label": {
+					"type": "string",
+					"label": "Testo del pulsante"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"pul00003\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-azione\"}} --><!-- wp:xb/element {\"uid\":\"pul00002\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-pulsante\",\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"pul00001\",\"content\":\"{props.label}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/evento",
+		"title": "Scheda evento",
+		"schema": {
+			"props": {
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				},
+				"date": {
+					"type": "string",
+					"label": "Data e ora"
+				},
+				"place": {
+					"type": "string",
+					"label": "Luogo"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				},
+				"linkLabel": {
+					"type": "string",
+					"label": "Testo del collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"eve0000f\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-evento\"}} --><!-- wp:xb/element {\"uid\":\"eve00002\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"eve00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/if {\"uid\":\"eve00006\"} --><!-- wp:xb/branch {\"uid\":\"eve00005\",\"test\":\"props.date\"} --><!-- wp:xb/element {\"uid\":\"eve00004\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-data\"}} --><!-- wp:xb/text {\"uid\":\"eve00003\",\"content\":\"{props.date}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"eve0000a\"} --><!-- wp:xb/branch {\"uid\":\"eve00009\",\"test\":\"props.place\"} --><!-- wp:xb/element {\"uid\":\"eve00008\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-luogo\"}} --><!-- wp:xb/text {\"uid\":\"eve00007\",\"content\":\"{props.place}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"eve0000e\"} --><!-- wp:xb/branch {\"uid\":\"eve0000d\",\"test\":\"props.link\"} --><!-- wp:xb/element {\"uid\":\"eve0000c\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-link\",\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"eve0000b\",\"content\":\"{props.linkLabel}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/confronto",
+		"title": "Confronto prima e dopo",
+		"schema": {
+			"props": {
+				"before": {
+					"type": "image",
+					"label": "Prima"
+				},
+				"after": {
+					"type": "image",
+					"label": "Dopo"
+				},
+				"caption": {
+					"type": "rich-text",
+					"label": "Didascalia"
+				}
+			}
+		},
+		"areas": [
+			"caption"
+		],
+		"content": "<!-- wp:xb/element {\"uid\":\"con0000b\",\"tag\":\"figure\",\"attributes\":{\"class\":\"xb-art-confronto\"}} --><!-- wp:xb/if {\"uid\":\"con00003\"} --><!-- wp:xb/branch {\"uid\":\"con00002\",\"test\":\"props.before\"} --><!-- wp:xb/element {\"uid\":\"con00001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.before}\",\"alt\":\"Prima\",\"loading\":\"lazy\"}} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"con00006\"} --><!-- wp:xb/branch {\"uid\":\"con00005\",\"test\":\"props.after\"} --><!-- wp:xb/element {\"uid\":\"con00004\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.after}\",\"alt\":\"Dopo\",\"loading\":\"lazy\"}} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/if {\"uid\":\"con0000a\"} --><!-- wp:xb/branch {\"uid\":\"con00009\",\"test\":\"props.caption\"} --><!-- wp:xb/element {\"uid\":\"con00008\",\"tag\":\"figcaption\"} --><!-- wp:xb/text {\"uid\":\"con00007\",\"content\":\"{props.caption.inline()}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/audio",
+		"title": "Audio",
+		"schema": {
+			"props": {
+				"url": {
+					"type": "url",
+					"label": "Indirizzo dell'audio"
+				},
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"aud00002\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-audio\",\"href\":\"{props.url}\",\"rel\":\"noopener\"}} --><!-- wp:xb/text {\"uid\":\"aud00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/mappa",
+		"title": "Mappa",
+		"schema": {
+			"props": {
+				"place": {
+					"type": "string",
+					"label": "Luogo"
+				},
+				"link": {
+					"type": "url",
+					"label": "Indirizzo della mappa"
+				}
+			}
+		},
+		"areas": [],
+		"content": "<!-- wp:xb/element {\"uid\":\"map00002\",\"tag\":\"a\",\"attributes\":{\"class\":\"xb-art-mappa\",\"href\":\"{props.link}\",\"rel\":\"noopener\"}} --><!-- wp:xb/text {\"uid\":\"map00001\",\"content\":\"{props.place}\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/domande",
+		"title": "Domande e risposte",
+		"schema": {
+			"props": {}
+		},
+		"areas": [],
+		"rows": "articolo/domanda",
+		"content": "<!-- wp:xb/element {\"uid\":\"dom00002\",\"tag\":\"div\",\"attributes\":{\"class\":\"xb-art-domande\"}} --><!-- wp:xb/slot {\"uid\":\"dom00001\",\"name\":\"default\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/domanda",
+		"title": "Domanda",
+		"schema": {
+			"props": {
+				"question": {
+					"type": "string",
+					"label": "Domanda"
+				},
+				"answer": {
+					"type": "rich-text",
+					"label": "Risposta"
+				}
+			}
+		},
+		"areas": [
+			"answer"
+		],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"dom00005\",\"tag\":\"details\"} --><!-- wp:xb/element {\"uid\":\"dom00002\",\"tag\":\"summary\"} --><!-- wp:xb/text {\"uid\":\"dom00001\",\"content\":\"{props.question}\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"dom00004\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"dom00003\",\"content\":\"{props.answer.inline()}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/leggi-anche",
+		"title": "Leggi anche",
+		"schema": {
+			"props": {
+				"title": {
+					"type": "string",
+					"label": "Titolo",
+					"default": "Leggi anche"
+				}
+			}
+		},
+		"areas": [],
+		"rows": "articolo/lettura",
+		"content": "<!-- wp:xb/element {\"uid\":\"leg00005\",\"tag\":\"aside\",\"attributes\":{\"class\":\"xb-art-leggi\"}} --><!-- wp:xb/element {\"uid\":\"leg00002\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"leg00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"leg00004\",\"tag\":\"ul\"} --><!-- wp:xb/slot {\"uid\":\"leg00003\",\"name\":\"default\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/lettura",
+		"title": "Lettura",
+		"schema": {
+			"props": {
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"let00003\",\"tag\":\"li\"} --><!-- wp:xb/element {\"uid\":\"let00002\",\"tag\":\"a\",\"attributes\":{\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"let00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/cronologia",
+		"title": "Cronologia",
+		"schema": {
+			"props": {}
+		},
+		"areas": [],
+		"rows": "articolo/tappa",
+		"content": "<!-- wp:xb/element {\"uid\":\"cro00002\",\"tag\":\"ol\",\"attributes\":{\"class\":\"xb-art-cronologia\"}} --><!-- wp:xb/slot {\"uid\":\"cro00001\",\"name\":\"default\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/tappa",
+		"title": "Tappa",
+		"schema": {
+			"props": {
+				"date": {
+					"type": "string",
+					"label": "Data"
+				},
+				"text": {
+					"type": "rich-text",
+					"label": "Che cosa accade"
+				}
+			}
+		},
+		"areas": [
+			"text"
+		],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"tap00004\",\"tag\":\"li\"} --><!-- wp:xb/element {\"uid\":\"tap00002\",\"tag\":\"span\",\"attributes\":{\"class\":\"xb-art-data\"}} --><!-- wp:xb/text {\"uid\":\"tap00001\",\"content\":\"{props.date}\"} /--><!-- /wp:xb/element --><!-- wp:xb/text {\"uid\":\"tap00003\",\"content\":\" {props.text.inline()}\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/indice",
+		"title": "Indice",
+		"schema": {
+			"props": {
+				"title": {
+					"type": "string",
+					"label": "Titolo",
+					"default": "In questo articolo"
+				}
+			}
+		},
+		"areas": [],
+		"rows": "articolo/voce-indice",
+		"auto": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"ind00005\",\"tag\":\"nav\",\"attributes\":{\"class\":\"xb-art-indice\",\"aria-label\":\"{props.title}\"}} --><!-- wp:xb/element {\"uid\":\"ind00002\",\"tag\":\"p\",\"attributes\":{\"class\":\"xb-art-titolo\"}} --><!-- wp:xb/text {\"uid\":\"ind00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"ind00004\",\"tag\":\"ol\"} --><!-- wp:xb/slot {\"uid\":\"ind00003\",\"name\":\"default\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/voce-indice",
+		"title": "Voce dell'indice",
+		"schema": {
+			"props": {
+				"title": {
+					"type": "string",
+					"label": "Titolo"
+				},
+				"link": {
+					"type": "url",
+					"label": "Collegamento"
+				}
+			}
+		},
+		"areas": [],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"voc00003\",\"tag\":\"li\"} --><!-- wp:xb/element {\"uid\":\"voc00002\",\"tag\":\"a\",\"attributes\":{\"href\":\"{props.link}\"}} --><!-- wp:xb/text {\"uid\":\"voc00001\",\"content\":\"{props.title}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/bibliografia",
+		"title": "Bibliografia",
+		"schema": {
+			"props": {}
+		},
+		"areas": [],
+		"rows": "articolo/voce",
+		"content": "<!-- wp:xb/element {\"uid\":\"bib00002\",\"tag\":\"ol\",\"attributes\":{\"class\":\"xb-art-bibliografia\"}} --><!-- wp:xb/slot {\"uid\":\"bib00001\",\"name\":\"default\"} /--><!-- /wp:xb/element -->"
+	},
+	{
+		"ref": "articolo/voce",
+		"title": "Voce",
+		"schema": {
+			"props": {
+				"text": {
+					"type": "rich-text",
+					"label": "Riferimento"
+				}
+			}
+		},
+		"areas": [
+			"text"
+		],
+		"row": true,
+		"content": "<!-- wp:xb/element {\"uid\":\"voc00002\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"voc00001\",\"content\":\"{props.text.inline()}\"} /--><!-- /wp:xb/element -->"
+	}
+]

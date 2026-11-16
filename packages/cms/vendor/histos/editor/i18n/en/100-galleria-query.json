@@ -1,0 +1,17 @@
+{
+  "Query «{0}» aggiunta dalla galleria: {1} Salvala, poi inseriscila nella pagina.": "Query “{0}” added from the gallery: {1} Save it, then insert it in the page.",
+  "Galleria di query pronte": "Gallery of ready queries",
+  "Dalla galleria…": "From the gallery…",
+  "Ultimi articoli": "Latest posts",
+  "Gli articoli più recenti, i primi in evidenza esclusi.": "The most recent posts, sticky posts left out.",
+  "Articoli correlati": "Related posts",
+  "Altri articoli della stessa categoria della pagina, senza la pagina stessa.": "Other posts in the page's category, without the page itself.",
+  "Prodotti in evidenza": "Featured products",
+  "I prodotti segnati «in evidenza» in WooCommerce.": "The products marked “featured” in WooCommerce.",
+  "Eventi futuri": "Upcoming events",
+  "Gli eventi con la data da oggi in poi, dal più vicino. Il tipo «evento» e il campo «data» si cambiano nella query.": "Events dated today or later, nearest first. The “evento” type and the “data” field can be changed in the query.",
+  "Ricostruisci in questa pagina la sezione «{0}» della libreria": "Rebuild in this page the library section “{0}”",
+  "Richiesta mandata all’agente: la trovi nel pannello ✦ AI.": "Request sent to the agent: you find it in the ✦ AI panel.",
+  "L’agente la ricostruisce con le classi e i token di questo progetto, senza copiarne il markup": "The agent rebuilds it with this project's classes and tokens, without copying its markup",
+  "Fai ricostruire all’agente": "Have the agent rebuild it"
+}

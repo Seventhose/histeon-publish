@@ -1,0 +1,106 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`round-trip blog-loop.xb > canonical print snapshot 1`] = `
+"<ul class="post-list">
+  {#loop posts(limit: 6, type: "post", order: props.order ?? "desc") as post, i}
+    <li class="post-list__item" data-index={i}>
+      <a href={post.url} class="post-list__link">{post.title.upper()}</a>
+      {#if post.excerpt}
+        <p>{post.excerpt.truncateWords(20)}</p>
+      {:else if post.subtitle != null}
+        <p class="muted">{post.subtitle}</p>
+      {:else}
+        <p class="muted">Nessun estratto</p>
+      {/if}
+    </li>
+  {/loop}
+</ul>
+{#loop [1, 2, 3] as n}
+  <span class="dot">{n}</span>
+{/loop}"
+`;
+
+exports[`round-trip component-def.xb > canonical print snapshot 1`] = `
+"<article class="card {props.variant ?? 'default'}">
+  <header class="card__header">
+    {@slot header}
+  </header>
+  <div class="card__body">
+    {@slot}
+  </div>
+  {#if props.showFooter}
+    <footer class="card__footer">
+      {@slot footer}
+    </footer>
+  {/if}
+</article>"
+`;
+
+exports[`round-trip component-use.xb > canonical print snapshot 1`] = `
+"<div class="grid">
+  <Card title="Ciao {user.name}" count={3} featured url={post.url} draft={false} label="Testo">
+    {#slot header}
+      <h2>Intestazione</h2>
+    {/slot}
+    {#slot default}
+      <p>Corpo del componente</p>
+    {/slot}
+    {#slot footer}
+      <small class="note">Piè di pagina</small>
+    {/slot}
+  </Card>
+  <Ui.CardHero xb:label="Card principale" />
+  <Badge>Nuovo</Badge>
+</div>"
+`;
+
+exports[`round-trip doc-example.xb > canonical print snapshot 1`] = `
+"<section xb:label="Ultimi articoli" class="posts">
+  {#loop posts(limit: 3, type: "post") as post, i}
+    <Card title={post.title} url={post.url} featured={i == 0}>
+      {#slot media}
+        <img src={post.image.url} alt={post.image.alt}>
+      {/slot}
+      {#slot default}
+        <p>{post.excerpt.truncateWords(20) ?? "Nessun estratto"}</p>
+      {/slot}
+    </Card>
+  {/loop}
+</section>"
+`;
+
+exports[`round-trip hero.xb > canonical print snapshot 1`] = `
+"<section xb:label="Hero" class="hero section--l" id="top">
+  <div class="hero__inner">
+    <h1 class="hero__title">{this.title}</h1>
+    <p class="hero__lead">Costruito con <strong>XB</strong> e <a href="https://example.org" target="_blank" rel="noopener">framework aperti</a>.</p>
+    <a class="btn btn--primary" href={site.url}>Inizia</a>
+    <img src="/logo.svg" alt="" width="120" height="40">
+  </div>
+</section>"
+`;
+
+exports[`round-trip template.xb > canonical print snapshot 1`] = `
+"<header class="site-header">
+  <!-- wp:navigation {"ref":42,"overlayMenu":"never"} /-->
+</header>
+<main id="main">
+  {@content}
+</main>
+<!-- wp:paragraph {"className":"legacy"} -->
+<p class="legacy">Paragrafo nativo di Gutenberg</p>
+<!-- /wp:paragraph -->"
+`;
+
+exports[`round-trip whitespace.xb > canonical print snapshot 1`] = `
+"<pre class="code">  riga 1
+    <b>riga 2</b>   fine</pre>
+<p> spazio iniziale <em>enfasi</em> {" "}e testo\\{non interpolato\\}</p>
+<textarea name="msg">  <b>letterale</b> {non} </textarea>
+<div><span class="a">uno</span> <span class="b">due</span></div>
+{#raw}<marquee>{grezzo}</marquee>{/raw}
+<svg viewBox="0 0 10 10">
+  <linearGradient id="g"></linearGradient>
+  <path d="M0 0L10 10"></path>
+</svg>"
+`;

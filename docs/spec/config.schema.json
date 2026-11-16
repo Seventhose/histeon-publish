@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Histeon Publish site configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name", "source"],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 1 },
+    "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path"],
+      "properties": {
+        "kind": { "type": "string", "enum": ["directory", "html", "zip", "url"] },
+        "path": { "type": "string", "minLength": 1, "maxLength": 4096 },
+        "root": { "type": "string", "minLength": 1, "maxLength": 4096 }
+      }
+    },
+    "include": { "type": "array", "items": { "type": "string", "maxLength": 512 } },
+    "exclude": { "type": "array", "items": { "type": "string", "maxLength": 512 } },
+    "crawl": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "concurrency": { "type": "integer", "minimum": 1, "maximum": 8 },
+        "delayMs": { "type": "integer", "minimum": 0, "maximum": 30000 },
+        "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 120000 },
+        "maxPages": { "type": "integer", "minimum": 1, "maximum": 20000 },
+        "maxDepth": { "type": "integer", "minimum": 0, "maximum": 20 },
+        "maxBytes": { "type": "integer", "minimum": 1, "maximum": 1073741824 },
+        "respectRobots": { "type": "boolean" },
+        "ignoreRobots": { "type": "boolean" },
+        "siteManaged": { "type": "boolean" },
+        "bypassCache": { "type": "boolean" },
+        "includeFeeds": { "type": "boolean" },
+        "urls": { "type": "array", "maxItems": 500, "items": { "type": "string", "maxLength": 4096 } },
+        "render": { "type": "boolean" }
+      }
+    },
+    "rewrite": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "destinationDomain": { "type": "string", "maxLength": 255 },
+        "externalAssets": { "type": "array", "items": { "type": "string", "maxLength": 4096 } },
+        "removeEmoji": { "type": "boolean" }
+      }
+    },
+    "dynamic": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hideComments": { "type": "boolean" },
+        "wooCommerceCatalog": { "type": "boolean" }
+      }
+    },
+    "pagefind": { "type": "boolean" },
+    "forms": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "wordpress": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["restUrl", "fluentFormIds", "turnstileSiteKey"],
+          "properties": {
+            "restUrl": { "type": "string", "minLength": 12, "maxLength": 2048 },
+            "fluentFormIds": { "type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": true, "items": { "type": "integer", "minimum": 1, "maximum": 2147483647 } },
+            "turnstileSiteKey": { "type": "string", "minLength": 1, "maxLength": 200 }
+          }
+        }
+      }
+    },
+    "cloudflare": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "accountId": { "type": "string", "maxLength": 64 },
+        "script": { "type": "string", "pattern": "^[a-z0-9-]{1,63}$" },
+        "domain": { "type": "string", "maxLength": 255 },
+        "workersDev": { "type": "boolean" },
+        "maxFiles": { "type": "integer", "minimum": 1, "maximum": 100000 }
+      }
+    }
+  }
+}

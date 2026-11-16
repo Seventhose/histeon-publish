@@ -1,0 +1,9 @@
+.testata {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--space-s) var(--space-m);
+  background: var(--primary);
+  &__marchio { font-size: var(--text-l); color: var(--text-light); }
+  &__menu { display: flex; gap: var(--space-s); }
+  &__voce { font-size: var(--text-m); color: var(--text-light-muted); }
+}

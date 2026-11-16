@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "expressions": [
+    "\"élan\".upper()",
+    "\"ÉLAN\".lower()",
+    "\"éCOLE\".capitalize()",
+    "\" \\t test \\n\".trim()",
+    "\"<b>uno</b>\".stripTags()",
+    "\"uno due tre\".truncateWords(2)",
+    "\"àéxyz\".truncateChars(3)",
+    "\"2026-10-23\".date(\"Y-m-d\")",
+    "1234.5.number(2)",
+    "\"àé\".length()",
+    "[1,2].first()",
+    "[1,2].last()",
+    "[1,\"b\"].join(\"-\")",
+    "[1,2,3].slice(1,-1).join(\"\")",
+    "[1,\"b\"].includes(\"b\")",
+    "[{\"name\":\"a\"},{\"name\":\"b\"}].pluck(\"name\").join(\",\")",
+    "0.default(\"x\")",
+    "{\"s\":\"à/😃\"}.json()",
+    "\"l'été\".slug()"
+  ],
+  "expectedText": "ÉLAN|élan|ÉCOLE|test|uno|uno due…|àéx…|2026-10-23|1,234.50|2|1|2|1-b|2|true|a,b|x|{\"s\":\"\\u00e0\\/\\ud83d\\ude03\"}|lete"
+}

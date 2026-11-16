@@ -1,0 +1,17 @@
+{
+  "{0} link dello stesso sito provato": "{0} link on this site tried",
+  "{0} link dello stesso sito provati": "{0} links on this site tried",
+  "({0} rotto)": "({0} broken)",
+  "({0} rotti)": "({0} broken)",
+  "Oltre i {0} link di una release: {1} non provati.": "Over the {0} links of a release: {1} not tried.",
+  "Controllo dei link…": "Checking links…",
+  "Controllo dei link dello stesso sito…": "Checking the links on this site…",
+  "La pagina non ha un titolo (<title>): è il nome nei risultati di ricerca e nella scheda del browser. Dai un titolo alla pagina in WordPress o nel plugin SEO.": "The page has no title (<title>): it is the name in search results and in the browser tab. Give the page a title in WordPress or in the SEO plugin.",
+  "La pagina non ha una descrizione (meta description): i motori di ricerca ne prendono un pezzo a caso. Scrivila nel plugin SEO del sito.": "The page has no description (meta description): search engines pick a random piece of it. Write one in the site's SEO plugin.",
+  "La pagina non dichiara la lingua (lang su <html>): un lettore di schermo la legge con la pronuncia sbagliata. Controlla la lingua del sito in Impostazioni → Generali e che il tema la scriva.": "The page does not declare its language (lang on <html>): a screen reader reads it with the wrong pronunciation. Check the site language in Settings → General and that the theme writes it.",
+  "La pagina non ha un indirizzo canonico (link rel=\"canonical\"): con più indirizzi per la stessa pagina i motori di ricerca scelgono da soli. Attivalo nel plugin SEO o nel tema.": "The page has no canonical address (link rel=\"canonical\"): with several addresses for the same page, search engines choose on their own. Turn it on in the SEO plugin or in the theme.",
+  "La pagina chiede ai motori di ricerca di non mostrarla (robots noindex). Se non è voluto, toglilo nel plugin SEO o nelle impostazioni della pagina.": "The page asks search engines not to show it (robots noindex). If that is not intended, remove it in the SEO plugin or in the page settings.",
+  "Il sito chiede ai motori di ricerca di non indicizzarlo («Scoraggia i motori di ricerca» in Impostazioni → Lettura di WordPress). Se il sito deve farsi trovare, togli quella spunta prima di andare online.": "The site asks search engines not to index it (“Discourage search engines” in WordPress Settings → Reading). If the site should be found, untick it before going online.",
+  "La pagina pesa almeno {0} MB (oltre 1,5 MB): al telefono si carica piano. Usa immagini più piccole (WebP o AVIF, misure giuste, srcset) e togli i file che non servono.": "The page weighs at least {0} MB (over 1.5 MB): it loads slowly on a phone. Use smaller images (WebP or AVIF, the right sizes, srcset) and remove files that are not needed.",
+  "Link a una pagina che non esiste ({0}): {1}. Correggi l’indirizzo o togli il link.": "Link to a page that does not exist ({0}): {1}. Fix the address or remove the link."
+}

@@ -1,0 +1,8 @@
+titolo = "Libreria"
+framework = "histeon"
+variabili = "../../../../../../../builder/plugin/assets/tokens/xb-tokens.css"
+
+[[proposta]]
+id = "h01"
+nome = "Scaffale"
+idea = "Tre libri in vetrina"

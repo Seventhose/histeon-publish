@@ -1,0 +1,601 @@
+{
+  "$comment": "Shared test vectors for the XB expression language (docs/spec/dsl.md §4). Run by packages/dsl (parse) and plugin/tests (parse + eval).",
+  "parse": [
+    {
+      "source": "a",
+      "ok": true
+    },
+    {
+      "source": "this.title.upper()",
+      "ok": true
+    },
+    {
+      "source": "a ?? b || c && d == e",
+      "ok": true
+    },
+    {
+      "source": "!x",
+      "ok": true
+    },
+    {
+      "source": "items[0][\"a-b\"]",
+      "ok": true
+    },
+    {
+      "source": "{a: [1, -2.5], \"b\": null}",
+      "ok": true
+    },
+    {
+      "source": "x.truncateWords(20, \"…\")",
+      "ok": true
+    },
+    {
+      "source": "posts(limit: 3, type: \"post\")",
+      "preset": true,
+      "ok": true
+    },
+    {
+      "source": "",
+      "error": "Espressione vuota"
+    },
+    {
+      "source": "a ===b",
+      "error": "già stretti"
+    },
+    {
+      "source": "a !== b",
+      "error": "già stretti"
+    },
+    {
+      "source": "alert(1)",
+      "error": "Chiamata a funzione non consentita"
+    },
+    {
+      "source": "a.slice(n: 1)",
+      "error": "solo argomenti posizionali"
+    },
+    {
+      "source": "posts(3)",
+      "preset": true,
+      "error": "devono essere nominati"
+    },
+    {
+      "source": "posts() ?? []",
+      "preset": true,
+      "error": "intera sorgente"
+    },
+    {
+      "source": "posts().groupBy(\"anno\")",
+      "preset": true,
+      "ok": true
+    },
+    {
+      "source": "posts(limit: 20).groupBy(\"fields.data\", \"F Y\")",
+      "preset": true,
+      "ok": true
+    },
+    {
+      "source": "posts().upper()",
+      "preset": true,
+      "error": "intera sorgente"
+    },
+    {
+      "source": "posts().groupBy(\"a\").groupBy(\"b\")",
+      "preset": true,
+      "error": "intera sorgente"
+    },
+    {
+      "source": "posts().groupBy(\"a\").length()",
+      "preset": true,
+      "error": "intera sorgente"
+    },
+    {
+      "source": "posts().groupBy(campo)",
+      "preset": true,
+      "error": "come testi scritti"
+    },
+    {
+      "source": "posts().groupBy(\"a\", \"Y\", \"x\")",
+      "preset": true,
+      "error": "come testi scritti"
+    },
+    {
+      "source": "posts().groupBy()",
+      "preset": true,
+      "error": "come testi scritti"
+    },
+    {
+      "source": "posts().groupBy(\"a b\")",
+      "preset": true,
+      "error": "Campo di groupBy non valido"
+    },
+    {
+      "source": "posts().groupBy(\"a\", \"\")",
+      "preset": true,
+      "error": "Modo di groupBy non valido"
+    },
+    {
+      "source": "posts(a: 1, a: 2)",
+      "preset": true,
+      "error": "duplicato"
+    },
+    {
+      "source": "a +",
+      "error": "Carattere inatteso"
+    },
+    {
+      "source": "\"open",
+      "error": "Stringa non chiusa"
+    },
+    {
+      "source": "a.",
+      "error": "Atteso un nome"
+    },
+    {
+      "source": "(a",
+      "error": "Atteso \")\""
+    },
+    {
+      "source": "-a",
+      "error": "solo davanti a un numero"
+    },
+    {
+      "source": "a b",
+      "error": "Token inatteso"
+    },
+    {
+      "source": "a ? b : c",
+      "ok": true
+    },
+    {
+      "source": "a ?? b ? c : d ? e : f",
+      "ok": true
+    },
+    {
+      "source": "posts(limit: x ? 3 : 6)",
+      "preset": true,
+      "ok": true
+    },
+    {
+      "source": "a ? b",
+      "error": "Atteso \":\""
+    },
+    {
+      "source": "((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((a))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))",
+      "error": "troppo annidata"
+    },
+    {
+      "source": "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!a",
+      "error": "troppo annidata"
+    },
+    {
+      "source": "[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
+      "error": "Troppi elementi"
+    },
+    {
+      "source": "!a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a && !a",
+      "ok": true
+    }
+  ],
+  "eval": [
+    {
+      "source": "a.b.c",
+      "scope": {
+        "a": {
+          "b": null
+        }
+      },
+      "result": null
+    },
+    {
+      "source": "missing.deep.path",
+      "scope": {},
+      "result": null
+    },
+    {
+      "source": "1 == 1.0",
+      "result": true
+    },
+    {
+      "source": "\"1\" == 1",
+      "result": false
+    },
+    {
+      "source": "null == false",
+      "result": false
+    },
+    {
+      "source": "\"b\" > \"a\"",
+      "result": true
+    },
+    {
+      "source": "\"2\" > 1",
+      "result": false
+    },
+    {
+      "source": "!\"\"",
+      "result": true
+    },
+    {
+      "source": "![]",
+      "result": true
+    },
+    {
+      "source": "!0",
+      "result": true
+    },
+    {
+      "source": "a ?? \"x\"",
+      "scope": {},
+      "result": "x"
+    },
+    {
+      "source": "a ?? \"x\"",
+      "scope": {
+        "a": ""
+      },
+      "result": ""
+    },
+    {
+      "source": "a || \"x\"",
+      "scope": {
+        "a": "y"
+      },
+      "result": true
+    },
+    {
+      "source": "a && b",
+      "scope": {
+        "a": 1,
+        "b": 0
+      },
+      "result": false
+    },
+    {
+      "source": "items[1]",
+      "scope": {
+        "items": [
+          10,
+          20
+        ]
+      },
+      "result": 20
+    },
+    {
+      "source": "items[i]",
+      "scope": {
+        "items": [
+          10,
+          20
+        ],
+        "i": 0
+      },
+      "result": 10
+    },
+    {
+      "source": "m[\"a-b\"]",
+      "scope": {
+        "m": {
+          "a-b": 3
+        }
+      },
+      "result": 3
+    },
+    {
+      "source": "-2.5",
+      "result": -2.5
+    },
+    {
+      "source": "[1, x]",
+      "scope": {
+        "x": "y"
+      },
+      "result": [
+        1,
+        "y"
+      ]
+    },
+    {
+      "source": "{k: 1}.k",
+      "result": 1
+    },
+    {
+      "source": "x.upper()",
+      "scope": {
+        "x": "ciao è"
+      },
+      "result": "CIAO È"
+    },
+    {
+      "source": "x.capitalize()",
+      "scope": {
+        "x": "àncora"
+      },
+      "result": "Àncora"
+    },
+    {
+      "source": "x.truncateWords(2)",
+      "scope": {
+        "x": "uno <b>due</b> tre"
+      },
+      "result": "uno due…"
+    },
+    {
+      "source": "x.truncateWords(5)",
+      "scope": {
+        "x": "uno due"
+      },
+      "result": "uno due"
+    },
+    {
+      "source": "x.truncateChars(3, \"...\")",
+      "scope": {
+        "x": "abcdef"
+      },
+      "result": "abc..."
+    },
+    {
+      "source": "x.length()",
+      "scope": {
+        "x": [
+          1,
+          2,
+          3
+        ]
+      },
+      "result": 3
+    },
+    {
+      "source": "x.join(\" / \")",
+      "scope": {
+        "x": [
+          "a",
+          "b"
+        ]
+      },
+      "result": "a / b"
+    },
+    {
+      "source": "x.first()",
+      "scope": {
+        "x": [
+          "a",
+          "b"
+        ]
+      },
+      "result": "a"
+    },
+    {
+      "source": "x.last()",
+      "scope": {
+        "x": [
+          "a",
+          "b"
+        ]
+      },
+      "result": "b"
+    },
+    {
+      "source": "x.slice(1)",
+      "scope": {
+        "x": [
+          1,
+          2,
+          3
+        ]
+      },
+      "result": [
+        2,
+        3
+      ]
+    },
+    {
+      "source": "x.includes(\"b\")",
+      "scope": {
+        "x": [
+          "a",
+          "b"
+        ]
+      },
+      "result": true
+    },
+    {
+      "source": "x.pluck(\"n\")",
+      "scope": {
+        "x": [
+          {
+            "n": 1
+          },
+          {
+            "n": 2
+          }
+        ]
+      },
+      "result": [
+        1,
+        2
+      ]
+    },
+    {
+      "source": "x.default(\"vuoto\")",
+      "scope": {
+        "x": ""
+      },
+      "result": "vuoto"
+    },
+    {
+      "source": "x.slug()",
+      "scope": {
+        "x": "Ciao Mondo!"
+      },
+      "result": "ciao-mondo"
+    },
+    {
+      "source": "x.date(\"Y-m-d\")",
+      "scope": {
+        "x": "2026-10-19T10:00:00+00:00"
+      },
+      "result": "2026-10-19"
+    },
+    {
+      "source": "x.nope()",
+      "scope": {
+        "x": 1
+      },
+      "error": "Modificatore sconosciuto"
+    },
+    {
+      "source": "i == 0 ? \"featured\" : \"base\"",
+      "scope": {
+        "i": 0
+      },
+      "result": "featured"
+    },
+    {
+      "source": "x ? 1 : y ? 2 : 3",
+      "scope": {
+        "x": false,
+        "y": true
+      },
+      "result": 2
+    },
+    {
+      "source": "a ?? \"\" ? \"si\" : \"no\"",
+      "scope": {},
+      "result": "no"
+    },
+    {
+      "source": "items.groupBy(\"tipo\")",
+      "scope": {
+        "items": [
+          {
+            "tipo": "a",
+            "n": 1
+          },
+          {
+            "tipo": "b",
+            "n": 2
+          },
+          {
+            "tipo": "a",
+            "n": 3
+          }
+        ]
+      },
+      "result": [
+        {
+          "key": "a",
+          "items": [
+            {
+              "tipo": "a",
+              "n": 1
+            },
+            {
+              "tipo": "a",
+              "n": 3
+            }
+          ]
+        },
+        {
+          "key": "b",
+          "items": [
+            {
+              "tipo": "b",
+              "n": 2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "items.groupBy(\"title\", \"letter\")",
+      "scope": {
+        "items": [
+          {
+            "title": "arancia"
+          },
+          {
+            "title": "Banana"
+          },
+          {
+            "title": "alba"
+          },
+          {
+            "title": "9 vite"
+          }
+        ]
+      },
+      "result": [
+        {
+          "key": "A",
+          "items": [
+            {
+              "title": "arancia"
+            },
+            {
+              "title": "alba"
+            }
+          ]
+        },
+        {
+          "key": "B",
+          "items": [
+            {
+              "title": "Banana"
+            }
+          ]
+        },
+        {
+          "key": "#",
+          "items": [
+            {
+              "title": "9 vite"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "items.groupBy(\"date\", \"Y\")",
+      "scope": {
+        "items": [
+          {
+            "date": "2025-03-01"
+          },
+          {
+            "date": "2024-12-31"
+          },
+          {
+            "date": "2025-07-01"
+          }
+        ]
+      },
+      "result": [
+        {
+          "key": "2025",
+          "items": [
+            {
+              "date": "2025-03-01"
+            },
+            {
+              "date": "2025-07-01"
+            }
+          ]
+        },
+        {
+          "key": "2024",
+          "items": [
+            {
+              "date": "2024-12-31"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "source": "missing.groupBy(\"x\")",
+      "scope": {},
+      "result": []
+    }
+  ]
+}

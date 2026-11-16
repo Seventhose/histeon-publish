@@ -1,0 +1,6 @@
+.piatti {
+  padding: var(--space-l) var(--space-m);
+  background: var(--bg-light);
+  &__titolo { font-size: var(--h3); }
+  &__elenco { display: grid; gap: var(--space-m); grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); }
+}

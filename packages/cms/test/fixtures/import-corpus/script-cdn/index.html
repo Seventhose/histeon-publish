@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>Galleria Lume</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"><link rel="stylesheet" href="lume.css"></head>
+<body><header class="top"><h1 class="title">Galleria Lume</h1><button class="menu-toggle" onclick="document.body.classList.toggle('menu-open')" aria-expanded="false">Menu</button>
+<nav class="menu"><a href="#mostre">Mostre</a><a href="#visita">Visita</a></nav></header>
+<section id="mostre" class="mostre"><h2>Mostre</h2>
+<div class="swiper" data-autoplay="5000"><div class="swiper-wrapper">
+<div class="swiper-slide" data-index="1"><img src="https://cdn.example.com/lume/1.jpg" alt="Luce d'inverno" width="800" height="500"><p class="caption">Luce d'inverno</p></div>
+<div class="swiper-slide" data-index="2"><img src="https://cdn.example.com/lume/2.jpg" alt="Ombre" width="800" height="500"><p class="caption">Ombre</p></div></div>
+<div class="swiper-pagination"></div><div class="swiper-button-prev"></div><div class="swiper-button-next"></div></div></section>
+<section id="visita" class="visita"><h2>Visita</h2>
+<div class="tabs" role="tablist"><button role="tab" aria-selected="true" aria-controls="t1" id="b1" class="tab is-active">Orari</button><button role="tab" aria-selected="false" aria-controls="t2" id="b2" class="tab">Biglietti</button></div>
+<div role="tabpanel" id="t1" aria-labelledby="b1" class="panel">Tutti i giorni, 10–18.</div><div role="tabpanel" id="t2" aria-labelledby="b2" class="panel" hidden>Intero 8 €, ridotto 5 €.</div>
+<button class="open-modal" data-modal="prenota">Prenota una visita</button>
+<dialog id="prenota" class="modal"><p>Chiama lo 051 000 000.</p><button class="close-modal">Chiudi</button></dialog></section>
+<footer class="foot"><p>© 2026 Galleria Lume</p></footer>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>new Swiper('.swiper',{pagination:{el:'.swiper-pagination'}});document.querySelectorAll('.tab').forEach(function(t){t.addEventListener('click',function(){document.querySelectorAll('.tab').forEach(function(o){o.classList.remove('is-active')});t.classList.add('is-active')})});document.querySelector('.open-modal').onclick=function(){document.getElementById('prenota').showModal()};</script>
+</body></html>

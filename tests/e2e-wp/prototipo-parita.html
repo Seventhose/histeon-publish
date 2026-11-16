@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Parità Publish e WordPress</title>
+<!-- Doc 23, item 183: the same pages built by Publish and served by WordPress after a send must look the same. A header
+     and a footer part, a grid of component cards (one with a media image, three from a loop over records with an asset
+     field), large headings, a web font as a media, a second page on its own template, a record and a post.
+     The spec puts the Inter WOFF2 file of node_modules in the data of the font-inter media. -->
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "0f7636b4-52c4-473e-9747-dc1432501f63", "name": "Parità WP", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#c83c28", "accent": "#f8ce3c", "font_body": "Inter, system-ui, sans-serif", "font_heading": "Inter, system-ui, sans-serif" } }
+</script>
+<script type="application/json" data-histos="assets">
+[
+  { "name": "quadro", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAADICAIAAAAWZq/8AAAEUElEQVR42u3YMWoCURSG0dlFwBXY27p/rLKN1DYh3USwSBFES7/7zvDtYP7Dhbft/77L+agxfV+/NLhtf/CZPsAKA8YYYOUBMwyw3hrw7R/vL3wkAKw3BXyPYYAVBuwUA6w2YIwBVh4wwwCrDRhjgJUH7HELYOUBO8UAqw0YY4CVB8wwwGoDxhhg5QF73AJYecBOMcBqA8YYYOUBMwyw2oAxBlh5wB63AFYesFMMsNqAMQZYecAMA6w2YIwBVh6wxy2AlQfsFAOsNmCMAVYeMMMAqw0YY4CVB+xxC2DlATvFAKsNGGOAlQfMMMBqA8YYYOUBe9wCWHnATjHAagPGGGDlATMMsNqAMQZYecAetwBWHrBTDLDagDEGWHnADAOsbcBGMQYY4PmMARbATjHAAhhjgAUwwwADPHa7GAMMsMctgAWwUwywAMYYYC0KeE3DJg4wxgALYI9bAAtgpxhgAbwKYxMHmOGwYRMHGOMwYxMHGOOwYRMHmOEwYxMHGOMwYxMHmOGwYRMHGOMwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAK8zYxAFW2LCJA6wwYxMHWOHHLRMHWOFTbOIAC2MBLIYFsDDWH+CPw0mTemr45/OsMQG8omGMARbGAlgMC2A96vaPMQZYYcD3GAZYYcBOMcBqA8YYYOUBMwyw2oAxBlh5wB63AFYesFMMsNqAMQZYecAMA6w2YIwBVh6wxy2AlQfsFAOsNmCMAVYeMMMAqw0YY4CVB+xxC2DlATvFAKsNGGOAlQfMMMBqA8YYYOUBe9wCWHnATjHAagPGGGDlATMMsNqAMQZYecAetwBWHrBTDLDagDEGWHnADAOsNmCMAVYesMctgJUH7BQDrDZgjAFWHjDDAKsNGGOAlQfscQtg5QE7xQCrDRhjgJUHzDDAOg3YKMYAAzyfMcAC2CkGWABjDLAAZhhggMduF2OAAfa4BbAAdooBFsAYA6xFAa9pGGCAMQZYAHvcAlgAO8UAC+BVGAMMMMNhwwADjHGYMcAAYxw2DDDADIcZAwwwxmHGAAPMcNgwwABjHGYMMMAKP24BDLDCpxhggBVmDDDAChsGGGCFGQMMsMKPWwADrPApBhhghRkDDLDChgEGWGHGAAOs8OMWwAArfIoBBlhhxgADrLBhgAFWmDHAACv8uAUwwAqfYoABVpgxwAArbBhggBVmDDDACj9uAQywwqcYYIAVZgwwwAobBhhghRkDDLDCj1sAA6zwKQYYYIUZAwywwoYBBlhhxgADrPDjFsAAK3yKAQZYYcYAA6ywYYABVpjxL6HST+AvtXmUAAAAAElFTkSuQmCC", "alt": "Quattro campi di colore con una diagonale bianca" },
+  { "name": "font-inter", "data": "data:font/woff2;base64,FONT_INTER" }
+]
+</script>
+<script type="application/json" data-histos="content">
+{
+  "types": [
+    { "key": "opera", "label": "Opere", "singleTemplate": "site/opera", "archiveTemplate": "site/opere",
+      "fields": [
+        { "key": "immagine", "label": "Immagine", "type": "asset", "required": false, "public": true, "multiple": false },
+        { "key": "anno", "label": "Anno", "type": "integer", "required": false, "public": true, "multiple": false }
+      ] }
+  ],
+  "taxonomies": [ { "key": "category", "label": "Categorie", "types": ["post"] } ],
+  "terms": [ { "taxonomy": "category", "slug": "diario", "label": "Diario" } ],
+  "records": [
+    { "type": "opera", "slug": "campi", "title": "Campi", "status": "published", "publishedAt": "2026-10-01T09:00:00Z", "order": 1, "values": { "immagine": "asset:quadro", "anno": 2024 } },
+    { "type": "opera", "slug": "diagonale", "title": "Diagonale", "status": "published", "publishedAt": "2026-10-02T09:00:00Z", "order": 2, "values": { "immagine": "asset:quadro", "anno": 2025 } },
+    { "type": "opera", "slug": "quarti", "title": "Quarti", "status": "published", "publishedAt": "2026-10-03T09:00:00Z", "order": 3, "values": { "immagine": "asset:quadro", "anno": 2026 } }
+  ],
+  "queries": [
+    { "key": "opere", "label": "Opere", "type": "opera", "limit": 6, "orderBy": "order", "order": "asc" }
+  ]
+}
+</script>
+<style data-histos="global" data-name="Base">
+@font-face {
+  font-family: "Inter";
+  src: url("asset:font-inter") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: block;
+}
+:root { --pw-carta: #f6f1e7; --pw-inchiostro: #171a33; }
+body { margin: 0; background: var(--pw-carta); color: var(--pw-inchiostro); font-family: var(--xb-font-body); }
+</style>
+<style data-histos="selectors">
+.testata {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--xb-space-m);
+  padding: var(--xb-space-m) var(--xb-space-l);
+  background: var(--pw-inchiostro);
+  color: var(--pw-carta);
+  &__marchio { font-weight: 800; font-size: var(--xb-text-l); color: inherit; text-decoration: none; }
+  &__menu { display: flex; gap: var(--xb-space-m); }
+  &__voce { color: inherit; }
+  @media (width < 40rem) { flex-direction: column; align-items: flex-start; }
+}
+.eroe {
+  padding: var(--xb-space-xl) var(--xb-space-l);
+  &__titolo { margin: 0 0 var(--xb-space-s); font-family: var(--xb-font-heading); font-size: clamp(2.5rem, 7vw, 4.5rem); font-weight: 800; line-height: 1.05; color: #c83c28; }
+  &__testo { margin: 0; max-width: 60ch; font-size: var(--xb-text-l); line-height: 1.5; }
+}
+.griglia {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--xb-space-l);
+  padding: 0 var(--xb-space-l) var(--xb-space-xl);
+  @media (width < 48rem) { grid-template-columns: minmax(0, 1fr); }
+}
+.scheda {
+  display: grid;
+  gap: var(--xb-space-s);
+  padding: var(--xb-space-m);
+  border-radius: 12px;
+  background: #e8e1d5;
+  &__img { display: block; width: 100%; height: auto; border-radius: 8px; }
+  &__titolo { margin: 0; font-size: 1.75rem; line-height: 1.2; }
+  &__testo { margin: 0; line-height: 1.5; }
+  &__link { color: #c83c28; font-weight: 600; }
+}
+.vetrina {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--xb-space-l);
+  align-items: start;
+  padding: var(--xb-space-xl) var(--xb-space-l);
+  @media (width < 48rem) { grid-template-columns: minmax(0, 1fr); }
+}
+.pagina {
+  padding: var(--xb-space-xl) var(--xb-space-l);
+  max-width: 70ch;
+}
+.piede {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--xb-space-m);
+  padding: var(--xb-space-l);
+  background: #c83c28;
+  color: #fff;
+  &__titolo { margin: 0; font-size: var(--xb-text-l); }
+  &__testo { margin: 0; }
+}
+</style>
+</head>
+<body>
+<template data-histos="part" data-ref="site/header" data-area="header" data-title="Testata">
+  <header class="testata"><a class="testata__marchio" href="/">Parità</a><nav class="testata__menu" aria-label="Principale"><a class="testata__voce" href="/chi-siamo/">Chi siamo</a> <a class="testata__voce" href="/opera/">Opere</a> <a class="testata__voce" href="/blog/">Diario</a></nav></header>
+</template>
+<template data-histos="part" data-ref="site/footer" data-area="footer" data-title="Piè di pagina">
+  <footer class="piede"><div><h2 class="piede__titolo">Studio Parità</h2><p class="piede__testo">Via dei Campi 3, Milano</p></div><div><h2 class="piede__titolo">Orari</h2><p class="piede__testo">Dal lunedì al venerdì, 9–18</p></div><div><h2 class="piede__titolo">Scrivici</h2><p class="piede__testo">studio@example.test</p></div></footer>
+</template>
+<template data-histos="component" data-ref="scheda" data-title="Scheda" data-props='{"titolo":{"type":"string","default":""},"testo":{"type":"string","default":""},"immagine":{"type":"image","default":""},"url":{"type":"url","default":"/"}}'>
+  <article class="scheda">{#if props.immagine}<img class="scheda__img" src={props.immagine} width="320" height="200" alt="">{/if}{@slot media}<h2 class="scheda__titolo">{props.titolo}</h2><p class="scheda__testo">{props.testo}</p><a class="scheda__link" href={props.url}>Scopri</a></article>
+</template>
+<template data-histos="template" data-ref="site/page" data-role="page" data-title="Pagina">
+  <Site.Header /><main>{@slot}</main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/vetrina" data-title="Vetrina">
+  <Site.Header /><main><section class="eroe"><h1 class="eroe__titolo">{page.title}</h1><p class="eroe__testo">Una pagina con un template suo: titolo dal documento, colonne dal template.</p></section><div class="vetrina">{@slot}</div></main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/opera" data-title="Opera">
+  <Site.Header /><main class="vetrina"><div><h1 class="eroe__titolo">{page.title}</h1><p class="eroe__testo">Anno {page.fields.anno}</p>{@slot}</div><Scheda titolo={page.title} testo="L'opera intera, nella scheda." immagine={page.fields.immagine} url="/opera/" /></main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/opere" data-title="Opere" data-role="archive">
+  <Site.Header /><main><section class="eroe"><h1 class="eroe__titolo">Opere</h1></section><div class="griglia">{#loop main() as opera}<Scheda titolo={opera.title} testo="Dall'archivio" immagine={opera.fields.immagine} url={opera.url} />{:else}<p>Nessuna opera</p>{/loop}</div>{@slot}</main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/blog" data-title="Diario" data-role="home">
+  <Site.Header /><main class="pagina"><h1 class="eroe__titolo">Diario</h1>{#loop main() as x}<h2><a href={x.url}>{x.title}</a></h2>{:else}<p>Nessun articolo</p>{/loop}{@slot}</main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/articolo" data-title="Articolo" data-role="single">
+  <Site.Header /><main class="pagina"><h1 class="eroe__titolo">{page.title}</h1>{@slot}</main><Site.Footer />
+</template>
+<template data-histos="template" data-ref="site/non-trovata" data-title="Non trovata" data-role="404">
+  <Site.Header /><main class="pagina"><h1 class="eroe__titolo">Pagina non trovata</h1><a href="/">Home</a>{@slot}</main><Site.Footer />
+</template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page">
+  <section class="eroe"><h1 class="eroe__titolo">Titolo grande, su due righe a 390 pixel</h1><p class="eroe__testo">Un testo di prova che va a capo su più righe e misura la stessa altezza su Publish e su WordPress, con il carattere Inter caricato come media del progetto.</p></section>
+  <div class="griglia">
+    <Scheda titolo="In evidenza" testo="Una scheda con l'immagine nello slot." url="/chi-siamo/">{#slot media}<img class="scheda__img" src="asset:quadro" width="320" height="200" alt="Quadro">{/slot}</Scheda>
+    {#loop opere() as opera}<Scheda titolo={opera.title} testo="Un'opera dal loop, con l'immagine del suo campo." immagine={opera.fields.immagine} url={opera.url} />{/loop}
+  </div>
+</template>
+<template data-histos="page" data-slug="chi-siamo" data-title="Chi siamo" data-template="site/vetrina">
+  <div><h2>Lo studio</h2><p>Lavoriamo con la carta, il colore e la luce. Questa colonna è larga due terzi a 1280 pixel e prende tutta la larghezza a 390.</p><p>Un secondo paragrafo, perché le altezze delle righe contano: <strong>grassetto</strong>, <em>corsivo</em> e <a href="/opera/">un collegamento</a>.</p></div>
+  <figure><img class="scheda__img" src="asset:quadro" width="320" height="200" alt="Quadro dello studio"><figcaption>La didascalia sotto l'immagine.</figcaption></figure>
+</template>
+<template data-histos="post" data-slug="primo-giorno" data-title="Il primo giorno" data-status="published" data-published-at="2026-10-20T08:30:00Z" data-excerpt="Un racconto breve." data-terms='{"category":["diario"]}'>
+  <p>Il primo giorno nello studio abbiamo appeso i quadri. Un articolo breve, sul template del ruolo single.</p>
+</template>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "Variante pronta: nel CSS di {0} ridefinisci le variabili che cambiano. Il cliente la accende con l’interruttore «{1}».": "Variant ready: in the CSS of {0} redefine the variables that change. The client turns it on with the “{1}” switch.",
+  "Varianti": "Variants",
+  "Togli la variante {0}": "Remove the variant {0}",
+  "Scura, Grande, In evidenza…": "Dark, Large, Featured…",
+  "Nome della nuova variante": "Name of the new variant",
+  "Aggiungi una variante": "Add a variant",
+  "Una variante è un interruttore per chi usa il componente: aggiunge al primo elemento una classe come card--scura, che cambia solo alcune variabili.": "A variant is a switch for whoever uses the component: it adds to the first element a class such as card--dark, which changes only a few variables.",
+  "Dai alla variante un nome fatto di parole, per esempio «Scura».": "Give the variant a name made of words, for example “Dark”.",
+  "Il componente ha già una prop «{0}».": "The component already has a prop “{0}”.",
+  "Il primo elemento del componente non ha una classe: dagliene una (per esempio «card») e riprova.": "The component's first element has no class: give it one (for example “card”) and try again."
+}

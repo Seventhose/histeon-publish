@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Esempio minimo</title>
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "3f6c2b1e-8a4d-4c7e-9b21-5d0e7a9c4f10", "name": "Esempio minimo", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#1f3a93", "accent": "#f8ce3c", "font_body": "Inter, system-ui, sans-serif" } }
+</script>
+<script type="application/json" data-histos="assets">[ { "name": "f1", "data": "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACQAQCdASoQAAwAAoBCJaACdLoAA5gA/vD6K/8Q50OdDmtz15T4laAA", "alt": "Foto di prova" } ]</script>
+<script type="application/json" data-histos="content">
+{ "types": [
+  { "key": "scrittore", "label": "Scrittori", "singleTemplate": "site/scrittore", "archiveTemplate": "site/archivio",
+    "fields": [ { "key": "anni", "label": "Anni", "type": "integer", "required": false, "public": true, "multiple": true } ] },
+  { "key": "foto", "label": "Foto", "singleTemplate": "site/foto", "archiveTemplate": "site/archivio",
+    "fields": [ { "key": "immagine", "label": "Immagine", "type": "asset", "required": false, "public": true, "multiple": false },
+                { "key": "anno", "label": "Anno", "type": "integer", "required": false, "public": true, "multiple": false } ] } ],
+  "taxonomies": [ { "key": "annata", "label": "Annate", "types": ["foto"] }, { "key": "category", "label": "Edizioni", "types": ["post"] } ],
+  "terms": [ { "taxonomy": "annata", "slug": "2017", "label": "2017" }, { "taxonomy": "category", "slug": "edizione-2019", "label": "Edizione 2019" } ],
+  "records": [
+    { "type": "scrittore", "slug": "autore-uno", "title": "Autore Uno", "publishedAt": "2026-01-01T00:00:00Z", "order": 1, "values": { "anni": [2009, 2014] } },
+    { "type": "scrittore", "slug": "autrice-due", "title": "Autrice Due", "publishedAt": "2026-01-01T00:00:00Z", "order": 2, "values": { "anni": [2011] } },
+    { "type": "foto", "slug": "foto-1", "title": "Pubblico 2017", "publishedAt": "2026-01-01T00:00:00Z", "values": { "immagine": "asset:f1", "anno": 2017 }, "terms": { "annata": ["2017"] } } ],
+  "queries": [ { "key": "scrittori_a", "label": "Scrittori", "type": "scrittore", "limit": 100, "orderBy": "order", "order": "asc" },
+               { "key": "scrittori_b", "label": "Scrittori 101+", "type": "scrittore", "limit": 100, "offset": 100, "orderBy": "order", "order": "asc" },
+               { "key": "articoli_2019", "label": "Articoli 2019", "type": "post", "limit": 6, "orderBy": "publishedAt", "order": "desc", "filter": { "taxonomyKey": "category", "terms": ["edizione-2019"], "operator": "IN" } } ] }
+</script>
+<style data-histos="global" data-name="Base">:root { --esempio-giallo: #f8ce3c; } body { margin: 0; font-family: var(--xb-font-body); } main { padding-inline: var(--xb-gutter); }</style>
+<style data-histos="selectors">.foto-card { display: grid; &__img { width: 100%; height: auto; } } .testata { padding: var(--xb-space-m); background: var(--esempio-giallo); &__marchio { display: inline-block; padding-block: var(--xb-space-2xs); } } .piede { padding: var(--xb-space-m); }</style>
+</head>
+<body>
+<template data-histos="part" data-ref="site/header" data-area="header" data-title="Testata"><header class="testata"><a class="testata__marchio" href="/">Esempio</a> <details class="menu"><summary>Menu</summary><nav aria-label="Principale"><a href="/blog/">Blog</a></nav></details></header></template>
+<template data-histos="part" data-ref="site/footer" data-area="footer" data-title="Piè di pagina"><footer class="piede"><p>Piede</p></footer></template>
+<template data-histos="component" data-ref="foto-card" data-title="Foto" data-props='{"immagine":{"type":"image"},"titolo":{"type":"string"},"url":{"type":"url"},"larghezza":{"type":"number","default":16},"altezza":{"type":"number","default":12}}'><figure class="foto-card"><a href={props.url}><img class="foto-card__img" src={props.immagine} width={props.larghezza} height={props.altezza} alt={props.titolo}/></a></figure></template>
+<template data-histos="template" data-ref="site/page" data-role="page" data-title="Pagina"><Site.Header /><main class="pagina">{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/scrittore" data-title="Scrittore"><Site.Header /><main><h1>{page.title}</h1><ul>{#loop page.fields.anni as a}<li>Edizione {a}</li>{:else}<li>Nessuna</li>{/loop}</ul>{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/foto" data-title="Foto"><Site.Header /><main><h1>{page.title}</h1><FotoCard immagine={page.fields.immagine} titolo={page.title} url={page.url} />{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/archivio" data-role="archive" data-title="Archivio"><Site.Header /><main><h1>{page.title}</h1>{#loop main() as x}<FotoCard immagine={x.fields.immagine} titolo={x.title} url={x.url} />{:else}<p>Vuoto</p>{/loop}{#if page.totalPages > 1}<nav aria-label="Pagine">{#loop page.pageLinks as l}<a href={l.url}>{l.number}</a>{/loop}</nav>{/if}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/blog" data-role="home" data-title="Blog"><Site.Header /><main><h1>Blog</h1>{#loop main() as x}<h2><a href={x.url}>{x.title}</a></h2><p>{x.publishedAt.date("j F Y")}</p>{#loop x.terms.category as c}<a href="/category/{c.slug}/">{c.label}</a>{/loop}{:else}<p>Nessun articolo</p>{/loop}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/categoria" data-role="category" data-title="Categoria"><Site.Header /><main><h1>{page.title}</h1>{#loop main() as x}<h2><a href={x.url}>{x.title}</a></h2>{:else}<p>Nessun articolo</p>{/loop}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/articolo" data-role="single" data-title="Articolo"><Site.Header /><main><h1>{page.title}</h1><p>{page.publishedAt.date("j F Y")}</p>{#loop page.terms.category as c}<a href={c.url}>{c.label}</a>{/loop}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/pagina-non-trovata" data-role="404" data-title="Non trovata"><Site.Header /><main><h1>Pagina non trovata</h1><a href="/">Home</a>{@slot}</main><Site.Footer /></template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page"><h1>Home</h1><h2>Scrittori</h2><ul>{#loop scrittori_a() as s}<li><a href={s.url}>{s.title}</a> {s.fields.anni.join(", ")}</li>{:else}<li>Nessuno</li>{/loop}</ul><ul>{#loop scrittori_b() as s}<li>{s.title}</li>{:else}<li>Nessuno oltre</li>{/loop}</ul><h2>Articoli 2019</h2><ul>{#loop articoli_2019() as a}<li><a href={a.url}>{a.title}</a></li>{:else}<li>Nessuno</li>{/loop}</ul><p>Graffa \{ ok \}</p><img src="asset:f1" width="16" height="12" alt="Foto"/><form action="/contatti/" method="post"><label for="n">Nome</label><input id="n" name="nome" autocomplete="name"/><button type="submit">Invia</button></form></template>
+<template data-histos="page" data-slug="edizione-2019" data-title="Edizione 2019" data-template="site/page"><h1>2019 · Edizione di prova</h1><p>Testo <strong>forte</strong> <a href="https://example.org/public/">sito</a></p></template>
+<template data-histos="post" data-slug="articolo-prova" data-title="Articolo di prova" data-status="published" data-published-at="2019-11-10T09:00:00Z" data-excerpt="Un riassunto." data-terms='{"category":["edizione-2019"]}'><p>Corpo dell'articolo.</p><blockquote><p>Citazione</p></blockquote></template>
+</body>
+</html>

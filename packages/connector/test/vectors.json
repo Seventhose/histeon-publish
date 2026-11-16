@@ -1,0 +1,56 @@
+{
+  "comment": "Frozen vectors for the connector protocol v1 (design §2.3), computed once by an independent implementation. Never regenerate them from src/protocol.ts: a change here is a protocol break.",
+  "vectors": [
+    {
+      "name": "hello",
+      "key": "AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8",
+      "method": "GET",
+      "path": "/v1/hello",
+      "timestamp": "1793000000",
+      "nonce": "00112233445566778899aabbccddeeff",
+      "instance": "0123456789abcdef0123456789abcdef",
+      "client": "claude-code 2.1.0",
+      "body": "",
+      "status": 200,
+      "responseTimestamp": "1793000001",
+      "responseBody": "{\"app\":\"histos-publish\",\"protocol\":1,\"instance\":\"0123456789abcdef0123456789abcdef\",\"appVersion\":\"0.1.0\"}",
+      "bodySha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "requestSignature": "v1=5598a4ce05e66157fcef0718f14a5b421c6431c1f637bd36568ba97d1102b84d",
+      "responseSignature": "v1=13532024664abe250e826efdc74f81f2460edfd97f981476eb12e5f3039035e2"
+    },
+    {
+      "name": "call",
+      "key": "_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-A",
+      "method": "POST",
+      "path": "/v1/call",
+      "timestamp": "1793000120",
+      "nonce": "ffeeddccbbaa99887766554433221100",
+      "instance": "fedcba9876543210fedcba9876543210",
+      "client": "cli",
+      "body": "{\"operation\":\"getProject\",\"arguments\":{\"projectId\":\"3f2b8c1e-9a4d-4e6f-8b7a-1c2d3e4f5a6b\"}}",
+      "status": 400,
+      "responseTimestamp": "1793000121",
+      "responseBody": "{\"error\":\"manca l'argomento projectId\",\"code\":\"connector-invalid-arguments\"}",
+      "bodySha256": "07dcf1f09a340d049f40fdbae4fb8c7784542d3fbf92db75cc43c903cbb83958",
+      "requestSignature": "v1=24965391985af7ffa8dd5c5b9fe22f32c06bafb870fdea4d5069a3a8f9750594",
+      "responseSignature": "v1=2d07c11ab25993a3ce8ff3654bacc9e2e0ae7815bdcabbf16c727405b4d3f140"
+    },
+    {
+      "name": "prototype-with-query",
+      "key": "q83vEjRWeJCrze8SNFZ4kKvN7xI0VniQq83vEjRWeJA",
+      "method": "POST",
+      "path": "/v1/prototype?mode=import&update=1&download=0&source=sito-caff%C3%A8.html",
+      "timestamp": "1793000240",
+      "nonce": "a0a1a2a3a4a5a6a7a8a9aaabacadaeaf",
+      "instance": "a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5a5",
+      "client": "Codex/1.0 agente.x",
+      "body": "<!doctype html>\n<html lang=\"it\" data-histos-prototype=\"1\"><head><title>Caffè «Aurora»</title></head><body><h1>Benvenuti ☕</h1></body></html>\n",
+      "status": 202,
+      "responseTimestamp": "1793000245",
+      "responseBody": "{\"ok\":true,\"projectId\":\"7c9e6679-7425-40de-944b-e07fc1f90ae7\",\"note\":\"città\"}",
+      "bodySha256": "2e3ac086e7341cffa1792fb4f91f5c6f1346ddbd3a1721f63bca75959cd9fe39",
+      "requestSignature": "v1=355262388df46635cd5721d8a8305c53ff16777f5fd38b8bc83d4773a948faad",
+      "responseSignature": "v1=5b1be9bba2732d15b79f0803b506c540d9f4de5acc29e37daa6f588f4ffaf496"
+    }
+  ]
+}

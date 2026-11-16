@@ -1,0 +1,11 @@
+<div class="grid">
+  <Card title="Ciao {user.name}" count={3} featured url={post.url} draft={false} label="Testo">
+    {#slot header}<h2>Intestazione</h2>{/slot}
+    <p>Corpo del componente</p>
+    {#slot footer}
+      <small class="note">Piè di pagina</small>
+    {/slot}
+  </Card>
+  <Ui.CardHero xb:label="Card principale" />
+  <Badge>Nuovo</Badge>
+</div>

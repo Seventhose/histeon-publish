@@ -1,0 +1,1855 @@
+diff --git a/src/App.svelte b/src/App.svelte
+index a60c803..6f261c0 100644
+--- a/src/App.svelte
++++ b/src/App.svelte
+@@ -45,7 +45,7 @@
+   import { canUnwrap, describe, hasPostContent, staticClasses, staticId } from './lib/tree.ts';
+   import { inlineTarget } from './lib/inlineText.ts';
+   import type { Command } from './lib/palette.ts';
+-  import { Api } from './lib/api.ts';
++  import { createBuilderBackend } from './lib/api.ts';
+   import { BuilderState } from './lib/state.svelte.ts';
+   import type { BuilderConfig } from './lib/config.ts';
+   import { t, tn, tx } from './lib/i18n.ts';
+@@ -87,11 +87,17 @@
+   }
+ 
+   // The configuration is fixed for the life of the page.
+-  const app = untrack(() => new BuilderState(new Api(config), config.postId, config.contentOnly, config.contentProps, { viewOnly: config.viewOnly, lookGroups: config.lookGroups }));
++  const app = untrack(() => {
++    const instance = new BuilderState(createBuilderBackend(config), config.postId, config.contentOnly, config.contentProps, { viewOnly: config.viewOnly, lookGroups: config.lookGroups }, config.localCms === true);
++    instance.localMediaBase = config.cmsMediaBase ?? '';
++    return instance;
++  });
+   /** Section shown over the canvas (null: the canvas). */
+   type Section = 'content' | 'templates' | 'styles' | 'queries' | 'facets' | 'fields' | 'components' | 'history' | 'source' | 'checks' | 'design' | 'comments' | 'schema' | 'library' | 'alts';
+   type ThemeChoice = 'system' | 'light' | 'dark';
+   let section = $state<Section | null>(null);
++  /** Side panels become a drawer over the canvas on narrow viewports. */
++  let mobilePanel = $state<'left' | 'right' | null>(null);
+   /** Where the panels sit (lib/layout.ts), remembered in this browser. */
+   let layout = $state<Layout>(loadLayout());
+   /** The panel shown alone in its area, if any. */
+@@ -109,6 +115,10 @@
+   const theme = $derived<'light' | 'dark'>(themeChoice === 'system' ? (systemDark ? 'dark' : 'light') : themeChoice);
+ 
+   function loadLayout(): Layout {
++    if (config.localCms) {
++      const base = normalize(null);
++      return { ...base, areas: { left: ['structure'], right: ['properties', 'recipes'], bottom: ['html', 'css'] }, collapsed: ['recipes'], sizes: { ...base.sizes, left: 280, right: 320, bottom: 270 } };
++    }
+     // Client mode: the page, its structure and the selected element; no code panels.
+     if (config.contentOnly) return { ...normalize(null), areas: { left: [], right: ['structure', 'properties'], bottom: [] }, sizes: { ...normalize(null).sizes, bottom: 0 } };
+     try {
+@@ -257,7 +267,10 @@
+     { id: 'checks', label: t('Controlli'), icon: 'check' },
+     { id: 'design', label: t('Design system'), icon: 'palette' },
+     { id: 'comments', label: t('Commenti'), icon: 'chat' },
+-  ].filter((s) => !config.contentOnly || s.id === 'checks') as Array<{ id: Section; label: string; icon: IconName }>;
++  ]
++    .filter((s) => !config.contentOnly || s.id === 'checks')
++    // Expose only panels backed by the local CMS API in standalone mode.
++    .filter((s) => !config.localCms || !['styles', 'facets', 'fields', 'history', 'comments', 'library'].includes(s.id)) as Array<{ id: Section; label: string; icon: IconName }>;
+   function toggle(id: Section) {
+     section = section === id ? null : id;
+   }
+@@ -280,6 +293,9 @@
+       shownSection = now;
+     });
+   });
++  function toggleMobilePanel(area: 'left' | 'right') {
++    mobilePanel = mobilePanel === area ? null : area;
++  }
+ 
+   // ---- panels
+   type PanelAction = { kind: 'move'; area: Area } | { kind: 'shift'; delta: -1 | 1 } | { kind: 'collapse' } | { kind: 'maximize' } | { kind: 'reset' };
+@@ -392,8 +408,9 @@
+ 
+   // Narrow screens (L1, L2): under 1024 px the side columns become drawers over the canvas, opened from the rail;
+   // under 768 px the builder says it needs a wider screen (client mode works on a phone).
+-  const narrowQuery = window.matchMedia?.('(max-width: 1023px)');
+-  const tinyQuery = window.matchMedia?.('(max-width: 767px)');
++  // The local CMS keeps its own narrow layout (side panels from the top bar under 700 px, usable on a phone).
++  const narrowQuery = config.localCms ? undefined : window.matchMedia?.('(max-width: 1023px)');
++  const tinyQuery = config.localCms ? undefined : window.matchMedia?.('(max-width: 767px)');
+   let narrow = $state(narrowQuery?.matches ?? false);
+   let tiny = $state(tinyQuery?.matches ?? false);
+   let drawerOpen = $state(false);
+@@ -582,7 +599,7 @@
+   function commands(select = true): Command[] {
+     const list: Command[] = [];
+     list.push({ id: 'save', label: t('Salva in sviluppo'), group: t('Azione'), run: () => void app.save() });
+-    list.push({ id: 'preview', label: t('Apri l’anteprima'), group: t('Azione'), run: () => void topbar.openPreview() });
++    if (!config.localCms || config.previewable) list.push({ id: 'preview', label: t('Apri l’anteprima'), group: t('Azione'), run: () => void topbar.openPreview() });
+     if (config.canPublish) list.push({ id: 'publish', label: t('Pubblica…'), group: t('Azione'), run: () => topbar.openPublish() });
+     list.push({ id: 'undo', label: tx('Annulla', 'undo'), group: t('Azione'), run: () => app.undo() });
+     list.push({ id: 'redo', label: t('Ripeti'), group: t('Azione'), run: () => app.redo() });
+@@ -622,7 +639,7 @@
+     if (config.framework) list.push({ id: 'framework', label: fwOpen ? t('{0}: nascondi il pannello', config.framework.label) : t('{0}: mostra il pannello', config.framework.label), group: t('Azione'), run: () => toggleFramework() });
+     list.push({ id: 'dock', label: layout.sizes.bottom > 0 ? t('Nascondi i pannelli in basso') : t('Mostra i pannelli in basso'), group: t('Azione'), run: () => toggleBottom() });
+     list.push({ id: 'insert', label: t('Aggiungi un elemento…'), group: t('Inserisci'), run: () => openInsert() });
+-    list.push({ id: 'shortcuts', label: t('Scorciatoie da tastiera…'), group: t('Azione'), run: () => shortcutsDialog.open() });
++    if (!config.localCms) list.push({ id: 'shortcuts', label: t('Scorciatoie da tastiera…'), group: t('Azione'), run: () => shortcutsDialog.open() });
+     list.push({ id: 'layout', label: t('Ripristina la disposizione dei pannelli'), group: t('Azione'), run: () => act('structure', { kind: 'reset' }) });
+     const go = (url: string) => (config.embed ? window.open(url, '_blank', 'noopener') : (window.location.href = url));
+     if (config.admin.overview) list.push({ id: 'adm-overview', label: t('Panoramica di Histeon (amministrazione)'), group: t('Vai a'), run: () => go(config.admin.overview as string) });
+@@ -759,6 +776,7 @@
+     const id = app.postId;
+     if (!id || app.status.kind === 'loading') return;
+     untrack(() => {
++      if (config.localCms) { openComments = 0; return; }
+       app.api.reviewComments(id).then(
+         (d) => (openComments = d.comments.filter((c) => c.status === 'open').length),
+         () => (openComments = 0),
+@@ -772,7 +790,8 @@
+   let scheduledTz = $state('UTC');
+   $effect(() => {
+     const id = app.postId;
+-    if (!id || app.status.kind === 'loading' || config.contentOnly || config.viewOnly) return;
++    // Histeon Publish has no releases of its own (the site goes out with a build): nothing is scheduled there.
++    if (!id || app.status.kind === 'loading' || config.contentOnly || config.viewOnly || config.localCms) return;
+     untrack(() => {
+       app.api.listReleases().then(
+         (list) => {
+@@ -992,7 +1011,7 @@
+   </div>
+ {/snippet}
+ 
+-<div class="xb" class:is-dragging={dragging !== null} class:narrow class:drawer-open={drawerOpen}>
++<div class="xb" class:is-dragging={dragging !== null} class:narrow class:drawer-open={drawerOpen} class:mobile-left={mobilePanel === 'left'} class:mobile-right={mobilePanel === 'right'}>
+   {#if tiny && !config.contentOnly && !tinyDismissed}
+     <div class="too-narrow" role="alertdialog" aria-modal="true" aria-labelledby="xb-too-narrow">
+       <p id="xb-too-narrow">{t('Il builder serve uno schermo largo almeno 768 px: su questo si può salvare e pubblicare, ma costruire la pagina è scomodo.')}</p>
+@@ -1005,12 +1024,12 @@
+       <button onclick={undoLayoutReset}>{tx('Annulla', 'undo')}</button>
+     </div>
+   {/if}
+-  <Topbar bind:this={topbar} {app} {config} onpalette={() => void palette.open()} oninsert={openInsert} onpreview={(url) => (previewUrl = url)} />
+-  <PreviewMode bind:url={previewUrl} relink={(as, ttl) => app.api.previewLink(config.postId, app.contextId, as, ttl)} />
++  <Topbar bind:this={topbar} {app} {config} onpalette={() => void palette.open()} oninsert={openInsert} onpreview={(url) => (previewUrl = url)} onpanel={toggleMobilePanel} {mobilePanel} hasLeftPanels={layout.areas.left.length > 0} hasRightPanels={layout.areas.right.length > 0} />
++  <PreviewMode bind:url={previewUrl} relink={config.localCms ? undefined : (as, ttl) => app.api.previewLink(config.postId, app.contextId, as, ttl)} />
+   <CommandPalette bind:this={palette} {commands} />
+   <ShortcutsDialog bind:this={shortcutsDialog} {app} {mac} commands={shortcutCommands} bind:shortcuts />
+   <MediaPicker bind:this={media} {config} />
+-  <InsertMenu bind:this={insertMenu} {app} pickImage={config.media.url ? pickImage : undefined} pickMedia={config.media.url ? () => media.pickMedia() : undefined} onsvg={() => svgDialog.open()} onvideo={config.media.canUpload ? () => videoDialog.open() : undefined} onicon={config.icons ? () => void iconDialog?.open() : undefined} onmap={() => mapDialog.open()} {forms} />
++  <InsertMenu bind:this={insertMenu} {app} pickImage={config.media.url ? pickImage : undefined} pickMedia={config.media.url ? () => media.pickMedia() : undefined} onsvg={() => svgDialog.open()} onvideo={config.media.canUpload ? () => videoDialog.open() : undefined} onicon={config.icons ? () => void iconDialog?.open() : undefined} onmap={() => mapDialog.open()} {forms} localCms={config.localCms === true} />
+   <FormEditor bind:this={formEditor} />
+   <SvgDialog bind:this={svgDialog} {app} />
+   <VideoDialog bind:this={videoDialog} {app} />
+@@ -1066,13 +1085,13 @@
+           <button onclick={() => (section = null)} aria-label={t("Chiudi e torna all'anteprima")}>{t('Chiudi')} ✕</button>
+         </header>
+         <div class="overlay-body">
+-          {#if section === 'content'}{#await sectionModule('ContentSection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
++          {#if section === 'content'}{#await sectionModule('ContentSection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} localCms={config.localCms === true} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'templates'}{#await sectionModule('TemplatesSection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} newUrl={config.admin.templates} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'styles'}{#await sectionModule('SelectorsPanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} visible={true} canManage={config.canManage} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'queries'}{#await sectionModule('QueryPanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} visible={true} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'facets'}{#await sectionModule('FacetsPanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'fields'}{#await sectionModule('ContentHubPanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} visible={true} adminUrl={config.admin.overview} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+-          {:else if section === 'components'}{#await sectionModule('ContentSection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} initial="wp_block" />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
++          {:else if section === 'components'}{#await sectionModule('ContentSection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} initial="wp_block" localCms={config.localCms === true} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'library'}{#await sectionModule('LibrarySection')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} oninsert={(clip: Clip) => { section = null; pasteDialog.open(clip); }} onagent={(name: string, brief: string) => connector.tasks.add('section', t('Ricostruisci in questa pagina la sezione «{0}» della libreria', name), `${sectionInstructions(taskContext())}\n\n${brief}`)} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'history'}{#await sectionModule('HistoryPanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} canPublish={config.canPublish} canManage={config.canManage} visible={true} adminHistory={config.admin.history} embed={config.embed} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+           {:else if section === 'source'}{#await sectionModule('SourcePanel')}<p class="section-loading" role="status">{t('Caricamento…')}</p>{:then mod}<mod.default {app} />{:catch e}<p class="section-loading error" role="alert">{t('Sezione non caricata: {0}', e instanceof Error ? e.message : String(e))}</p>{/await}
+@@ -1228,6 +1247,29 @@
+     grid-template-areas: 'top top top top' 'rail left center right';
+     height: 100dvh;
+   }
++  @media (max-width: 700px) {
++    .xb {
++      grid-template-columns: 48px minmax(0, 1fr);
++      grid-template-rows: minmax(48px, auto) minmax(0, 1fr);
++      grid-template-areas: 'top top' 'rail center';
++      overflow: hidden;
++    }
++    .column.left,
++    .column.right {
++      display: none;
++    }
++    .xb.mobile-left .column.left,
++    .xb.mobile-right .column.right {
++      display: flex;
++      grid-area: auto;
++      grid-row: 2;
++      grid-column: 2;
++      width: auto !important;
++      min-width: 0;
++      z-index: 8;
++      box-shadow: var(--xb-shadow);
++    }
++  }
+   .xb > :global(header) {
+     grid-area: top;
+   }
+diff --git a/src/components/ContentHubPanel.svelte b/src/components/ContentHubPanel.svelte
+index 06b8d84..947865d 100644
+--- a/src/components/ContentHubPanel.svelte
++++ b/src/components/ContentHubPanel.svelte
+@@ -1,6 +1,7 @@
+ <script lang="ts">
+   import { parse } from '@xb/dsl';
+   import type { ContentData, ProviderField } from '../lib/api.ts';
++  import { WordPressBackend } from '../lib/api.ts';
+   import {
+     FIELD_TYPES,
+     ICONS,
+@@ -45,6 +46,7 @@
+   // Content Hub — docs/spec/content.md. Content types, taxonomies and fields, saved in dev with the site settings
+   // and registered in WordPress with the next release; and which fields of ACF, SCF, JetEngine or Meta Box pages may read.
+   let { app, visible, adminUrl }: { app: BuilderState; visible: boolean; adminUrl: string | null } = $props();
++  const wpBackend = $derived(app.api instanceof WordPressBackend ? app.api : null);
+ 
+   type Selection = { kind: 'type' | 'taxonomy' | 'fields' | 'provider' | 'group'; name: string } | null;
+ 
+@@ -467,7 +469,11 @@
+     {#if (selection?.kind === 'type' || (selection?.kind === 'fields' && targetOf(selection.name).kind === 'post')) && view === 'contents' && routeOf(selection.name)}
+       <section class="edit wide" aria-label={t('Contenuti di {0}', (selection.kind === 'type' ? defs.types[selection.name]?.plural : existingLabel(selection.name)) ?? '')}>
+         {@render views(selection.name)}
+-        <ContentTable api={app.api} route={routeOf(selection.name) ?? ''} label={selection.kind === 'type' ? (defs.types[selection.name]?.plural ?? selection.name) : existingLabel(selection.name)} fields={live.fields[selection.name] ?? []} {adminUrl} routeFor={routeOf} />
++        {#if wpBackend}
++          <ContentTable api={wpBackend} route={routeOf(selection.name) ?? ''} label={selection.kind === 'type' ? (defs.types[selection.name]?.plural ?? selection.name) : existingLabel(selection.name)} fields={live.fields[selection.name] ?? []} {adminUrl} routeFor={routeOf} />
++        {:else}
++          <p class="message">{t('La modifica diretta dei contenuti richiede un sito WordPress.')}</p>
++        {/if}
+       </section>
+     {:else if (selection?.kind === 'taxonomy' || (selection?.kind === 'fields' && targetOf(selection.name).kind === 'term')) && view === 'contents' && termsOf(selection.name)}
+       {@const tx = termsOf(selection.name)!}
+diff --git a/src/components/ContentTable.svelte b/src/components/ContentTable.svelte
+index b3039b3..d00b3c0 100644
+--- a/src/components/ContentTable.svelte
++++ b/src/components/ContentTable.svelte
+@@ -1,5 +1,5 @@
+ <script lang="ts">
+-  import type { Api } from '../lib/api.ts';
++  import type { WordPressBackend } from '../lib/api.ts';
+   import type { ContentField } from '../lib/contentHub.ts';
+   import { STATUSES, cellText, editsInline, fromInput, listQuery, toRow, type RestItem, type Row } from '../lib/contentTable.ts';
+   import { t, tn } from '../lib/i18n.ts';
+@@ -7,7 +7,7 @@
+ 
+   // The contents of a type as a table (Content Hub, docs/spec/content.md §8): title, status and fields edited in
+   // place through WordPress's REST API, which checks every permission and sanitizes every value.
+-  let { api, route, label, fields, adminUrl, routeFor }: { api: Api; route: string; label: string; fields: ContentField[]; adminUrl: string | null; routeFor: (postType: string) => string | null } = $props();
++  let { api, route, label, fields, adminUrl, routeFor }: { api: WordPressBackend; route: string; label: string; fields: ContentField[]; adminUrl: string | null; routeFor: (postType: string) => string | null } = $props();
+ 
+   const PER_PAGE = 20;
+   let rows = $state<Row[]>([]);
+diff --git a/src/components/CssPanel.svelte b/src/components/CssPanel.svelte
+index b6fc97b..bca1860 100644
+--- a/src/components/CssPanel.svelte
++++ b/src/components/CssPanel.svelte
+@@ -15,7 +15,11 @@
+   import { compileCss, cssLint } from '@xb/dsl';
+   import type { Diagnostic } from '@codemirror/lint';
+   import { lintContext, lintMessage } from '../lib/cssLint.ts';
++  import { parseCoreFrameworkPresetFile } from '@cms/core-framework-preset';
+   import type { BuilderState } from '../lib/state.svelte.ts';
++  import type { ExternalFrameworkSource } from '../lib/api.ts';
++  import { cssResourceReferences } from '@cms/css-resources';
++  import { decodeCssSource, flattenCssImportBundle } from '@cms/css-imports';
+   import { t, tn } from '../lib/i18n.ts';
+ 
+   let { app }: { app: BuilderState } = $props();
+@@ -32,6 +36,31 @@
+   const selectors = $derived([...classes.map((c) => `.${c}`), ...conditionalClasses(block).map((c) => `.${c}`), ...(staticId(block) ? [`#${staticId(block)}`] : [])]);
+   let chosen = $state<string | null>(null);
+   let newClass = $state('');
++  let importDialog: HTMLDialogElement | undefined = $state();
++  let importCss = $state('');
++  let importCorePreset = $state<ExternalFrameworkSource['preset']>();
++  let importPresetFilename = $state('');
++  let importPresetSummary = $state('');
++  let importName = $state('');
++  let importVersion = $state('');
++  let importLicense = $state('');
++  let importUrl = $state('');
++  let importFramework = $state<ExternalFrameworkSource['frameworkId']>('automatic-css');
++  let importRights = $state(false);
++  let importError = $state('');
++  let importWarning = $state(false);
++  let importCssFilename = $state('');
++  let importAssetFiles = $state<File[]>([]);
++  let importAssetSummary = $state('');
++  let importUploading = $state(false);
++  let importProgress = $state('');
++  let resourceDialog: HTMLDialogElement | undefined = $state();
++  let resourceFiles = $state<Record<string, File>>({});
++  let resourceBundleFiles = $state<File[]>([]);
++  let resourceEntryPath = $state('');
++  let resourceError = $state('');
++  let resourceProgress = $state('');
++  let resourceUploading = $state(false);
+   const completions = cssCompletions(() => app);
+   const spacing = $derived(spacingScale(app.framework.variables));
+   /** «Altro»: queries at the canvas width and quick actions, over the editor instead of above it. */
+@@ -262,6 +291,14 @@
+   // The editor shows local text, updated on every keystroke; the store is written with a short delay.
+   // Only a different selector or an external change (load, undo, save) replaces the text.
+   let text = $state('');
++  const currentResourceAssets = $derived(sheetTarget !== null
++    ? (app.globals.find((sheet) => sheet.id === sheetTarget)?.assets ?? [])
++    : (app.styles.find((style) => style.selector === target)?.assets ?? []));
++  const managedResources = $derived([...new Map(cssResourceReferences(text).filter((resource) => !resource.external).map((resource) => [resource.value, resource])).values()]);
++  const resourceReferences = $derived(managedResources.filter((resource) => resource.kind === 'url'));
++  const hasLocalImport = $derived(managedResources.some((resource) => resource.kind === 'import'));
++  const resourceCssFiles = $derived(resourceBundleFiles.filter((file) => file.name.toLowerCase().endsWith('.css')).map((file) => ({ path: bundlePath(file), file })));
++  const currentResourceMap = $derived(new Map(currentResourceAssets.map((asset) => [asset.reference, asset.assetId])));
+   $effect(() => {
+     void target;
+     void app.styleRevision;
+@@ -363,6 +400,557 @@
+     chosen = `.${name}`;
+     newClass = '';
+   }
++
++  function openFrameworkImport() {
++    importCss = '';
++    importCorePreset = undefined;
++    importPresetFilename = '';
++    importPresetSummary = '';
++    importName = '';
++    importVersion = '';
++    importLicense = '';
++    importUrl = '';
++    importFramework = 'automatic-css';
++    importRights = false;
++    importWarning = false;
++    importError = '';
++    importCssFilename = '';
++    importAssetFiles = [];
++    importAssetSummary = '';
++    importUploading = false;
++    importProgress = '';
++    importDialog?.showModal();
++  }
++
++  function openResourceManager() {
++    app.flushEdits();
++    resourceFiles = {};
++    resourceBundleFiles = [];
++    resourceEntryPath = '';
++    resourceError = '';
++    resourceProgress = '';
++    resourceUploading = false;
++    resourceDialog?.showModal();
++  }
++
++  function chooseResourceFile(reference: string, event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const file = input.files?.[0];
++    input.value = '';
++    if (!file) return;
++    if (!cssAssetMime(file)) {
++      resourceError = t('Formato non supportato. Scegli un’immagine o un font WOFF, WOFF2, TTF o OTF.');
++      return;
++    }
++    if (file.size > 20 * 1024 * 1024) {
++      resourceError = t('Ogni file collegato deve essere inferiore a 20 MiB.');
++      return;
++    }
++    resourceError = '';
++    resourceFiles = { ...resourceFiles, [reference]: file };
++  }
++
++  function readResourceBundle(event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const files = Array.from(input.files ?? []).filter((file) => file.name.toLowerCase().endsWith('.css') || cssAssetMime(file) !== null);
++    const total = files.reduce((sum, file) => sum + file.size, 0);
++    if (files.length > 2000 || total > 512 * 1024 * 1024) {
++      resourceBundleFiles = [];
++      resourceEntryPath = '';
++      resourceError = t('La cartella supera 2.000 file o 512 MiB. Scegli una cartella più piccola.');
++      input.value = '';
++      return;
++    }
++    const paths = new Set<string>();
++    for (const file of files) {
++      const path = bundlePath(file);
++      if (paths.has(path)) {
++        resourceBundleFiles = [];
++        resourceEntryPath = '';
++        resourceError = t('La cartella contiene percorsi duplicati ({0}). Scegli una cartella senza duplicati.', path);
++        input.value = '';
++        return;
++      }
++      paths.add(path);
++    }
++    resourceError = '';
++    resourceBundleFiles = files;
++    resourceEntryPath = '';
++  }
++
++  async function saveCssResources(event: SubmitEvent) {
++    event.preventDefault();
++    if (resourceUploading) return;
++    let cssToSave = text;
++    let references = resourceReferences;
++    const filesByReference = new Map<string, File>();
++    if (hasLocalImport) {
++      if (!resourceBundleFiles.length) {
++        resourceError = t('Seleziona la cartella con il foglio CSS principale, gli altri CSS importati e le risorse collegate.');
++        return;
++      }
++      if (!resourceEntryPath) {
++        resourceError = t('Scegli il foglio CSS della cartella che corrisponde al testo aperto nell’editor.');
++        return;
++      }
++      const cssFiles = new Map(resourceCssFiles.map(({ path, file }) => [path, file]));
++      const entryFile = cssFiles.get(resourceEntryPath);
++      if (!entryFile) {
++        resourceError = t('Il foglio CSS principale selezionato non è più presente nella cartella. Seleziona di nuovo la cartella.');
++        return;
++      }
++      if (entryFile.size > 1024 * 1024) {
++        resourceError = t('Il foglio CSS principale supera 1 MiB.');
++        return;
++      }
++      let entryCss: string;
++      let editorCss: string;
++      try {
++        entryCss = decodeCssSource(await entryFile.arrayBuffer());
++        editorCss = decodeCssSource(await new Blob([text]).arrayBuffer());
++      } catch (error) {
++        resourceError = error instanceof Error ? error.message : t('Non riesco a leggere il foglio CSS principale.');
++        return;
++      }
++      if (entryCss !== editorCss) {
++        resourceError = t('Il foglio scelto deve contenere lo stesso CSS aperto nell’editor. Salva una copia identica e riselezionala.');
++        return;
++      }
++      const cssByPath = new Map(resourceCssFiles.map(({ path, file }) => [path, file]));
++      const assetByPath = new Map(resourceBundleFiles.filter((file) => cssAssetMime(file) !== null).map((file) => [bundlePath(file), file]));
++      const loaded = new Map<string, Promise<string>>();
++      try {
++        cssToSave = await flattenCssImportBundle({
++          css: text,
++          entryPath: resourceEntryPath,
++          loadCss: async (path) => {
++            const file = cssByPath.get(path);
++            if (!file) return undefined;
++            if (file.size > 1024 * 1024) throw new TypeError(t('Il foglio CSS collegato {0} supera 1 MiB.', path));
++            let content = loaded.get(path);
++            if (!content) {
++              content = file.arrayBuffer().then(decodeCssSource);
++              loaded.set(path, content);
++            }
++            return content;
++          },
++        });
++      } catch (error) {
++        resourceError = error instanceof Error ? error.message : t('Non riesco a risolvere gli @import CSS locali.');
++        return;
++      }
++      const flattenedResources = cssResourceReferences(cssToSave);
++      if (flattenedResources.some((resource) => !resource.external && resource.kind === 'import')) {
++        resourceError = t('Un @import locale è rimasto dopo l’incorporazione.');
++        return;
++      }
++      references = flattenedResources.filter((resource) => !resource.external && resource.kind === 'url');
++      for (const resource of references) {
++        const path = resolveBundlePath(resource.value, resourceEntryPath);
++        const file = path ? assetByPath.get(path) : undefined;
++        if (!file) {
++          resourceError = t('Manca il file collegato a {0}. Seleziona la cartella completa dei CSS, dei font e delle immagini.', resource.value);
++          return;
++        }
++        filesByReference.set(resource.value, file);
++      }
++    } else {
++      for (const resource of resourceReferences) {
++        const file = resourceFiles[resource.value];
++        if (file) filesByReference.set(resource.value, file);
++      }
++    }
++    const chosenFiles = [...new Set(filesByReference.values())];
++    if (chosenFiles.some((file) => file.size > 20 * 1024 * 1024)) {
++      resourceError = t('Ogni file collegato deve essere inferiore a 20 MiB.');
++      return;
++    }
++    if (chosenFiles.reduce((sum, file) => sum + file.size, 0) > 100 * 1024 * 1024) {
++      resourceError = t('I file collegati superano 100 MiB complessivi.');
++      return;
++    }
++    const existing = new Map(currentResourceAssets.map((asset) => [asset.reference, asset.assetId]));
++    if (hasLocalImport) existing.clear();
++    if (references.some((resource) => !existing.has(resource.value) && !filesByReference.has(resource.value))) {
++      resourceError = t('Collega un file a ogni riferimento url() locale prima di salvare.');
++      return;
++    }
++    resourceUploading = true;
++    resourceError = '';
++    const uploaded = new Map<File, string>();
++    let uploadedCount = 0;
++    try {
++      for (const resource of references) {
++        const file = filesByReference.get(resource.value);
++        if (!file) continue;
++        let assetId = uploaded.get(file);
++        if (!assetId) {
++          const mimeType = cssAssetMime(file);
++          if (!mimeType) throw new Error(t('Formato non supportato: {0}', file.name));
++          resourceProgress = t('Caricamento {0} di {1}…', String(uploadedCount + 1), String(chosenFiles.length));
++          const result = await app.api.uploadAsset(file, file.name, mimeType);
++          assetId = result.asset_id;
++          uploaded.set(file, assetId);
++          uploadedCount++;
++        }
++        existing.set(resource.value, assetId);
++      }
++      const mappings = references.map((resource) => ({ reference: resource.value, assetId: existing.get(resource.value)! }));
++      if (cssToSave !== text) {
++        if (sheetTarget !== null) app.setGlobalCss(cssToSave, sheetTarget);
++        else if (target) app.upsertStyle(target, cssToSave);
++      }
++      if (sheetTarget !== null) app.setGlobalAssets(sheetTarget, mappings);
++      else if (target) app.setStyleAssets(target, mappings);
++      resourceDialog?.close();
++    } catch (error) {
++      const message = error instanceof Error ? error.message : t('Non riesco a collegare i file CSS.');
++      resourceError = uploadedCount ? t('{0} Sono già stati caricati {1} file; puoi riprovare senza perderli.', message, String(uploadedCount)) : message;
++    } finally {
++      resourceUploading = false;
++      resourceProgress = '';
++    }
++  }
++
++  function cssResources(css: string): Array<{ value: string; kind: 'url' | 'import'; external: boolean }> {
++    const found: Array<{ value: string; kind: 'url' | 'import'; external: boolean }> = [];
++    const isExternal = (value: string) => /^(?:https?:)?\/\//iu.test(value) || /^(?:data:|#)/iu.test(value);
++    const whitespace = (from: number) => {
++      let cursor = from;
++      while (cursor < css.length) {
++        if (/\s/u.test(css[cursor]!)) cursor++;
++        else if (css.startsWith('/*', cursor)) {
++          const end = css.indexOf('*/', cursor + 2);
++          cursor = end < 0 ? css.length : end + 2;
++        } else break;
++      }
++      return cursor;
++    };
++    const quoted = (from: number): { value: string; end: number } | null => {
++      const quote = css[from];
++      if (quote !== '"' && quote !== "'") return null;
++      let cursor = from + 1;
++      let value = '';
++      while (cursor < css.length) {
++        const char = css[cursor]!;
++        if (char === quote) return { value, end: cursor + 1 };
++        if (char === '\\' && cursor + 1 < css.length) {
++          value += css[cursor + 1]!;
++          cursor += 2;
++        } else {
++          value += char;
++          cursor++;
++        }
++      }
++      return null;
++    };
++    const add = (value: string, kind: 'url' | 'import') => {
++      const clean = value.trim();
++      if (clean) found.push({ value: clean, kind, external: isExternal(clean) });
++    };
++
++    let index = 0;
++    let importNext = false;
++    while (index < css.length) {
++      if (css.startsWith('/*', index)) {
++        const end = css.indexOf('*/', index + 2);
++        index = end < 0 ? css.length : end + 2;
++        continue;
++      }
++      const char = css[index]!;
++      if (char === '"' || char === "'") {
++        const string = quoted(index);
++        if (string && importNext) add(string.value, 'import');
++        index = string?.end ?? css.length;
++        importNext = false;
++        continue;
++      }
++      if (char === '@' && css.slice(index + 1, index + 7).toLowerCase() === 'import' && !/[\w-]/u.test(css[index + 7] ?? '')) {
++        importNext = true;
++        index = whitespace(index + 7);
++        continue;
++      }
++      if (/[a-z-]/iu.test(char) && css.slice(index, index + 3).toLowerCase() === 'url' && !/[\w-]/u.test(css[index - 1] ?? '')) {
++        let cursor = whitespace(index + 3);
++        if (css[cursor] === '(') {
++          cursor = whitespace(cursor + 1);
++          const string = quoted(cursor);
++          if (string) {
++            add(string.value, importNext ? 'import' : 'url');
++            cursor = whitespace(string.end);
++            index = css[cursor] === ')' ? cursor + 1 : string.end;
++            importNext = false;
++            continue;
++          }
++          let value = '';
++          let escaped = false;
++          while (cursor < css.length && css[cursor] !== ')') {
++            const next = css[cursor]!;
++            if (escaped) { value += next; escaped = false; cursor++; }
++            else if (next === '\\') { escaped = true; cursor++; }
++            else { value += next; cursor++; }
++          }
++          add(value, importNext ? 'import' : 'url');
++          index = cursor < css.length ? cursor + 1 : cursor;
++          importNext = false;
++          continue;
++        }
++      }
++      if (!/\s/u.test(char)) importNext = false;
++      index++;
++    }
++    return found;
++  }
++
++  function bundlePath(file: File): string {
++    const parts = file.webkitRelativePath.split('/').filter(Boolean);
++    return parts.length > 1 ? parts.slice(1).join('/') : file.name;
++  }
++
++  function resolveBundlePath(reference: string, cssPath: string): string | null {
++    const pathPart = reference.split(/[?#]/u, 1)[0] ?? '';
++    if (!pathPart || /^[a-z][a-z0-9+.-]*:/iu.test(pathPart) || pathPart.startsWith('//') || pathPart.includes('\\')) return null;
++    let decoded: string;
++    try { decoded = decodeURIComponent(pathPart); } catch { return null; }
++    const parts = decoded.startsWith('/') ? [] : cssPath.split('/').slice(0, -1).filter(Boolean);
++    for (const part of decoded.split('/')) {
++      if (!part || part === '.') continue;
++      if (part === '..') {
++        if (!parts.length) return null;
++        parts.pop();
++      } else parts.push(part);
++    }
++    return parts.join('/');
++  }
++
++  function cssAssetMime(file: File): string | null {
++    const extension = file.name.toLowerCase().split('.').pop() ?? '';
++    const types: Record<string, string> = {
++      avif: 'image/avif', gif: 'image/gif', jpeg: 'image/jpeg', jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp',
++      otf: 'font/otf', ttf: 'font/ttf', woff: 'font/woff', woff2: 'font/woff2',
++    };
++    return types[extension] ?? null;
++  }
++
++  function readAssetDirectory(event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const files = Array.from(input.files ?? []).filter((file) => /\.(?:css|core|json)$/iu.test(file.name) || cssAssetMime(file) !== null);
++    const total = files.reduce((sum, file) => sum + file.size, 0);
++    if (files.length > 2000 || total > 512 * 1024 * 1024) {
++      importAssetFiles = [];
++      importAssetSummary = '';
++      importError = t('La cartella supera 2.000 file o 512 MiB. Scegli una cartella più piccola.');
++      input.value = '';
++      return;
++    }
++    importError = '';
++    importAssetFiles = files;
++    const cssCount = files.filter((file) => file.name.toLowerCase().endsWith('.css')).length;
++    const mediaCount = files.filter((file) => cssAssetMime(file) !== null).length;
++    importAssetSummary = t('{0} fogli CSS, {1} immagini e font trovati nella cartella.', String(cssCount), String(mediaCount));
++  }
++
++  async function readFrameworkCss(event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const file = input.files?.[0];
++    if (!file) return;
++    importError = '';
++    importCorePreset = undefined;
++    importPresetFilename = '';
++    importPresetSummary = '';
++    if (!file.name.toLowerCase().endsWith('.css')) {
++      importError = t('Scegli un file .css.');
++      input.value = '';
++      return;
++    }
++    if (file.size > 1024 * 1024) {
++      importError = t('Il file CSS supera il limite di 1 MiB.');
++      input.value = '';
++      return;
++    }
++    try {
++      const css = decodeCssSource(await file.arrayBuffer());
++      if (!css.trim() || css.includes('\0')) throw new Error(t('Il file non contiene CSS testuale valido.'));
++      if (new TextEncoder().encode(css).byteLength > 1024 * 1024) throw new Error(t('Il file CSS supera il limite di 1 MiB.'));
++      importCss = css;
++      importCssFilename = file.name;
++      importName = file.name.replace(/\.css$/iu, '').replace(/[-_]+/gu, ' ').trim();
++      importWarning = cssResources(css).length > 0;
++    } catch (error) {
++      importError = error instanceof Error ? error.message : t('Non riesco a leggere il file CSS.');
++      input.value = '';
++    }
++  }
++
++  async function readCoreFrameworkPreset(event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const file = input.files?.[0];
++    if (!file) return;
++    importError = '';
++    try {
++      const imported = parseCoreFrameworkPresetFile(file.name, await file.arrayBuffer());
++      importCorePreset = imported.source;
++      importPresetFilename = file.name;
++      importCssFilename = file.name;
++      importFramework = 'core-framework';
++      importName = typeof imported.preset.name === 'string' ? imported.preset.name.slice(0, 120) : 'Core Framework';
++      importVersion = typeof imported.preset.app_version === 'string' ? imported.preset.app_version.slice(0, 80) : '';
++      importLicense = '';
++      importCss = imported.css;
++      importPresetSummary = imported.css.trim()
++        ? t('Preset Core riconosciuto: la configurazione originale sarà conservata; il CSS incluso sarà usato nel sito.')
++        : t('Preset Core riconosciuto e conservato, ma non contiene cssString: non sarà applicato né rigenerato da Histeon Publish.');
++      importWarning = cssResources(imported.css).length > 0;
++    } catch (error) {
++      importCorePreset = undefined;
++      importCss = '';
++      importPresetSummary = '';
++      importError = error instanceof Error ? error.message : t('Non riesco a leggere il preset Core Framework.');
++      input.value = '';
++    }
++  }
++
++  async function saveFrameworkImport(event: SubmitEvent) {
++    event.preventDefault();
++    if (importUploading || (!importCss.trim() && !importCorePreset) || !importName.trim() || !importRights) {
++      importError = t('Scegli CSS o un preset Core, indica la provenienza e conferma di poterlo usare.');
++      return;
++    }
++    if (importUrl.trim()) {
++      try {
++        const sourceUrl = new URL(importUrl.trim());
++        if (!['http:', 'https:'].includes(sourceUrl.protocol) || sourceUrl.username || sourceUrl.password) throw new Error();
++      } catch {
++        importError = t('Il riferimento deve essere un URL HTTP o HTTPS senza credenziali.');
++        return;
++      }
++    }
++    const source: ExternalFrameworkSource = {
++      kind: 'user-css', frameworkId: importFramework, name: importName.trim(), rightsConfirmed: true,
++      ...(importVersion.trim() ? { version: importVersion.trim() } : {}),
++      ...(importLicense.trim() ? { license: importLicense.trim() } : {}),
++      ...(importUrl.trim() ? { sourceUrl: importUrl.trim() } : {}),
++      ...(importCorePreset ? { preset: importCorePreset } : {}),
++    };
++    let css = importCss;
++    if (!css.trim() && importCorePreset) {
++      const id = app.addFrameworkCss('', source, []);
++      if (!id) return;
++      chosen = SHEET + id;
++      importDialog?.close();
++      return;
++    }
++    const bundledCssCandidates = importAssetFiles.filter((file) => file.name === importCssFilename && file.name.toLowerCase().endsWith('.css'));
++    let bundledCss: File | undefined;
++    try {
++      for (const candidate of bundledCssCandidates) {
++        if (candidate.size > 1024 * 1024) continue;
++        if (decodeCssSource(await candidate.arrayBuffer()) !== css) continue;
++        if (bundledCss) {
++          importError = t('La cartella contiene più copie identiche di {0}. Seleziona una cartella più precisa.', importCssFilename);
++          return;
++        }
++        bundledCss = candidate;
++      }
++    } catch {
++      importError = t('Non riesco a leggere una copia di {0} nella cartella. Mantieni disponibile la cartella e riprova.', importCssFilename);
++      return;
++    }
++    if (!bundledCss && bundledCssCandidates.length) {
++      importError = t('Il CSS selezionato non coincide con le copie {0} nella cartella. Scegli la stessa versione del foglio e riprova.', importCssFilename);
++      return;
++    }
++    const cssPath = bundledCss ? bundlePath(bundledCss) : importCssFilename;
++    const localImports = cssResources(css).find((resource) => !resource.external && resource.kind === 'import');
++    if (localImports) {
++      if (!bundledCss) {
++        importError = t('Questo foglio usa @import locali. Seleziona anche la cartella che contiene esattamente lo stesso CSS e tutti i fogli importati.');
++        return;
++      }
++      const cssFiles = new Map<string, File>();
++      for (const file of importAssetFiles.filter((item) => item.name.toLowerCase().endsWith('.css'))) {
++        const path = bundlePath(file);
++        if (cssFiles.has(path)) {
++          importError = t('La cartella contiene percorsi CSS duplicati ({0}). Seleziona una cartella senza duplicati.', path);
++          return;
++        }
++        cssFiles.set(path, file);
++      }
++      const loaded = new Map<string, Promise<string>>();
++      try {
++        css = await flattenCssImportBundle({
++          css,
++          entryPath: cssPath,
++          loadCss: async (path) => {
++            const file = cssFiles.get(path);
++            if (!file) return undefined;
++            if (file.size > 1024 * 1024) throw new Error(t('Il foglio CSS collegato {0} supera 1 MiB.', path));
++            let content = loaded.get(path);
++            if (!content) {
++              content = file.arrayBuffer().then(decodeCssSource);
++              loaded.set(path, content);
++            }
++            return content;
++          },
++        });
++      } catch (error) {
++        importError = error instanceof Error ? error.message : t('Non riesco a risolvere gli @import CSS locali.');
++        return;
++      }
++    }
++    const resources = cssResources(css);
++    const unresolvedImport = resources.find((resource) => !resource.external && resource.kind === 'import');
++    if (unresolvedImport) {
++      importError = t('Non è stato possibile incorporare l’import locale {0}.', unresolvedImport.value);
++      return;
++    }
++    const localUrls = [...new Set(resources.filter((resource) => !resource.external && resource.kind === 'url').map((resource) => resource.value))];
++    const byPath = new Map(importAssetFiles.filter((file) => cssAssetMime(file) !== null).map((file) => [bundlePath(file), file]));
++    const resolved = localUrls.map((reference) => {
++      const path = resolveBundlePath(reference, cssPath);
++      return { reference, path, file: path ? byPath.get(path) : undefined };
++    });
++    const missing = resolved.find((item) => !item.file);
++    if (missing) {
++      importError = t('Manca il file collegato a {0}. Seleziona la cartella che contiene il CSS e i suoi font/immagini, oppure rimuovi il riferimento locale.', missing.reference);
++      return;
++    }
++    const uniqueFiles = [...new Map(resolved.map((item) => [item.path!, item.file!])).entries()];
++    if (uniqueFiles.some(([, file]) => file.size > 20 * 1024 * 1024) || uniqueFiles.reduce((sum, [, file]) => sum + file.size, 0) > 100 * 1024 * 1024) {
++      importError = t('I file collegati superano 20 MiB per file o 100 MiB totali.');
++      return;
++    }
++    importUploading = true;
++    importError = '';
++    const assetIds = new Map<string, string>();
++    const assets: Array<{ reference: string; assetId: string }> = [];
++    try {
++      let uploaded = 0;
++      for (const [relativePath, file] of uniqueFiles) {
++        importProgress = t('Caricamento file {0} di {1}…', String(uploaded + 1), String(uniqueFiles.length));
++        const mimeType = cssAssetMime(file);
++        if (!mimeType) throw new Error(t('Formato non supportato: {0}', file.name));
++        const result = await app.api.uploadAsset(file, file.name, mimeType);
++        assetIds.set(relativePath, result.asset_id);
++        uploaded++;
++      }
++      for (const item of resolved) assets.push({ reference: item.reference, assetId: assetIds.get(item.path!)! });
++      const id = app.addFrameworkCss(css, source, assets);
++      if (!id) return;
++      chosen = SHEET + id;
++      importDialog?.close();
++    } catch (error) {
++      const message = error instanceof Error ? error.message : t('Non riesco a caricare i file collegati.');
++      importError = uploadedCountMessage(message, assetIds.size);
++    } finally {
++      importUploading = false;
++      importProgress = '';
++    }
++  }
++
++  function uploadedCountMessage(message: string, count: number): string {
++    return count ? t('{0} Sono già stati caricati {1} file: puoi riprovare, i file identici vengono riutilizzati.', message, String(count)) : message;
++  }
+ </script>
+ 
+ <!-- Where the mini GUI writes (styles.md §10): the state and the width, in the class's own CSS and from «Nel foglio». -->
+@@ -401,11 +989,93 @@
+     {/each}
+     {#each sheets as id (id)}
+       <button role="tab" class="sheet" aria-selected={target === SHEET + id} class:active={target === SHEET + id} onclick={() => (chosen = SHEET + id)} title={t('Foglio globale {0}', id)}>
+-        {sheets.length === 1 ? t('Foglio globale') : t('Foglio {0}', id)}
++        {app.globals.find((sheet) => sheet.id === id)?.source?.name ?? (sheets.length === 1 ? t('Foglio globale') : t('Foglio {0}', id))}
+       </button>
+     {/each}
++    <button type="button" class="import-css" onclick={openFrameworkImport}>{t('Importa CSS')}</button>
++    {#if target && (sheetTarget !== null || view === 'own')}
++      <button type="button" class="resource-css" onclick={openResourceManager}>{t('Risorse CSS')}</button>
++    {/if}
+   </div>
+ 
++  {#if sheetTarget}
++    {@const selectedSheet = app.globals.find((sheet) => sheet.id === sheetTarget)}
++    {#if selectedSheet?.source?.preset}
++      <p class="note" role="note">{selectedSheet.css.trim()
++        ? t('Configurazione originale Core conservata. Histeon Publish applica il CSS incluso; le modifiche qui non riscrivono i parametri del preset.')
++        : t('Configurazione Core conservata, ma senza CSS applicabile. Il sito non usa né rigenera questo preset.')}</p>
++    {/if}
++  {/if}
++
++  <dialog bind:this={importDialog} class="import-dialog" aria-labelledby="framework-import-title">
++    <form onsubmit={saveFrameworkImport}>
++      <h2 id="framework-import-title">{t('Importa CSS del framework')}</h2>
++      <p>{t('Il foglio CSS e i file collegati scelti vengono conservati nel progetto. Histeon Publish non include né verifica licenze o asset del framework.')}</p>
++      <p class="note">{t('Il CSS selezionato viene applicato senza convertirlo in Histeon CSS. I preset Core Framework 1.1.0 possono generare CSS offline per le opzioni supportate; ACSS richiede il CSS esportato. Per la parità completa, importa il CSS generato dal framework.')}</p>
++      <p class="note">{t('Se il preset Core non contiene CSS, importa anche il foglio .css esportato da Core; se contiene CSS, puoi usare quello o sostituirlo con un foglio separato. Puoi selezionare i file in qualunque ordine. Per ACSS importa i fogli CSS generati, uno alla volta, e facoltativamente il file delle impostazioni.')}</p>
++      <label>{t('File CSS (.css, massimo 1 MiB)')}<input type="file" accept=".css,text/css" onchange={readFrameworkCss} /></label>
++      <label>{t('Cartella CSS e risorse collegate (facoltativa)')}<input type="file" accept=".css,image/avif,image/gif,image/jpeg,image/png,image/webp,.woff,.woff2,.ttf,.otf" webkitdirectory multiple onchange={readAssetDirectory} /></label>
++      <label>{t('Preset Core Framework (.core o .json, massimo 1 MiB)')}<input type="file" accept=".core,.json,application/json" onchange={readCoreFrameworkPreset} /></label>
++      {#if importAssetSummary}<p class="note">{importAssetSummary}</p>{/if}
++      {#if importPresetSummary}<p class="note" role="status">{importPresetSummary}</p>{/if}
++      {#if importProgress}<p role="status">{importProgress}</p>{/if}
++      {#if importCss || importCorePreset}
++        <label>{t('Tipo')}<select bind:value={importFramework} disabled={Boolean(importCorePreset)}>
++          <option value="automatic-css">Automatic.css (ACSS)</option>
++          <option value="core-framework">Core Framework</option>
++          <option value="custom">Altro CSS</option>
++        </select></label>
++        <label>{t('Nome del framework')}<input bind:value={importName} maxlength="120" required /></label>
++        <div class="import-grid">
++          <label>{t('Versione (se nota)')}<input bind:value={importVersion} maxlength="80" /></label>
++          <label>{t('Licenza dichiarata (se nota)')}<input bind:value={importLicense} maxlength="160" placeholder={t('Non dichiarata')} /></label>
++        </div>
++        <label>{t('Fonte o documentazione (facoltativa)')}<input bind:value={importUrl} maxlength="2048" placeholder="https://" /></label>
++        {#if importWarning}<p class="import-warning" role="note">{t('Se il CSS contiene @import locali, seleziona anche la cartella completa con lo stesso foglio CSS, gli altri fogli importati e le risorse url(). I CSS locali vengono incorporati senza connessioni di rete; gli URL HTTPS restano esterni.')}</p>{/if}
++        <label class="import-confirm"><input type="checkbox" bind:checked={importRights} />{t('Confermo di poter usare e conservare nel progetto il CSS, il preset o la configurazione selezionati.')}</label>
++      {/if}
++      {#if importError}<p class="import-error" role="alert">{importError}</p>{/if}
++      <div class="import-actions"><button type="button" disabled={importUploading} onclick={() => importDialog?.close()}>{t('Annulla')}</button><button type="submit" disabled={(!importCss.trim() && !importCorePreset) || !importRights || importUploading}>{importUploading ? t('Caricamento…') : importCorePreset && !importCss.trim() ? t('Conserva preset Core') : t('Aggiungi foglio CSS')}</button></div>
++    </form>
++  </dialog>
++
++  <dialog bind:this={resourceDialog} class="import-dialog resource-dialog" aria-labelledby="css-resources-title">
++    <form onsubmit={saveCssResources}>
++      <h2 id="css-resources-title">{t('File collegati al CSS')}</h2>
++      <p>{t('Collega ogni url() locale a un’immagine o a un font del progetto. I file sono privati nel catalogo; entrano nella build solo se una pagina li usa.')}</p>
++      {#if hasLocalImport}
++        <label>{t('Cartella con il CSS completo e le risorse collegate')}<input type="file" accept=".css,image/avif,image/gif,image/jpeg,image/png,image/webp,.woff,.woff2,.ttf,.otf" webkitdirectory multiple onchange={readResourceBundle} /></label>
++        {#if resourceCssFiles.length > 0}
++          <label>{t('Foglio CSS principale')}<select bind:value={resourceEntryPath}>
++            <option value="">{t('Scegli il CSS aperto nell’editor…')}</option>
++            {#each resourceCssFiles as file (file.path)}<option value={file.path}>{file.path}</option>{/each}
++          </select></label>
++        {/if}
++        <p class="note">{t('Gli @import locali saranno incorporati senza connessioni di rete. Il foglio scelto deve corrispondere al testo attualmente aperto nell’editor.')}</p>
++      {/if}
++      {#if managedResources.length === 0}
++        <p class="note">{t('Questo CSS non contiene riferimenti locali a url().')}</p>
++      {:else}
++        <div class="resource-list">
++          {#each managedResources as resource (resource.value)}
++            <div class="resource-row">
++              <code title={resource.value}>{resource.value}</code>
++              {#if resource.kind === 'import'}
++                <p class="note">{t('Questo foglio verrà incorporato dalla cartella CSS selezionata.')}</p>
++              {:else}
++                <label>{t('File locale')}<input type="file" accept="image/avif,image/gif,image/jpeg,image/png,image/webp,.woff,.woff2,.ttf,.otf" onchange={(event) => chooseResourceFile(resource.value, event)} /></label>
++                <span class="resource-status">{resourceFiles[resource.value]?.name ?? (currentResourceMap.has(resource.value) ? t('Già collegato al progetto') : t('File da collegare'))}</span>
++              {/if}
++            </div>
++          {/each}
++        </div>
++      {/if}
++      {#if resourceProgress}<p role="status">{resourceProgress}</p>{/if}
++      {#if resourceError}<p class="import-error" role="alert">{resourceError}</p>{/if}
++      <div class="import-actions"><button type="button" disabled={resourceUploading} onclick={() => resourceDialog?.close()}>{t('Annulla')}</button><button type="submit" disabled={resourceUploading || (hasLocalImport ? !resourceEntryPath : resourceReferences.some((resource) => !currentResourceMap.has(resource.value) && !resourceFiles[resource.value]))}>{resourceUploading ? t('Caricamento…') : hasLocalImport ? t('Incorpora import e collega file') : t('Salva collegamenti')}</button></div>
++    </form>
++  </dialog>
++
+   {#if target && !sheetTarget && inSheets.length > 0}
+     <div class="views">
+       <button class:active={view === 'sheet'} onclick={() => (view = 'sheet')}>{t('Nel foglio ({0})', inSheets.length)}</button>
+@@ -575,6 +1245,27 @@
+     border-color: var(--xb-accent);
+     color: #fff;
+   }
++  .pills .import-css, .pills .resource-css { font-family: var(--xb-sans); border-style: dashed; }
++  .import-dialog { width: min(620px, calc(100vw - 32px)); max-height: min(90vh, 760px); overflow: auto; border: 1px solid var(--xb-line); border-radius: var(--xb-r); padding: 20px; color: var(--xb-text); background: var(--xb-bg); box-shadow: var(--xb-shadow); }
++  .import-dialog::backdrop { background: rgb(0 0 0 / 45%); }
++  .import-dialog h2 { margin: 0 0 8px; font: 600 18px var(--xb-sans); }
++  .import-dialog p { margin: 0 0 12px; color: var(--xb-muted); font: 13px/1.5 var(--xb-sans); }
++  .import-dialog form { display: grid; gap: 12px; }
++  .import-dialog label { display: grid; gap: 5px; font: 600 12px var(--xb-sans); }
++  .import-dialog input:not([type='checkbox']), .import-dialog select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--xb-line); border-radius: var(--xb-r-sm); color: var(--xb-text); background: var(--xb-bg); font: 13px var(--xb-sans); }
++  .import-dialog .import-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
++  .import-dialog .import-confirm { display: flex; align-items: flex-start; font-weight: 400; }
++  .import-dialog .import-warning { padding: 9px; border-radius: var(--xb-r-sm); background: color-mix(in srgb, var(--xb-danger) 8%, transparent); }
++  .import-dialog .import-error { color: var(--xb-danger); }
++  .resource-list { display: grid; gap: 8px; max-height: min(48vh, 420px); overflow: auto; }
++  .resource-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; padding: 10px; border: 1px solid var(--xb-line); border-radius: var(--xb-r-sm); }
++  .resource-row code { overflow-wrap: anywhere; font: 12px/1.45 var(--xb-mono); }
++  .resource-row label { display: grid; gap: 4px; color: var(--xb-muted); font: 600 11px var(--xb-sans); }
++  .resource-row .resource-status { color: var(--xb-muted); font: 11px var(--xb-sans); }
++  .import-actions { display: flex; justify-content: flex-end; gap: 8px; }
++  .import-actions button { padding: 6px 12px; border: 1px solid var(--xb-line); border-radius: var(--xb-r-sm); color: var(--xb-text); background: var(--xb-bg); cursor: pointer; }
++  .import-actions button[type='submit'] { border-color: var(--xb-accent); color: #fff; background: var(--xb-accent); }
++  .import-actions button:disabled { opacity: .5; cursor: not-allowed; }
+   .pills button.sheet {
+     font-family: var(--xb-sans);
+   }
+diff --git a/src/components/HtmlPanel.svelte b/src/components/HtmlPanel.svelte
+index 59a284a..a3b7577 100644
+--- a/src/components/HtmlPanel.svelte
++++ b/src/components/HtmlPanel.svelte
+@@ -27,12 +27,11 @@
+    * privileges, so the panel is read-only until the content is fixed from the other panels.
+    */
+   let faithful = $state(true);
+-  // What a class does, for utility-class frameworks (Core Framework, Automatic.css). Histeon CSS is written with
+-  // variables and BEM classes: no preview there.
++  // Preview CSS from the canvas and the framework stylesheets imported into this project.
+   const canvasDoc = () => document.querySelector<HTMLIFrameElement>('iframe[data-xb-canvas]')?.contentDocument ?? null;
+-  const describeClass = (name: string) => (app.framework.active.id === 'xb-tokens' ? null : classInfo(canvasDoc(), name));
++  const describeClass = (name: string) => classInfo(canvasDoc(), name, app.globals.map((sheet) => sheet.css));
+   const completions = [classSource(() => app.framework.classes, describeClass), expressionSource(() => app.extensions)];
+-  $effect(() => void app.loadExtensions());
++  $effect(() => { if (!app.localCms) void app.loadExtensions(); });
+ 
+   const scopeLabel = $derived.by(() => {
+     const block = scope ? app.find(scope) : null;
+diff --git a/src/components/InsertMenu.svelte b/src/components/InsertMenu.svelte
+index 777343d..fddcd2e 100644
+--- a/src/components/InsertMenu.svelte
++++ b/src/components/InsertMenu.svelte
+@@ -17,8 +17,10 @@
+     onicon,
+     onmap,
+     forms,
++    localCms = false,
+   }: {
+     app: BuilderState;
++    localCms?: boolean;
+     pickImage?: () => Promise<Record<string, string> | null>;
+     /** Video, audio or PDF from the library (M1): the element to insert. */
+     pickMedia?: () => Promise<{ tag: string; attributes: Record<string, string | true>; text?: string } | null>;
+@@ -101,7 +103,9 @@
+   });
+ 
+   const all = $derived.by((): Item[] => {
+-    const list: Item[] = [...SNIPPETS, ...INTERACTIONS].map((s) => ({ id: `s:${s.key}`, label: s.label, group: s.group ?? 'Elementi', icon: ICONS[s.key] ?? '•', run: () => insertSnippet(s) }));
++    const staticKeys = new Set(['Sezione', 'Contenitore', 'Titolo', 'Paragrafo', 'Link', 'Pulsante', 'Immagine', 'Lista']);
++    const available = localCms ? SNIPPETS.filter((s) => staticKeys.has(s.key)) : [...SNIPPETS, ...INTERACTIONS];
++    const list: Item[] = available.map((s) => ({ id: `s:${s.key}`, label: s.label, group: s.group ?? 'Elementi', icon: ICONS[s.key] ?? '•', run: () => insertSnippet(s) }));
+     if (pickImage) {
+       const pick = pickImage;
+       list.push({
+@@ -167,7 +171,7 @@
+ 
+   /** Opens below `anchor` (above it when there is no room), kept inside the window. */
+   export async function open(anchor: HTMLElement | null) {
+-    void app.loadExtensions();
++    if (!localCms) void app.loadExtensions();
+     if (forms) void forms.list().then((l) => (formList = l)).catch(() => (formList = []));
+     query = '';
+     active = 0;
+diff --git a/src/components/MediaPicker.svelte b/src/components/MediaPicker.svelte
+index bdf1b26..3ba339f 100644
+--- a/src/components/MediaPicker.svelte
++++ b/src/components/MediaPicker.svelte
+@@ -183,7 +183,9 @@
+     return chosen;
+   }
+ 
+-  const headers = (): Record<string, string> => ({ 'X-WP-Nonce': config.nonce });
++  const headers = (): Record<string, string> => config.localCms
++    ? { 'X-Histos-Token': sessionStorage.getItem('histos-publish-session') ?? '' }
++    : { 'X-WP-Nonce': config.nonce };
+   /** A route under wp/v2/media (the item `5` → …/media/5), with pretty or plain permalinks. */
+   function mediaRoute(suffix = ''): URL {
+     const base = config.media.url ?? '';
+@@ -199,7 +201,7 @@
+   }
+ 
+   async function loadCollections() {
+-    if (!config.media.url) return;
++    if (!config.media.url || config.localCms) return;
+     try {
+       const url = new URL(collectionsUrl(config.media.url), window.location.href);
+       url.searchParams.set('per_page', '100');
+@@ -266,9 +268,11 @@
+   function send(file: File, onprogress: (p: number) => void): Promise<Item> {
+     return new Promise((done, fail) => {
+       const xhr = new XMLHttpRequest();
+-      xhr.open('POST', mediaRoute().toString());
+-      xhr.setRequestHeader('X-WP-Nonce', config.nonce);
+-      xhr.withCredentials = true;
++      const url = mediaRoute();
++      xhr.open('POST', config.localCms ? `${url.href}?filename=${encodeURIComponent(file.name)}` : url.toString());
++      for (const [name, value] of Object.entries(headers())) xhr.setRequestHeader(name, value);
++      if (config.localCms) xhr.setRequestHeader('Content-Type', file.type);
++      xhr.withCredentials = !config.localCms;
+       xhr.upload.onprogress = (e) => e.lengthComputable && onprogress(e.loaded / e.total);
+       xhr.onload = () => {
+         let data: (Item & { message?: string }) | null = null;
+@@ -281,9 +285,12 @@
+         else fail(new Error(data?.message ?? t('Errore {0}', xhr.status)));
+       };
+       xhr.onerror = () => fail(new Error(t('Rete non raggiungibile.')));
+-      const body = new FormData();
+-      body.append('file', file, file.name);
+-      xhr.send(body);
++      if (config.localCms) xhr.send(file);
++      else {
++        const body = new FormData();
++        body.append('file', file, file.name);
++        xhr.send(body);
++      }
+     });
+   }
+ 
+@@ -309,7 +316,10 @@
+           item.xb_media_collection = [current];
+         }
+         row.progress = 1;
+-        items = [item, ...items];
++        // The server may answer with an image the library already holds (the same bytes: the same file again, or a
++        // damaged one uploaded to repair it): it moves to the front with what the server says now, never listed twice
++        // (the grid is keyed by id).
++        items = [item, ...items.filter((i) => i.id !== item.id)];
+       } catch (e) {
+         row.error = e instanceof Error ? e.message : String(e);
+       }
+@@ -485,7 +495,7 @@
+     </ul>
+   {/if}
+   <div class="body">
+-    <nav class="collections" aria-label={t('Raccolte')}>
++    {#if !config.localCms}<nav class="collections" aria-label={t('Raccolte')}>
+       <button class:active={current === 0} onclick={() => show(0)}>{mode === 'image' ? t('Tutte le immagini') : t('Tutti i file')}</button>
+       {#if collections.length}<button class:active={current === -1} onclick={() => show(-1)}>{t('Senza raccolta')}</button>{/if}
+       {#each tree as c (c.id)}
+@@ -496,7 +506,7 @@
+           <input bind:value={newCollection} placeholder={current > 0 ? t('Sottoraccolta…') : t('Nuova raccolta…')} aria-label={t('Nome della nuova raccolta')} />
+         </form>
+       {/if}
+-    </nav>
++    </nav>{/if}
+     <ul class="grid">
+       {#each items as item (item.id)}
+         <li>
+diff --git a/src/components/Topbar.svelte b/src/components/Topbar.svelte
+index 8397ce5..f0c4a8f 100644
+--- a/src/components/Topbar.svelte
++++ b/src/components/Topbar.svelte
+@@ -18,7 +18,21 @@
+     onpalette,
+     oninsert,
+     onpreview,
+-  }: { app: BuilderState; config: BuilderConfig; onpalette?: () => void; oninsert?: (anchor: HTMLElement) => void; onpreview?: (url: string) => void } = $props();
++    onpanel,
++    mobilePanel,
++    hasLeftPanels,
++    hasRightPanels,
++  }: {
++    app: BuilderState;
++    config: BuilderConfig;
++    onpalette?: () => void;
++    oninsert?: (anchor: HTMLElement) => void;
++    onpreview?: (url: string) => void;
++    onpanel?: (area: 'left' | 'right') => void;
++    mobilePanel?: 'left' | 'right' | null;
++    hasLeftPanels?: boolean;
++    hasRightPanels?: boolean;
++  } = $props();
+ 
+   let dialog: HTMLDialogElement;
+   let publishDialog: PublishDialog;
+@@ -122,6 +136,8 @@
+   {/if}
+   {#if config.embed}
+     <button class="back" onclick={() => closeEmbed(app.anyDirty)} title={t("Chiude Histeon e torna all'editor a blocchi")}>← Gutenberg</button>
++  {:else if config.localCms}
++    <a class="back" href={config.returnTo?.url ?? '/'} title={config.returnTo ? t('Torna al progetto in Histeon Publish') : t('Torna al catalogo Histeon Publish')}>← {config.returnTo?.label ?? 'Publish'}</a>
+   {:else}
+     <a class="back" href={config.editUrl ?? '/wp-admin/'} title={t("Apre questa pagina nell'editor a blocchi")}>← {config.editUrl ? 'Gutenberg' : 'WordPress'}</a>
+   {/if}
+@@ -167,6 +183,12 @@
+       <button class="icon" onclick={() => app.redo()} disabled={!app.canRedo} title={withKeys(t('Ripeti'), 'redo')} aria-label={t('Ripeti la modifica annullata')}><Icon name="redo" size={16} /></button>
+       <HistorySteps {app} />
+     </span>
++    {#if onpanel && hasLeftPanels}
++      <button class="mobile-panel" aria-label={t('Pannelli a sinistra')} aria-expanded={mobilePanel === 'left'} onclick={() => onpanel('left')}>{t('Sinistra')}</button>
++    {/if}
++    {#if onpanel && hasRightPanels}
++      <button class="mobile-panel" aria-label={t('Pannelli a destra')} aria-expanded={mobilePanel === 'right'} onclick={() => onpanel('right')}>{t('Destra')}</button>
++    {/if}
+     {#if app.sessions.length}
+       <button onclick={() => void leave(false)} title={t("Lascia il componente com'era all'apertura e torna indietro")}>{t('Esci senza salvare')}</button>
+       <button class="primary session" onclick={() => void leave(true)} disabled={app.status.kind === 'saving'} title={keyHint('save') ? t('Salva il componente in sviluppo e torna indietro ({0} salva senza uscire)', keyHint('save')) : t('Salva il componente in sviluppo e torna indietro')}>
+@@ -174,7 +196,7 @@
+       </button>
+     {:else}
+       <button class="secondary" onclick={() => { error = ''; dialog.showModal(); }}>{t('Nuovo componente')}</button>
+-      <button class="secondary" onclick={openPreview} title={t('Salva e mostra la pagina come la vedrà chi visita, senza il builder (Esc per tornare)')}>{t('Anteprima')}</button>
++      {#if !config.localCms || config.previewable}<button class="secondary" onclick={openPreview} title={t('Salva e mostra la pagina come la vedrà chi visita, senza il builder (Esc per tornare)')}>{t('Anteprima')}</button>{/if}
+       {#if config.viewUrl}<a class="live secondary" href={config.viewUrl} target="_blank" rel="noopener" title={t('Apre la pagina pubblicata in una nuova scheda')}>{t('Pubblicato')} <Icon name="external" size={13} /></a>{/if}
+       <!-- Under 1024 px the secondary actions go in a menu, so Salva and Pubblica always stay in view (L1). -->
+       <span class="more-wrap">
+@@ -184,7 +206,7 @@
+           <div class="more-menu" role="menu" tabindex="-1" aria-label={t('Altre azioni')} onkeydown={moreKeys}>
+             {#if onpalette}<button role="menuitem" onclick={() => { moreOpen = false; onpalette(); }}>{t('Comandi')}</button>{/if}
+             <button role="menuitem" onclick={() => { moreOpen = false; error = ''; dialog.showModal(); }}>{t('Nuovo componente')}</button>
+-            <button role="menuitem" onclick={() => { moreOpen = false; void openPreview(); }}>{t('Anteprima')}</button>
++            {#if !config.localCms || config.previewable}<button role="menuitem" onclick={() => { moreOpen = false; void openPreview(); }}>{t('Anteprima')}</button>{/if}
+             {#if config.viewUrl}<a role="menuitem" href={config.viewUrl} target="_blank" rel="noopener" onclick={() => (moreOpen = false)}>{t('Pubblicato')} <Icon name="external" size={13} /></a>{/if}
+           </div>
+         {/if}
+@@ -316,6 +338,9 @@
+     gap: 8px;
+     align-items: center;
+   }
++  .mobile-panel {
++    display: none;
++  }
+   .live {
+     display: inline-flex;
+     align-items: center;
+@@ -465,6 +490,46 @@
+     background: color-mix(in srgb, var(--xb-coral) 88%, #000);
+     border-color: color-mix(in srgb, var(--xb-coral) 88%, #000);
+   }
++  @media (max-width: 700px) {
++    .topbar {
++      box-sizing: border-box;
++      flex-wrap: wrap;
++      gap: 4px 8px;
++      height: auto;
++      min-height: 48px;
++      padding: 6px 8px;
++    }
++    h1,
++    .trail {
++      flex: 1 1 96px;
++      min-width: 0;
++    }
++    .langs {
++      order: 2;
++    }
++    .status {
++      order: 3;
++      flex: 1 1 100%;
++      min-width: 0;
++      overflow-wrap: anywhere;
++    }
++    .status:empty {
++      display: none;
++    }
++    .actions {
++      order: 4;
++      flex: 1 0 100%;
++      flex-wrap: wrap;
++      gap: 4px;
++      min-width: 0;
++    }
++    .mobile-panel {
++      display: inline-flex;
++      align-items: center;
++      justify-content: center;
++      white-space: nowrap;
++    }
++  }
+   .kind {
+     font: 600 10px/1 var(--xb-sans);
+     text-transform: uppercase;
+diff --git a/src/components/sections/ContentSection.svelte b/src/components/sections/ContentSection.svelte
+index 771ee5e..177e0b2 100644
+--- a/src/components/sections/ContentSection.svelte
++++ b/src/components/sections/ContentSection.svelte
+@@ -6,13 +6,14 @@
+   import type { BuilderState } from '../../lib/state.svelte.ts';
+ 
+   // Content section: the site's pages, posts and components, each opened in the builder.
+-  let { app, initial = 'page' }: { app: BuilderState; initial?: 'page' | 'post' | 'wp_block' } = $props();
++  let { app, initial = 'page', localCms = false }: { app: BuilderState; initial?: 'page' | 'post' | 'wp_block'; localCms?: boolean } = $props();
+ 
+   const TYPES = [
+     ['page', t('Pagine')],
+     ['post', t('Articoli')],
+     ['wp_block', t('Componenti')],
+   ] as const;
++  const visibleTypes = $derived(localCms ? TYPES.filter(([id]) => id !== 'post') : TYPES);
+   let type = $state<'page' | 'post' | 'wp_block'>(untrack(() => initial));
+   let search = $state('');
+   let items = $state<LibraryItem[]>([]);
+@@ -45,7 +46,7 @@
+ <div class="section">
+   <div class="bar">
+     <div class="types" role="tablist" aria-label={t('Tipo di contenuto')}>
+-      {#each TYPES as [id, label] (id)}
++      {#each visibleTypes as [id, label] (id)}
+         <button role="tab" aria-selected={type === id} class:active={type === id} onclick={() => (type = id)}>{label}</button>
+       {/each}
+     </div>
+diff --git a/src/lib/api.ts b/src/lib/api.ts
+index 7c9a340..753dcc8 100644
+--- a/src/lib/api.ts
++++ b/src/lib/api.ts
+@@ -78,11 +78,25 @@ export interface StyleEntry {
+   id: string;
+   selector: string;
+   css: string;
++  assets?: Array<{ reference: string; assetId: string }>;
+ }
+ 
+ export interface GlobalSheet {
+   id: string;
+   css: string;
++  source?: ExternalFrameworkSource;
++  assets?: Array<{ reference: string; assetId: string }>;
++}
++
++export interface ExternalFrameworkSource {
++  kind: 'user-css';
++  frameworkId: 'core-framework' | 'automatic-css' | 'custom';
++  name: string;
++  version?: string;
++  license?: string;
++  sourceUrl?: string;
++  preset?: { format: 'core-lz-utf16-v1' | 'core-json-v1'; data: string };
++  rightsConfirmed: true;
+ }
+ 
+ export interface StylesData {
+@@ -419,7 +433,7 @@ export class ApiError extends Error {
+ }
+ 
+ export class Api {
+-  constructor(private readonly config: BuilderConfig) {}
++  constructor(protected readonly config: BuilderConfig) {}
+ 
+   /** A first answer the page already holds (BuilderConfig.boot), once; later calls ask the server. */
+   private boot<T>(key: 'document' | 'styles' | 'components'): Promise<T> | null {
+@@ -431,10 +445,13 @@ export class Api {
+   }
+ 
+   private async call<T>(method: 'GET' | 'POST' | 'DELETE', route: string, body?: unknown, signal?: AbortSignal): Promise<T> {
++    const localCms = this.config.localCms === true;
+     const init: RequestInit = {
+       method,
+-      credentials: 'same-origin',
+-      headers: { 'X-WP-Nonce': this.config.nonce, Accept: 'application/json' },
++      credentials: localCms ? 'omit' : 'same-origin',
++      headers: localCms
++        ? { 'X-Histos-Token': sessionStorage.getItem('histos-publish-session') ?? '', Accept: 'application/json' }
++        : { 'X-WP-Nonce': this.config.nonce, Accept: 'application/json' },
+     };
+     if (body !== undefined) {
+       init.body = JSON.stringify(body);
+@@ -444,35 +461,12 @@ export class Api {
+     const response = await fetch(this.config.restUrl + route, init);
+     const data: unknown = await response.json().catch(() => null);
+     if (!response.ok) {
+-      const error = (data ?? {}) as { message?: string; code?: string };
+-      throw new ApiError(error.message ?? t('Errore {0}', response.status), response.status, error.code ?? 'xb_error');
++      const error = (data ?? {}) as { message?: string; error?: string; code?: string };
++      throw new ApiError(error.message ?? error.error ?? t('Errore {0}', response.status), response.status, error.code ?? 'xb_error');
+     }
+     return data as T;
+   }
+ 
+-  /** A route of WordPress's own REST API (`wp/v2/evento`), with the same nonce: WordPress checks every permission. */
+-  private coreUrl(route: string): string {
+-    const base = this.config.restUrl;
+-    const root = base.slice(0, base.lastIndexOf('xb/v1'));
+-    // Plain permalinks: `?rest_route=/xb/v1/` — further parameters follow with `&`.
+-    return root + (root.includes('?') ? route.replace('?', '&') : route);
+-  }
+-
+-  async core<T>(method: 'GET' | 'POST' | 'DELETE', route: string, body?: unknown): Promise<{ data: T; total: number }> {
+-    const init: RequestInit = { method, credentials: 'same-origin', headers: { 'X-WP-Nonce': this.config.nonce, Accept: 'application/json' } };
+-    if (body !== undefined) {
+-      init.body = JSON.stringify(body);
+-      (init.headers as Record<string, string>)['Content-Type'] = 'application/json';
+-    }
+-    const response = await fetch(this.coreUrl(route), init);
+-    const data: unknown = await response.json().catch(() => null);
+-    if (!response.ok) {
+-      const error = (data ?? {}) as { message?: string; code?: string };
+-      throw new ApiError(error.message ?? t('Errore {0}', response.status), response.status, error.code ?? 'rest_error');
+-    }
+-    return { data: data as T, total: Number(response.headers.get('X-WP-Total') ?? 0) };
+-  }
+-
+   getDocument(id: number): Promise<DocumentData> {
+     const boot = id === this.config.postId ? this.boot<DocumentData>('document') : null;
+     if (boot) return boot.then((doc) => (this.bootContent = doc.content, doc));
+@@ -732,6 +726,12 @@ export class Api {
+   /** `as`: the role the page is seen as (lista della spesa 161), one of `roles`; '' for the real visitor. */
+   /** `ttl`: how long the link lasts, 3600, 86400, 172800 or 604800 (the server refuses any other); none: 48 hours. */
+   previewLink(postId: number, context = 0, as = '', ttl?: number): Promise<{ url: string; expires?: number | null; live?: string | null; roles?: Record<string, string> }> {
++    if (this.config.localCms) {
++      return this.call<{ status: string; previewUrl: string | null }>('POST', 'build', { previewAlias: postId }).then(({ status, previewUrl }) => {
++        if (status !== 'ready' || !previewUrl) throw new ApiError(t('Non è stato possibile creare l’anteprima. Controlla il report della build.'), 422, 'cms-preview-unavailable');
++        return { url: previewUrl, live: null };
++      });
++    }
+     return this.call('GET', `preview-link?post=${postId}&context=${context}${as ? `&as=${encodeURIComponent(as)}` : ''}${ttl ? `&ttl=${ttl}` : ''}`);
+   }
+ 
+@@ -768,6 +768,27 @@ export class Api {
+     return this.call('POST', 'styles', { styles, globals, head, base });
+   }
+ 
++  async uploadAsset(file: Blob, filename: string, mimeType: string): Promise<{ asset_id: string; source_url: string }> {
++    const url = `${this.config.restUrl}media?filename=${encodeURIComponent(filename)}`;
++    const localCms = (this.config as BuilderConfig & { localCms?: boolean }).localCms === true;
++    const response = await fetch(url, {
++      method: 'POST', credentials: localCms ? 'omit' : 'same-origin',
++      headers: {
++        ...(localCms ? { 'X-Histos-Token': sessionStorage.getItem('histos-publish-session') ?? '' } : { 'X-WP-Nonce': this.config.nonce }),
++        Accept: 'application/json', 'Content-Type': mimeType,
++      },
++      body: file,
++    });
++    const data: unknown = await response.json().catch(() => null);
++    if (!response.ok) {
++      const error = (data ?? {}) as { message?: string; error?: string };
++      throw new ApiError(error.message ?? error.error ?? t('Errore {0}', response.status), response.status, 'cms-asset-upload-failed');
++    }
++    const result = data as { asset_id?: unknown; source_url?: unknown };
++    if (typeof result.asset_id !== 'string' || typeof result.source_url !== 'string') throw new ApiError(t('Risposta del caricamento asset non valida.'), 502, 'cms-asset-upload-invalid');
++    return { asset_id: result.asset_id, source_url: result.source_url };
++  }
++
+   getFramework(): Promise<FrameworkData> {
+     return this.call('GET', 'framework');
+   }
+@@ -825,6 +846,52 @@ export class Api {
+   }
+ }
+ 
++/** Stable transport contract consumed by the shared builder state and panels. */
++export type BuilderBackend = Pick<Api, keyof Api>;
++
++/** WordPress transport: retain nonce authentication and the core REST API. */
++export class WordPressBackend extends Api {
++  constructor(config: BuilderConfig) {
++    super({ ...config, localCms: false });
++  }
++
++  /** A route of WordPress's own REST API (`wp/v2/evento`), with the same nonce: WordPress checks every permission. */
++  private coreUrl(route: string): string {
++    const base = this.config.restUrl;
++    const root = base.slice(0, base.lastIndexOf('xb/v1'));
++    // Plain permalinks: `?rest_route=/xb/v1/` — further parameters follow with `&`.
++    return root + (root.includes('?') ? route.replace('?', '&') : route);
++  }
++
++  async core<T>(method: 'GET' | 'POST' | 'DELETE', route: string, body?: unknown): Promise<{ data: T; total: number }> {
++    const init: RequestInit = { method, credentials: 'same-origin', headers: { 'X-WP-Nonce': this.config.nonce, Accept: 'application/json' } };
++    if (body !== undefined) {
++      init.body = JSON.stringify(body);
++      (init.headers as Record<string, string>)['Content-Type'] = 'application/json';
++    }
++    const response = await fetch(this.coreUrl(route), init);
++    const data: unknown = await response.json().catch(() => null);
++    if (!response.ok) {
++      const error = (data ?? {}) as { message?: string; code?: string };
++      throw new ApiError(error.message ?? t('Errore {0}', response.status), response.status, error.code ?? 'rest_error');
++    }
++    return { data: data as T, total: Number(response.headers.get('X-WP-Total') ?? 0) };
++  }
++
++}
++
++/** Standalone transport: use the local project API and its scoped session token. */
++export class LocalBackend extends Api {
++  constructor(config: BuilderConfig) {
++    super({ ...config, localCms: true });
++  }
++}
++
++/** Select the transport once at the host boundary; editor components stay host-agnostic. */
++export function createBuilderBackend(config: BuilderConfig): BuilderBackend {
++  return config.localCms === true ? new LocalBackend(config) : new WordPressBackend(config);
++}
++
+ /** A section of the library, without its clip. */
+ export interface LibrarySection {
+   id: string;
+diff --git a/src/lib/classPreview.ts b/src/lib/classPreview.ts
+index 7022c46..1c59c99 100644
+--- a/src/lib/classPreview.ts
++++ b/src/lib/classPreview.ts
+@@ -1,8 +1,7 @@
+ /**
+- * What a framework class does, for the HTML panel's completions (docs/spec/framework.md §Nel builder): the rules the
+- * canvas loads for it and, where it sets a colour or a space, a small sample. For utility-class frameworks (Core
+- * Framework, Automatic.css); Histeon CSS is written with variables and BEM classes, so it gets none. Everything is
+- * read from the canvas's own stylesheets and shown as text: nothing is parsed as markup.
++ * What a framework class does, for HTML completions: show its canvas rules and, where possible, a small computed
++ * sample. User-imported CSS is parsed in an isolated constructed stylesheet, without requesting its @import URLs.
++ * Everything is read as text; nothing is parsed as markup.
+  */
+ 
+ import { t } from './i18n.ts';
+@@ -16,16 +15,19 @@ export function selectorHasClass(selector: string, name: string): boolean {
+ }
+ 
+ /** The rules of the canvas that use the class, `selector { declarations }`, at most `limit`. */
+-export function rulesFor(doc: Document, name: string, limit = 4): string[] {
++export function rulesFor(doc: Document, name: string, limit = 4, importedCss: readonly string[] = []): string[] {
+   const out: string[] = [];
+   const walk = (rules: CSSRuleList, prefix: string) => {
+     for (const rule of Array.from(rules)) {
+       if (out.length >= limit) return;
+-      if (rule instanceof CSSStyleRule) {
+-        if (selectorHasClass(rule.selectorText, name)) out.push(`${prefix}${rule.selectorText} { ${rule.style.cssText} }`);
++      // CSSStyleRule objects from the canvas belong to the iframe's realm, so avoid parent-window instanceof checks.
++      if (rule.type === 1 && 'selectorText' in rule && 'style' in rule) {
++        const styleRule = rule as CSSStyleRule;
++        if (selectorHasClass(styleRule.selectorText, name)) out.push(prefix + styleRule.selectorText + ' { ' + styleRule.style.cssText + ' }');
+       } else if ('cssRules' in rule && (rule as CSSGroupingRule).cssRules) {
+-        const media = rule instanceof CSSMediaRule ? `@media ${rule.conditionText} → ` : '';
+-        walk((rule as CSSGroupingRule).cssRules, prefix + media);
++        const group = rule as CSSGroupingRule;
++        const media = rule.type === 4 && 'conditionText' in rule ? '@media ' + (rule as CSSMediaRule).conditionText + ' → ' : '';
++        walk(group.cssRules, prefix + media);
+       }
+     }
+   };
+@@ -35,15 +37,26 @@ export function rulesFor(doc: Document, name: string, limit = 4): string[] {
+     } catch {
+       /* a stylesheet from another origin: its rules cannot be read */
+     }
++    if (out.length >= limit) return out;
++  }
++  // Constructed stylesheets parse user-provided CSS without attaching it to the document or loading @import URLs.
++  for (const css of importedCss) {
++    try {
++      const sheet = new CSSStyleSheet();
++      sheet.replaceSync(css);
++      walk(sheet.cssRules, '');
++    } catch {
++      /* malformed CSS or a browser without synchronous constructed stylesheets */
++    }
+     if (out.length >= limit) break;
+   }
+   return out;
+ }
+ 
+ /** The info box of a completion: the class's rules and, if it colours or spaces something, a sample. */
+-export function classInfo(doc: Document | null, name: string): HTMLElement | null {
++export function classInfo(doc: Document | null, name: string, importedCss: readonly string[] = []): HTMLElement | null {
+   if (!doc) return null;
+-  const rules = rulesFor(doc, name);
++  const rules = rulesFor(doc, name, 4, importedCss);
+   const box = document.createElement('div');
+   box.className = 'xb-class-info';
+   if (rules.length === 0) {
+diff --git a/src/lib/clip.ts b/src/lib/clip.ts
+index b6fc0d0..e1d7366 100644
+--- a/src/lib/clip.ts
++++ b/src/lib/clip.ts
+@@ -3,7 +3,7 @@
+ // everywhere they appear (elements and selectors).
+ import { keyClass, parse, parseXb, serializeXb, statements, type XbBlock } from '@xb/dsl';
+ import { t } from './i18n.ts';
+-import { stripHandlers } from './speed.ts';
++import { stripHandlers, transferSvgBlocks } from './speed.ts';
+ 
+ export interface ClipStyle {
+   selector: string;
+@@ -170,7 +170,9 @@ export function htmlToBlocks(html: string, uid: () => string): { blocks: XbBlock
+   });
+   const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+   for (let n = walker.nextNode(); n; n = walker.nextNode()) if (n.nodeValue && /[{}]/.test(n.nodeValue)) n.nodeValue = esc(n.nodeValue);
+-  return { blocks: parse(doc.body.innerHTML.trim(), { uid }).blocks, dropped };
++  // Histeon Publish: pasted SVG keeps only the static subset that transfers and the static site accept (svgToBlocks).
++  const svg = transferSvgBlocks(parse(doc.body.innerHTML.trim(), { uid }).blocks);
++  return { blocks: svg.blocks, dropped: dropped + svg.dropped };
+ }
+ 
+ /** Component refs used by blocks, to warn about the ones this site lacks. */
+diff --git a/src/lib/completions.ts b/src/lib/completions.ts
+index 752cdc9..6de5470 100644
+--- a/src/lib/completions.ts
++++ b/src/lib/completions.ts
+@@ -37,11 +37,11 @@ export function classSource(items: () => NamedItem[], describe?: (name: string)
+     const line = context.state.doc.lineAt(context.pos);
+     const before = line.text.slice(0, context.pos - line.from);
+     if (!/\bclass\s*=\s*"[^"{]*$/.test(before)) return null;
+-    const word = context.matchBefore(/[\w-]*/);
++    const word = context.matchBefore(/[^\s"'<>]*/);
+     if (!word || (word.from === word.to && !context.explicit)) return null;
+     return {
+       from: word.from,
+-      validFor: /^[\w-]*$/,
++      validFor: /^[^\s"'<>]*$/,
+       options: items().map((item) => ({ label: item.name, detail: item.group, type: 'class', ...(describe ? { info: () => describe(item.name) } : {}) })),
+     };
+   };
+diff --git a/src/lib/config.ts b/src/lib/config.ts
+index 4dfb3e4..0d6e72d 100644
+--- a/src/lib/config.ts
++++ b/src/lib/config.ts
+@@ -48,6 +48,8 @@ export interface BuilderConfig {
+   canPublish: boolean;
+   /** Static Bridge keeps a static copy of the site and refreshes it after each release. */
+   staticBridge: boolean;
++  /** Relative, project-scoped media route used by the standalone CMS preview. */
++  cmsMediaBase?: string;
+   /** Publish only after the page checks found no error (Histeon → Impostazioni). */
+   checksBlock: boolean;
+   /** WordPress lets search engines index the site (Settings → Reading, `blog_public`); read only, for the page checks. */
+@@ -62,6 +64,12 @@ export interface BuilderConfig {
+   viewOnly: boolean;
+   /** Client mode: the mini GUI groups he may use on this page's own look (voce 186), [] for none. */
+   lookGroups: string[];
++  /** Local Histeon CMS adapter: static-page profile, no WordPress-only actions. */
++  localCms?: boolean;
++  /** Local Histeon CMS: where "←" leads back (the project in Histeon Publish) and the project's name. */
++  returnTo?: { url: string; label: string } | null;
++  /** The local backend can preview this document (pages only). */
++  previewable?: boolean;
+   /** Fluent Forms is active and this user may edit its forms (docs/spec/fluent-forms.md). */
+   fluentForms: boolean;
+   /** Set when the document is an FSE template or template part. */
+@@ -164,6 +172,20 @@ export function safeUrl(value: unknown): string | null {
+   }
+ }
+ 
++/** Only a project of Histeon Publish, or its site administration, on the same origin, with a non-empty name. */
++function returnToOf(value: unknown): { url: string; label: string } | null {
++  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
++  const { url, label } = value as Record<string, unknown>;
++  if (typeof url !== 'string' || !/^\/#\/cms\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(?:\/amministra(?:\/[a-z0-9_-]{1,80})?)?$/u.test(url)) return null;
++  if (typeof label !== 'string' || !label.trim()) return null;
++  return { url, label: label.trim().slice(0, 80) };
++}
++
++function cmsMediaBaseOf(value: unknown): string {
++  if (typeof value !== 'string' || !/^\/__cms-media\/[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)) return '';
++  return value;
++}
++
+ /** Only well-formed entries: command id => combinations (the server checked them already). */
+ function shortcutsOf(value: unknown): Record<string, string[]> {
+   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+@@ -191,6 +213,8 @@ export function readConfig(): BuilderConfig {
+     trusted: config.trusted === true,
+     canPublish: config.canPublish === true,
+     staticBridge: config.staticBridge === true,
++    cmsMediaBase: cmsMediaBaseOf(config.cmsMediaBase),
++    returnTo: returnToOf(config.returnTo),
+     checksBlock: config.checksBlock === true,
+     blogPublic: config.blogPublic !== false,
+     canManage: config.canManage === true,
+@@ -198,6 +222,7 @@ export function readConfig(): BuilderConfig {
+     contentProps: config.contentOnly === true && config.contentProps === true,
+     viewOnly: config.contentOnly === true && config.viewOnly === true,
+     lookGroups: config.contentOnly === true && Array.isArray(config.lookGroups) ? config.lookGroups.filter((g): g is string => typeof g === 'string') : [],
++    localCms: config.localCms === true,
+     fluentForms: config.fluentForms === true,
+     embed: config.embed === true && window.parent !== window,
+     shortcuts: shortcutsOf(config.shortcuts),
+diff --git a/src/lib/media.ts b/src/lib/media.ts
+index 5e863ff..93bb464 100644
+--- a/src/lib/media.ts
++++ b/src/lib/media.ts
+@@ -23,8 +23,9 @@ export function literal(value: string): string {
+ 
+ function httpUrl(value: unknown): string | null {
+   if (typeof value !== 'string') return null;
++  if (/^\/__cms-media\/[0-9a-f-]{36}\/[0-9a-f-]{36}$/iu.test(value)) return value;
+   try {
+-    const url = new URL(value); // The REST API returns absolute URLs.
++    const url = new URL(value, window.location.href); // Local CMS media references are port-independent relative URLs.
+     return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+   } catch {
+     return null;
+diff --git a/src/lib/pages.ts b/src/lib/pages.ts
+index fbde410..c226719 100644
+--- a/src/lib/pages.ts
++++ b/src/lib/pages.ts
+@@ -1,7 +1,7 @@
+ // Pages of a release, loaded in sandboxed frames from the Publish window: the visual comparison
+ // (VisualDiff.svelte) and the page checks before publishing (PublishChecks.svelte). Same rules as the canvas:
+ // the frame runs no script of the page, and a page that went to another origin is never read.
+-import type { Api, Change } from './api.ts';
++import type { BuilderBackend, Change } from './api.ts';
+ import { t } from './i18n.ts';
+ import { FREEZE } from './visualDiff.ts';
+ 
+@@ -23,7 +23,7 @@ const LOAD_TIMEOUT = 30_000;
+  * changes. `needLive`: only pages already online (to compare them). Notes say what was left out and why; `total`
+  * counts the targets and the pages left out past MAX_PAGES (M-B1: a round says how many it checked of how many).
+  */
+-export async function pageTargets(api: Api, postId: number, changes: Change[], needLive: boolean): Promise<{ targets: PageTarget[]; skipped: string[]; total: number }> {
++export async function pageTargets(api: BuilderBackend, postId: number, changes: Change[], needLive: boolean): Promise<{ targets: PageTarget[]; skipped: string[]; total: number }> {
+   const ids = new Map<number, string>();
+   if (postId) ids.set(postId, t('Pagina aperta nel builder'));
+   for (const c of changes) {
+diff --git a/src/lib/speed.ts b/src/lib/speed.ts
+index 6292b5e..509e980 100644
+--- a/src/lib/speed.ts
++++ b/src/lib/speed.ts
+@@ -2,6 +2,7 @@
+ // SVG code turned into elements, BEM class names for a block's children.
+ import { childrenOf, findClosingBrace, loopElse, parseExpression, type ElementBlock, type Expr, type XbBlock } from '@xb/dsl';
+ import { t } from './i18n.ts';
++import { transferSvgSubset } from '@cms/transfer-markup';
+ 
+ /** Roots every component sees (plugin/src/Render/Context.php GLOBAL_ROOTS). */
+ export const GLOBAL_ROOTS = ['this', 'site', 'user', 'url', 'data', 'facets'];
+@@ -224,8 +225,30 @@ export function svgToBlocks(source: string, uid: () => string): { blocks: XbBloc
+     return block;
+   };
+   const svg = convert(root, 0);
+-  if (!svg) throw new Error(t('Non è un SVG valido.'));
+-  return { blocks: [svg], dropped: [...dropped] };
++  // Histeon Publish: every page may go to WordPress through a transfer and to the static site, which both keep only
++  // the static SVG subset (histos-transfer-markup-v1). What they would refuse is left out here, and named.
++  const subset = svg ? transferSvgSubset(svg) : { block: null, dropped: [] };
++  for (const name of subset.dropped) dropped.add(name);
++  if (!subset.block) throw new Error(t('Non è un SVG valido.'));
++  return { blocks: [subset.block], dropped: [...dropped] };
++}
++
++/**
++ * Every svg of pasted blocks reduced to the static SVG subset (histos-transfer-markup-v1, as svgToBlocks): how many
++ * elements, attributes or texts were left out.
++ */
++export function transferSvgBlocks(blocks: XbBlock[]): { blocks: XbBlock[]; dropped: number } {
++  let dropped = 0;
++  const visit = (list: XbBlock[]): XbBlock[] =>
++    list.flatMap((block): XbBlock[] => {
++      if (block.name === 'xb/element' && block.attrs.tag === 'svg') {
++        const subset = transferSvgSubset(block);
++        dropped += subset.dropped.length + (subset.block ? 0 : 1);
++        return subset.block ? [subset.block] : [];
++      }
++      return 'children' in block ? [{ ...block, children: visit(block.children as XbBlock[]) } as XbBlock] : [block];
++    });
++  return { blocks: visit(blocks), dropped };
+ }
+ 
+ // ------------------------------------------------------------------ Auto-BEM
+diff --git a/src/lib/state.svelte.ts b/src/lib/state.svelte.ts
+index 40aeae5..6d62198 100644
+--- a/src/lib/state.svelte.ts
++++ b/src/lib/state.svelte.ts
+@@ -11,7 +11,8 @@ import { contentOnlyProblem } from './contentOnly.ts';
+ import { lookProblem, pageCss, setPageCss, type PageStyle } from './pageLook.ts';
+ import { rebaseEntries, rebaseTree } from './rebase.ts';
+ import { t, tn } from './i18n.ts';
+-import { ApiError, type Api, type ComponentInfo, type DocumentData, type FrameworkData, type GlobalSheet, type Preview, type Schema, type SiteExtensions, type StyleEntry } from './api.ts';
++import { rewriteMappedCssAssetUrls } from '@cms/css-resources';
++import { ApiError, type BuilderBackend, type ComponentInfo, type DocumentData, type ExternalFrameworkSource, type FrameworkData, type GlobalSheet, type Preview, type Schema, type SiteExtensions, type StyleEntry } from './api.ts';
+ 
+ interface Snapshot {
+   tree: XbBlock[];
+@@ -223,12 +224,22 @@ export class BuilderState {
+ 
+   /** Named media queries (`@media (--tablet)`), resolved in the live CSS like on the site. */
+   queries = $state<Record<string, string>>({});
++  /** Local project media URL prefix; set only by the standalone CMS adapter. */
++  localMediaBase = '';
+   /** Live CSS of the canvas, compiled in the browser so typing in the CSS panel needs no round trip. */
+   /** A recipe tried on the canvas from the recipes panel, before it is applied: its CSS for one selector. */
+   recipePreview = $state<{ selector: string; css: string } | null>(null);
+   readonly liveCss = $derived(
+     resolveNamedQueries(
+-      this.globals.map((g) => g.css).join('\n') + '\n' + this.styles.map((s) => this.compiled(s.selector, s.css)).join('\n') + '\n' + this.forcedCss + (this.recipePreview ? '\n' + compileCss(this.recipePreview.selector, this.recipePreview.css) : ''),
++      this.globals.map((g) => this.localMediaBase ? rewriteMappedCssAssetUrls(g.css, g.assets ?? [], (assetId) => `${this.localMediaBase}/${assetId}`) : g.css).join('\n')
++        + '\n'
++        + this.styles.map((s) => {
++          const compiled = this.compiled(s.selector, s.css);
++          return this.localMediaBase ? rewriteMappedCssAssetUrls(compiled, s.assets ?? [], (assetId) => `${this.localMediaBase}/${assetId}`) : compiled;
++        }).join('\n')
++        + '\n'
++        + this.forcedCss
++        + (this.recipePreview ? '\n' + compileCss(this.recipePreview.selector, this.recipePreview.css) : ''),
+       this.queries,
+     ) + (this.pageStyles.length ? '\n' + pageCss(this.pageStyles, this.queries) : ''),
+   );
+@@ -253,20 +264,24 @@ export class BuilderState {
+   readonly viewOnly: boolean;
+   /** Client mode: the mini GUI groups he may use on the page's own look (voce 186), [] for none. */
+   readonly lookGroups: string[];
++  /** Local CMS profile: no WP component library or external framework endpoint. */
++  readonly localCms: boolean;
+   private baseline: XbBlock[] = [];
+ 
+   constructor(
+-    readonly api: Api,
++    readonly api: BuilderBackend,
+     postId: number,
+     contentOnly = false,
+     contentProps = false,
+     client: { viewOnly?: boolean; lookGroups?: string[] } = {},
++    localCms = false,
+   ) {
+     this.postId = postId;
+     this.contentOnly = contentOnly;
+     this.contentProps = contentOnly && contentProps;
+     this.viewOnly = contentOnly && client.viewOnly === true;
+     this.lookGroups = contentOnly && !this.viewOnly ? [...(client.lookGroups ?? [])] : [];
++    this.localCms = localCms;
+   }
+ 
+   /** In client mode, why an edit is refused ('' when it is fine); the status line says it. */
+@@ -589,6 +604,19 @@ export class BuilderState {
+     this.styles = frozen([...this.styles, { id: this.uniqueStyleId(selector), selector, css }]);
+   }
+ 
++  setStyleAssets(selector: string, assets: Array<{ reference: string; assetId: string }>): void {
++    if (this.contentOnly && this.refused(t('stili'))) return;
++    const index = this.styles.findIndex((style) => style.selector === selector);
++    if (index < 0) return;
++    const current = this.styles[index]!;
++    if (JSON.stringify(current.assets ?? []) === JSON.stringify(assets)) return;
++    this.record(`css:${selector}`);
++    const updated = { ...current };
++    delete updated.assets;
++    this.styles = frozen(this.styles.map((style, i) => (i === index ? { ...updated, ...(assets.length ? { assets } : {}) } : style)));
++    this.styleRevision++;
++  }
++
+   /**
+    * Blocks' rules leave the global sheets for their selectors (docs/spec/styles.md §11): the selectors' CSS and the
+    * sheets change together, as one step to undo. An existing entry is rewritten in place; new entries go before
+@@ -605,7 +633,7 @@ export class BuilderState {
+       else fresh.push({ id: this.uniqueStyleId(selector, fresh), selector, css });
+     }
+     this.styles = frozen([...fresh, ...styles]);
+-    this.globals = frozen(this.globals.map((g) => (Object.hasOwn(sheets, g.id) ? { id: g.id, css: sheets[g.id] as string } : g)));
++    this.globals = frozen(this.globals.map((g) => (Object.hasOwn(sheets, g.id) ? { ...g, css: sheets[g.id] as string } : g)));
+     this.styleRevision++;
+   }
+ 
+@@ -615,7 +643,33 @@ export class BuilderState {
+     if ((this.globals.find((g) => g.id === id)?.css ?? '') === css) return;
+     this.record(`css:sheet:${id}`);
+     const index = this.globals.findIndex((g) => g.id === id);
+-    this.globals = frozen(index >= 0 ? this.globals.map((g, i) => (i === index ? { id, css } : g)) : [...this.globals, { id, css }]);
++    this.globals = frozen(index >= 0 ? this.globals.map((g, i) => (i === index ? { ...g, css } : g)) : [...this.globals, { id, css }]);
++  }
++
++  setGlobalAssets(id: string, assets: Array<{ reference: string; assetId: string }>): void {
++    if (this.contentOnly && this.refused(t('stili'))) return;
++    const index = this.globals.findIndex((sheet) => sheet.id === id);
++    if (index < 0) return;
++    const current = this.globals[index]!;
++    if (JSON.stringify(current.assets ?? []) === JSON.stringify(assets)) return;
++    this.record(`css:sheet:${id}`);
++    const updated = { ...current };
++    delete updated.assets;
++    this.globals = frozen(this.globals.map((sheet, i) => (i === index ? { ...updated, ...(assets.length ? { assets } : {}) } : sheet)));
++    this.styleRevision++;
++  }
++
++  /** Adds a separate imported framework sheet and keeps its user-declared provenance with the project. */
++  addFrameworkCss(css: string, source: ExternalFrameworkSource, assets: Array<{ reference: string; assetId: string }> = []): string {
++    if (this.contentOnly && this.refused(t('stili'))) return '';
++    const slug = source.frameworkId.replace(/[^a-z0-9-]/giu, '-');
++    let id = `framework-${slug}`;
++    let suffix = 2;
++    while (this.globals.some((sheet) => sheet.id === id)) id = `framework-${slug}-${suffix++}`;
++    this.record(`css:sheet:${id}`);
++    this.globals = frozen([...this.globals, { id, css, source, ...(assets.length ? { assets } : {}) }]);
++    this.styleRevision++;
++    return id;
+   }
+ 
+   /** The block with this uid in the live tree, or null. */
+@@ -1148,6 +1202,7 @@ export class BuilderState {
+         this.stylesBase = saved.base;
+         const stored = { styles: frozen(saved.styles), globals: frozen(saved.globals) };
+         this.savedStyles = this.stylesJson(stored.styles, stored.globals);
++        void this.api.getFramework().then((framework) => (this.framework = framework)).catch(() => undefined);
+         if (this.savedStyles !== sent) {
+           this.flushEdits();
+           const styles = rebaseEntries(this.styles, sentStyles, stored.styles);

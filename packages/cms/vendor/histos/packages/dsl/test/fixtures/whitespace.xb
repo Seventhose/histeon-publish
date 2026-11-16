@@ -1,0 +1,10 @@
+<pre class="code">  riga 1
+    <b>riga 2</b>   fine</pre>
+<p> spazio iniziale <em>enfasi</em> {" "}e testo\{non interpolato\}</p>
+<textarea name="msg">  <b>letterale</b> {non} </textarea>
+<div>
+  <!-- commento rimosso -->
+  <span class="a">uno</span> <span class="b">due</span>
+</div>
+{#raw}<marquee>{grezzo}</marquee>{/raw}
+<svg viewBox="0 0 10 10"><linearGradient id="g"></linearGradient><path d="M0 0L10 10"/></svg>

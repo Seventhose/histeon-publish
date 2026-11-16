@@ -1,0 +1,381 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://histos.example/schemas/site-entity-v2.schema.json",
+  "title": "Histos site transfer entity v2",
+  "oneOf": [
+    { "$ref": "#/definitions/page" },
+    { "$ref": "#/definitions/post" },
+    { "$ref": "#/definitions/component" },
+    { "$ref": "#/definitions/templatePart" },
+    { "$ref": "#/definitions/template" },
+    { "$ref": "#/definitions/styles" },
+    { "$ref": "#/definitions/asset" },
+    { "$ref": "#/definitions/contentType" },
+    { "$ref": "#/definitions/contentRecord" },
+    { "$ref": "#/definitions/taxonomy" },
+    { "$ref": "#/definitions/term" },
+    { "$ref": "#/definitions/queryPreset" },
+    { "$ref": "#/definitions/querySource" },
+    { "$ref": "#/definitions/tombstone" }
+  ],
+  "definitions": {
+    "uuid": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "base": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "schemaVersion", "revisionHash", "payload"],
+      "properties": {
+        "id": { "$ref": "#/definitions/uuid" },
+        "kind": { "type": "string" },
+        "schemaVersion": { "const": 1 },
+        "revisionHash": { "$ref": "#/definitions/sha256" },
+        "baseHash": { "$ref": "#/definitions/sha256" },
+        "payload": { "type": "object" }
+      }
+    },
+    "cssAssetReferences": {
+      "type": "array",
+      "maxItems": 500,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["reference", "assetId"],
+        "properties": {
+          "reference": { "type": "string", "minLength": 1, "maxLength": 2048 },
+          "assetId": { "$ref": "#/definitions/uuid" }
+        }
+      }
+    },
+    "tombstone": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "required": ["baseHash"],
+          "properties": {
+            "kind": { "const": "tombstone" },
+            "baseHash": { "$ref": "#/definitions/sha256" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["entityKind", "deletedAt", "label", "previousRevisionHash", "previousPayload"],
+              "properties": {
+                "entityKind": { "enum": ["document", "component", "template-part", "template", "styles", "asset", "content-type", "content-record", "taxonomy", "term", "query-preset", "query-source"] },
+                "deletedAt": { "type": "string", "format": "date-time", "maxLength": 40 },
+                "label": { "type": "string", "minLength": 1, "maxLength": 500 },
+                "previousRevisionHash": { "$ref": "#/definitions/sha256" },
+                "previousPayload": { "type": "object" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "page": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "document" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["documentType", "title", "slug", "status", "content", "script"],
+              "properties": {
+                "documentType": { "const": "page" },
+                "title": { "type": "string", "maxLength": 500 },
+                "slug": { "type": "string", "maxLength": 200 },
+                "status": { "enum": ["draft", "published"] },
+                "content": { "type": "string", "maxLength": 4194304 },
+                "script": { "type": "string", "maxLength": 100000 },
+                "templateRef": { "type": ["string", "null"], "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "post": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "document" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["documentType", "title", "slug", "status", "content", "script", "publishedAt", "excerpt", "terms"],
+              "properties": {
+                "documentType": { "const": "post" },
+                "title": { "type": "string", "maxLength": 500 },
+                "slug": { "type": "string", "minLength": 1, "maxLength": 200, "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+                "status": { "enum": ["draft", "published"] },
+                "content": { "type": "string", "maxLength": 4194304 },
+                "script": { "type": "string", "maxLength": 100000 },
+                "templateRef": { "type": ["string", "null"], "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" },
+                "publishedAt": { "anyOf": [{ "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$" }, { "type": "null" }] },
+                "excerpt": { "type": "string", "maxLength": 20000 },
+                "terms": { "type": "object", "maxProperties": 64, "propertyNames": { "pattern": "^[a-z][a-z0-9_-]{0,62}$" }, "additionalProperties": { "type": "array", "uniqueItems": true, "maxItems": 100, "items": { "$ref": "#/definitions/uuid" } } },
+                "image": { "$ref": "#/definitions/uuid" }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "component": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "component" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["title", "ref", "schema", "content", "script"],
+              "properties": {
+                "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+                "ref": { "type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*)?$" },
+                "schema": { "type": "object", "additionalProperties": false, "required": ["props"], "properties": { "props": { "type": "object", "maxProperties": 64 } } },
+                "content": { "type": "string", "maxLength": 4194304 },
+                "script": { "type": "string", "maxLength": 100000 },
+                "status": { "enum": ["draft", "published"] }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "templatePart": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "template-part" },
+            "payload": { "$ref": "#/definitions/reusablePayload" }
+          }
+        }
+      ]
+    },
+    "template": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "template" },
+            "payload": { "$ref": "#/definitions/templatePayload" }
+          }
+        }
+      ]
+    },
+    "reusablePayload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "ref", "schema", "content", "script"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "ref": { "type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" },
+        "schema": { "type": "object", "additionalProperties": false, "required": ["props"], "properties": { "props": { "type": "object", "maxProperties": 64 } } },
+        "content": { "type": "string", "maxLength": 4194304 },
+        "script": { "type": "string", "maxLength": 100000 },
+        "status": { "enum": ["draft", "published"] },
+        "area": { "enum": ["header", "footer", "uncategorized"] }
+      }
+    },
+    "templatePayload": {
+      "type": "object", "additionalProperties": false,
+      "required": ["title", "ref", "schema", "content", "script"],
+      "properties": {
+        "title": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "ref": { "type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" },
+        "schema": { "type": "object", "additionalProperties": false, "required": ["props"], "properties": { "props": { "type": "object", "maxProperties": 64 } } },
+        "content": { "type": "string", "maxLength": 4194304 },
+        "script": { "type": "string", "maxLength": 100000 },
+        "status": { "enum": ["draft", "published"] },
+        "role": { "enum": ["front-page", "home", "index", "single", "page", "archive", "category", "tag", "search", "404"] }
+      }
+    },
+    "styles": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "styles" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["styles", "globals", "compiledCss"],
+              "properties": {
+                "styles": {
+                  "type": "array", "maxItems": 5000,
+                  "items": { "type": "object", "additionalProperties": false, "required": ["id", "selector", "css"], "properties": { "id": { "type": "string", "maxLength": 128 }, "selector": { "type": "string", "maxLength": 1024 }, "css": { "type": "string", "maxLength": 1048576 }, "assets": { "$ref": "#/definitions/cssAssetReferences" } } }
+                },
+                "globals": {
+                  "type": "array", "maxItems": 100,
+                  "items": {
+                    "type": "object", "additionalProperties": false, "required": ["id", "css"],
+                    "properties": {
+                      "id": { "type": "string", "maxLength": 128 },
+                      "css": { "type": "string", "maxLength": 1048576 },
+                      "assets": { "$ref": "#/definitions/cssAssetReferences" },
+                      "source": {
+                        "type": "object", "additionalProperties": false,
+                        "required": ["kind", "frameworkId", "name", "rightsConfirmed"],
+                        "properties": {
+                          "kind": { "const": "user-css" },
+                          "frameworkId": { "enum": ["core-framework", "automatic-css", "custom"] },
+                          "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+                          "version": { "type": "string", "maxLength": 80 },
+                          "license": { "type": "string", "maxLength": 160 },
+                          "sourceUrl": { "type": "string", "minLength": 1, "maxLength": 2048, "pattern": "^https?://", "format": "uri" },
+                          "rightsConfirmed": { "const": true },
+                          "preset": {
+                            "type": "object", "additionalProperties": false, "required": ["format", "data"],
+                            "properties": {
+                              "format": { "enum": ["core-lz-utf16-v1", "core-json-v1"] },
+                              "data": { "type": "string", "minLength": 1, "maxLength": 524288 }
+                            }
+                          },
+                          "configuration": {
+                            "type": "object", "additionalProperties": false, "required": ["format", "data"],
+                            "properties": {
+                              "format": { "const": "opaque-utf8-v1" },
+                              "data": { "type": "string", "minLength": 1, "maxLength": 1048576 }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "compiledCss": { "type": "string", "maxLength": 4194304 },
+                "design": {
+                  "type": "object", "maxProperties": 512, "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,63}$" },
+                  "additionalProperties": { "anyOf": [{ "type": "string", "maxLength": 240 }, { "type": "number" }] },
+                  "properties": {
+                    "primary": { "type": "string", "maxLength": 120 }, "secondary": { "type": "string", "maxLength": 120 },
+                    "accent": { "type": "string", "maxLength": 120 }, "neutral": { "type": "string", "maxLength": 120 },
+                    "success": { "type": "string", "maxLength": 120 }, "warning": { "type": "string", "maxLength": 120 },
+                    "danger": { "type": "string", "maxLength": 120 }, "info": { "type": "string", "maxLength": 120 },
+                    "text_min": { "type": "number", "minimum": 10, "maximum": 32 }, "text_max": { "type": "number", "minimum": 10, "maximum": 40 },
+                    "text_ratio_min": { "type": "number", "minimum": 1, "maximum": 2 }, "text_ratio_max": { "type": "number", "minimum": 1, "maximum": 2 },
+                    "space_min": { "type": "number", "minimum": 4, "maximum": 64 }, "space_max": { "type": "number", "minimum": 4, "maximum": 96 },
+                    "space_ratio_min": { "type": "number", "minimum": 1, "maximum": 2.5 }, "space_ratio_max": { "type": "number", "minimum": 1, "maximum": 2.5 },
+                    "viewport_min": { "type": "integer", "minimum": 240, "maximum": 1200 }, "viewport_max": { "type": "integer", "minimum": 600, "maximum": 3840 },
+                    "radius": { "type": "number", "minimum": 0, "maximum": 64 }, "width_content": { "type": "number", "minimum": 30, "maximum": 160 },
+                    "width_wide": { "type": "number", "minimum": 30, "maximum": 200 }, "width_prose": { "type": "number", "minimum": 30, "maximum": 120 },
+                    "font_body": { "type": "string", "maxLength": 240 }, "font_heading": { "type": "string", "maxLength": 240 }, "font_mono": { "type": "string", "maxLength": 240 }
+                  }
+                },
+                "tokenOverrides": { "type": "object", "maxProperties": 128, "patternProperties": { "^xb-[a-z0-9-]{1,100}$": { "type": "string", "maxLength": 240 } }, "additionalProperties": false },
+                "queries": { "type": "object", "maxProperties": 100, "patternProperties": { "^[a-z][a-z0-9-]{0,30}$": { "type": "string", "maxLength": 160 } }, "additionalProperties": false }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "asset": {
+      "allOf": [
+        { "$ref": "#/definitions/base" },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "const": "asset" },
+            "payload": {
+              "type": "object", "additionalProperties": false,
+              "required": ["sha256", "mediaType", "bytes", "path", "alt", "title", "caption"],
+              "properties": {
+                "sha256": { "$ref": "#/definitions/sha256" },
+                "mediaType": { "type": "string", "maxLength": 128 },
+                "bytes": { "type": "integer", "minimum": 0, "maximum": 536870912 },
+                "path": { "type": "string", "pattern": "^media/[0-9a-f]{64}$" },
+                "alt": { "type": "string", "maxLength": 1000 },
+                "title": { "type": "string", "maxLength": 500 },
+                "caption": { "type": "string", "maxLength": 4000 },
+                "width": { "type": "integer", "minimum": 0 },
+                "height": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fieldDefinition": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "label", "type", "required", "public", "multiple"],
+      "properties": {
+        "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,62}$" },
+        "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+        "type": { "enum": ["text", "rich-text", "integer", "decimal", "boolean", "date", "datetime", "enum", "url", "asset", "relation"] },
+        "required": { "type": "boolean" },
+        "public": { "type": "boolean" },
+        "multiple": { "type": "boolean" },
+        "options": { "type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": true, "items": { "type": "string", "minLength": 1, "maxLength": 200 } },
+        "targetType": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" }
+      }
+    },
+    "contentType": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "content-type" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["key", "label", "fields"], "properties": {
+          "key": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$", "not": { "enum": ["post", "page"] } }, "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "fields": { "type": "array", "maxItems": 64, "items": { "$ref": "#/definitions/fieldDefinition" } },
+          "singleTemplateRef": { "type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" },
+          "archiveTemplateRef": { "type": "string", "maxLength": 128, "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z0-9]*)*)?$" },
+          "public": { "const": false }
+        } }
+      } } ]
+    },
+    "contentRecord": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "content-record" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["typeKey", "slug", "locale", "title", "status", "publishedAt", "excerpt", "order", "values", "terms"], "properties": {
+          "typeKey": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" }, "slug": { "type": "string", "minLength": 1, "maxLength": 63 },
+          "locale": { "type": "string", "minLength": 2, "maxLength": 64 }, "title": { "type": "string", "minLength": 1, "maxLength": 240 },
+          "status": { "enum": ["draft", "published", "archived"] }, "publishedAt": { "type": ["string", "null"], "maxLength": 40 },
+          "excerpt": { "type": "string", "maxLength": 20000 }, "order": { "type": "integer", "minimum": -9007199254740991, "maximum": 9007199254740991 },
+          "values": { "type": "object", "maxProperties": 64 }, "terms": { "type": "object", "maxProperties": 64, "additionalProperties": { "type": "array", "uniqueItems": true, "maxItems": 100, "items": { "$ref": "#/definitions/uuid" } } }
+        } }
+      } } ]
+    },
+    "taxonomy": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "taxonomy" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["key", "label", "types"], "properties": {
+          "key": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" }, "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "types": { "type": "array", "maxItems": 64, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" } }
+        } }
+      } } ]
+    },
+    "term": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "term" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["taxonomyKey", "slug", "label", "parentId"], "properties": {
+          "taxonomyKey": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" }, "slug": { "type": "string", "minLength": 1, "maxLength": 63 },
+          "label": { "type": "string", "minLength": 1, "maxLength": 120 }, "parentId": { "anyOf": [{ "$ref": "#/definitions/uuid" }, { "type": "null" }] }
+        } }
+      } } ]
+    },
+    "queryPreset": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "query-preset" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["key", "label", "typeKey", "limit", "orderBy", "order"], "properties": {
+          "key": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$" }, "label": { "type": "string", "minLength": 1, "maxLength": 120 },
+          "typeKey": { "type": "string", "pattern": "^[a-z][a-z0-9_-]{0,62}$" }, "limit": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "limitParam": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$" }, "offset": { "type": "integer", "minimum": 0, "maximum": 1000000 },
+          "offsetParam": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$" }, "orderBy": { "type": "string", "maxLength": 64 },
+          "order": { "enum": ["asc", "desc"] }, "filter": { "type": "object", "maxProperties": 32 }
+        } }
+      } } ]
+    },
+    "querySource": {
+      "allOf": [ { "$ref": "#/definitions/base" }, { "type": "object", "properties": {
+        "kind": { "const": "query-source" },
+        "payload": { "type": "object", "additionalProperties": false, "required": ["name", "data"], "properties": {
+          "name": { "type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$" }, "data": {}
+        } }
+      } } ]
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "Aspetto: quante pagine cambiano rispetto al sito online, a schermo grande e al telefono": "Appearance: how many pages change compared with the live site, on a large screen and on a phone",
+  "Calcola": "Calculate",
+  "Aspetto: confronto in corso…": "Appearance: comparing…",
+  "Aspetto: nessuna pagina è già online, niente da confrontare": "Appearance: no page is online yet, nothing to compare",
+  "Aspetto: {0} pagina cambia a schermo grande, {1} al telefono": "Appearance: {0} page changes on a large screen, {1} on a phone",
+  "Aspetto: {0} pagine cambiano a schermo grande, {1} al telefono": "Appearance: {0} pages change on a large screen, {1} on a phone",
+  "({0} confronto non riuscito)": "({0} comparison failed)",
+  "({0} confronti non riusciti)": "({0} comparisons failed)",
+  "Guarda": "View",
+  "Pagina in confronto": "Page being compared"
+}

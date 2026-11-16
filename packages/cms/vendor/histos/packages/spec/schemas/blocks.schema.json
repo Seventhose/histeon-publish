@@ -1,0 +1,334 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://xb.invalid/schemas/blocks/0.1.json",
+  "title": "XB block tree v0.1",
+  "description": "Normative shape of an XB block (docs/spec/blocks.md). Applies to the in-memory tree; in post_content each block is serialized as Gutenberg block grammar with `attrs` as the comment JSON and `children` as inner blocks.",
+  "$ref": "#/$defs/Block",
+  "$defs": {
+    "Uid": { "type": "string", "pattern": "^[a-z0-9]{8,16}$" },
+    "Identifier": { "type": "string", "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$" },
+    "Label": { "type": "string", "minLength": 1, "maxLength": 80, "not": { "pattern": "\\{" } },
+    "SlotName": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9_-]*$" },
+    "Expression": {
+      "description": "Source text of an expression (docs/spec/dsl.md §4). Validated by the expression parser, not by this schema.",
+      "type": "string",
+      "minLength": 1
+    },
+    "Children": { "type": "array", "items": { "$ref": "#/$defs/Block" } },
+
+    "Block": {
+      "type": "object",
+      "required": ["name", "attrs"],
+      "properties": {
+        "name": {
+          "enum": [
+            "xb/element",
+            "xb/text",
+            "xb/if",
+            "xb/branch",
+            "xb/loop",
+            "xb/component",
+            "xb/slot",
+            "xb/slot-fill",
+            "xb/raw",
+            "xb/passthrough",
+            "xb/post-content"
+          ]
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "name": { "const": "xb/element" } } }, "then": { "$ref": "#/$defs/Element" } },
+        { "if": { "properties": { "name": { "const": "xb/text" } } }, "then": { "$ref": "#/$defs/Text" } },
+        { "if": { "properties": { "name": { "const": "xb/if" } } }, "then": { "$ref": "#/$defs/If" } },
+        { "if": { "properties": { "name": { "const": "xb/branch" } } }, "then": { "$ref": "#/$defs/Branch" } },
+        { "if": { "properties": { "name": { "const": "xb/loop" } } }, "then": { "$ref": "#/$defs/Loop" } },
+        { "if": { "properties": { "name": { "const": "xb/component" } } }, "then": { "$ref": "#/$defs/Component" } },
+        { "if": { "properties": { "name": { "const": "xb/slot" } } }, "then": { "$ref": "#/$defs/Slot" } },
+        { "if": { "properties": { "name": { "const": "xb/slot-fill" } } }, "then": { "$ref": "#/$defs/SlotFill" } },
+        { "if": { "properties": { "name": { "const": "xb/raw" } } }, "then": { "$ref": "#/$defs/Raw" } },
+        { "if": { "properties": { "name": { "const": "xb/passthrough" } } }, "then": { "$ref": "#/$defs/Passthrough" } },
+        { "if": { "properties": { "name": { "const": "xb/post-content" } } }, "then": { "$ref": "#/$defs/PostContent" } }
+      ]
+    },
+
+    "Element": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/element" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "tag"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "tag": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*$" },
+            "label": { "$ref": "#/$defs/Label" },
+            "attributes": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": { "pattern": "^[a-zA-Z_:@][a-zA-Z0-9_:.@-]*$", "not": { "pattern": "^xb:" } },
+              "additionalProperties": { "anyOf": [{ "type": "string" }, { "const": true }] }
+            }
+          }
+        },
+        "children": { "$ref": "#/$defs/Children" }
+      },
+      "if": {
+        "properties": {
+          "attrs": {
+            "properties": {
+              "tag": { "enum": ["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"] }
+            }
+          }
+        }
+      },
+      "then": { "properties": { "children": { "maxItems": 0 } } }
+    },
+
+    "Text": {
+      "type": "object",
+      "required": ["name", "attrs"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/text" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "content"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "content": { "type": "string", "minLength": 1 },
+            "verbatim": { "const": true }
+          }
+        }
+      }
+    },
+
+    "If": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/if" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid"],
+          "additionalProperties": false,
+          "properties": { "uid": { "$ref": "#/$defs/Uid" } }
+        },
+        "children": {
+          "type": "array",
+          "minItems": 1,
+          "prefixItems": [{ "properties": { "attrs": { "required": ["test"] } } }],
+          "items": { "$ref": "#/$defs/Branch" }
+        }
+      }
+    },
+
+    "Branch": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/branch" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "test": { "$ref": "#/$defs/Expression" }
+          }
+        },
+        "children": { "$ref": "#/$defs/Children" }
+      }
+    },
+
+    "Loop": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/loop" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "source", "as"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "source": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "required": ["kind", "id"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": { "const": "preset" },
+                    "id": { "$ref": "#/$defs/Identifier" },
+                    "args": {
+                      "type": "object",
+                      "minProperties": 1,
+                      "propertyNames": { "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$" },
+                      "additionalProperties": { "$ref": "#/$defs/Expression" }
+                    },
+                    "groupBy": {
+                      "description": "The query's result in groups {key, items}, as the groupBy modifier (doc 23 of Publish, item 187).",
+                      "type": "object",
+                      "required": ["field"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "field": { "type": "string", "pattern": "^[A-Za-z0-9_$-]{1,64}(?:\\.[A-Za-z0-9_$-]{1,64}){0,7}$" },
+                        "how": { "type": "string", "minLength": 1, "maxLength": 32, "pattern": "^[^\\u0000-\\u001f\\u007f-\\u009f]+$" }
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": ["kind", "expr"],
+                  "additionalProperties": false,
+                  "properties": {
+                    "kind": { "const": "expr" },
+                    "expr": { "$ref": "#/$defs/Expression" }
+                  }
+                }
+              ]
+            },
+            "as": { "$ref": "#/$defs/Identifier" },
+            "index": { "$ref": "#/$defs/Identifier" }
+          }
+        },
+        "children": { "$ref": "#/$defs/Children" }
+      }
+    },
+
+    "PropValue": {
+      "anyOf": [
+        { "type": ["string", "number", "boolean", "null"] },
+        {
+          "type": "object",
+          "required": ["expr"],
+          "additionalProperties": false,
+          "properties": { "expr": { "$ref": "#/$defs/Expression" } }
+        },
+        {
+          "type": "object",
+          "required": ["tpl"],
+          "additionalProperties": false,
+          "properties": { "tpl": { "type": "string", "pattern": "(^|[^\\\\])\\{" } }
+        }
+      ]
+    },
+
+    "Component": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/component" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "ref"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "ref": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*(?:/[a-z][a-z0-9]*(?:-[a-z][a-z0-9]*)*)?$"
+            },
+            "label": { "$ref": "#/$defs/Label" },
+            "props": {
+              "type": "object",
+              "minProperties": 1,
+              "propertyNames": { "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$" },
+              "additionalProperties": { "$ref": "#/$defs/PropValue" }
+            }
+          }
+        },
+        "children": { "type": "array", "items": { "$ref": "#/$defs/SlotFill" } }
+      }
+    },
+
+    "Slot": {
+      "type": "object",
+      "required": ["name", "attrs"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/slot" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "name"],
+          "additionalProperties": false,
+          "properties": { "uid": { "$ref": "#/$defs/Uid" }, "name": { "$ref": "#/$defs/SlotName" } }
+        }
+      }
+    },
+
+    "SlotFill": {
+      "type": "object",
+      "required": ["name", "attrs", "children"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/slot-fill" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "name"],
+          "additionalProperties": false,
+          "properties": { "uid": { "$ref": "#/$defs/Uid" }, "name": { "$ref": "#/$defs/SlotName" } }
+        },
+        "children": { "$ref": "#/$defs/Children" }
+      }
+    },
+
+    "Raw": {
+      "type": "object",
+      "required": ["name", "attrs"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/raw" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid", "content"],
+          "additionalProperties": false,
+          "properties": {
+            "uid": { "$ref": "#/$defs/Uid" },
+            "content": { "type": "string", "not": { "pattern": "\\{/raw\\}" } }
+          }
+        }
+      }
+    },
+
+    "Passthrough": {
+      "type": "object",
+      "required": ["name", "attrs", "raw"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/passthrough" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid"],
+          "additionalProperties": false,
+          "properties": { "uid": { "$ref": "#/$defs/Uid" } }
+        },
+        "raw": { "type": "string", "pattern": "^<!-- wp:(?!xb/)" }
+      }
+    },
+
+    "PostContent": {
+      "type": "object",
+      "required": ["name", "attrs"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "const": "xb/post-content" },
+        "attrs": {
+          "type": "object",
+          "required": ["uid"],
+          "additionalProperties": false,
+          "properties": { "uid": { "$ref": "#/$defs/Uid" } }
+        }
+      }
+    }
+  }
+}

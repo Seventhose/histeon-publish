@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trattoria</title>
+<style>
+/* Visore di kit proposte: barra in alto, riquadro della proposta e, su telefono, barra in basso. Classi BEM kp-*. */
+:root { --kp-ink: #121212; --kp-paper: #f3efe7; --kp-bar: #0e0e0e; --kp-line: #353535; --kp-soft: #a9a397; --kp-gold: #e8c77a; color-scheme: dark; }
+* { box-sizing: border-box; }
+html { height: 100%; }
+body { margin: 0; height: 100vh; height: 100dvh; display: flex; flex-direction: column; overflow: hidden; background: var(--kp-ink); color: var(--kp-paper); font: 1.0625rem/1.5 Inter, system-ui, sans-serif; }
+button, select { font: inherit; }
+:focus-visible { outline: 3px solid var(--kp-gold); outline-offset: 2px; }
+.kp-sr { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.kp-barra { flex: none; display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .75rem; padding: .5rem .8rem; background: var(--kp-bar); border-bottom: 1px solid #2a2a2a; }
+.kp-barra__filtri { display: flex; flex-wrap: wrap; gap: .35rem; margin-right: auto; }
+.kp-barra__scelta { display: flex; align-items: center; justify-content: center; flex: 1 1 20rem; gap: .45rem; min-width: 0; }
+.kp-idea { flex: 1 0 100%; margin: 0; font-size: 1rem; color: var(--kp-soft); text-align: center; }
+
+.kp-btn { min-height: 2.75rem; min-width: 2.75rem; padding: 0 .9rem; border-radius: .55rem; border: 1px solid var(--kp-line); background: #1d1d1d; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; white-space: nowrap; }
+.kp-btn:hover:not(:disabled) { background: #2b2b2b; }
+.kp-btn:disabled { opacity: .35; cursor: default; }
+.kp-btn[aria-pressed="true"] { background: var(--kp-paper); color: var(--kp-ink); }
+.kp-btn--freccia { width: 2.75rem; padding: 0; font-size: 1.5rem; line-height: 1; }
+
+.kp-select { flex: 1 1 12rem; min-width: 0; max-width: 26rem; min-height: 2.75rem; padding: 0 .7rem; border-radius: .55rem; border: 1px solid var(--kp-line); background: #1d1d1d; color: #fff; font-size: 1rem; font-weight: 600; }
+.kp-conta { min-width: 3.5rem; font-size: 1rem; color: var(--kp-soft); text-align: center; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.kp-visore { position: relative; flex: 1 1 auto; min-height: 0; background: #0b0b0b; }
+.kp-visore__riquadro { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+
+.kp-dock { flex: none; display: none; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .8rem; background: var(--kp-bar); border-top: 1px solid #2a2a2a; }
+.kp-dock__btn { flex: 1 1 0; }
+
+.kp-solo .kp-barra, .kp-solo .kp-dock { display: none; }
+
+@media (max-width: 760px) {
+  .kp-barra__freccia { display: none; }
+  .kp-barra__filtri { margin-right: 0; }
+  .kp-dock { display: flex; }
+}
+</style>
+</head>
+<body>
+<header class="kp-barra">
+  <div class="kp-barra__filtri" role="group" aria-label="Filtra per gruppo"><button class="kp-btn kp-filtro" type="button" data-gruppo="" aria-pressed="true">Tutte</button><button class="kp-btn kp-filtro" type="button" data-gruppo="calde" aria-pressed="false">Calde</button><button class="kp-btn kp-filtro" type="button" data-gruppo="fresche" aria-pressed="false">Fresche</button></div>
+  <div class="kp-barra__scelta">
+    <button class="kp-btn kp-btn--freccia kp-barra__freccia" type="button" data-vai="-1" aria-label="Proposta precedente">‹</button>
+    <label class="kp-sr" for="kp-scelta">Scegli la proposta</label>
+    <select class="kp-select" id="kp-scelta"></select>
+    <button class="kp-btn kp-btn--freccia kp-barra__freccia" type="button" data-vai="1" aria-label="Proposta successiva">›</button>
+    <span class="kp-conta" aria-live="polite"></span>
+  </div>
+  <p class="kp-idea"></p>
+</header>
+<main class="kp-visore">
+  <iframe class="kp-visore__riquadro" title="Proposta"></iframe>
+</main>
+<nav class="kp-dock" aria-label="Scorri le proposte">
+  <button class="kp-btn kp-dock__btn" type="button" data-vai="-1"><span aria-hidden="true">‹</span> Precedente</button>
+  <span class="kp-conta"></span>
+  <button class="kp-btn kp-dock__btn" type="button" data-vai="1">Successiva <span aria-hidden="true">›</span></button>
+</nav>
+<script type="application/json" id="kp-dati">{"titolo":"Trattoria","gruppi":[{"id":"calde","nome":"Calde"},{"id":"fresche","nome":"Fresche"}],"proposte":[{"id":"p01","nome":"Brace","gruppo":"calde","idea":"Rosso mattone e schede dei piatti","doc":"\u003c!doctype html>\n\u003chtml lang=\"it\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>P01 · Brace\u003c/title>\n\u003cstyle>\n:root {\n  --primary: oklch(0.55 0.15 30);\n  --base: oklch(0.65 0.044 239);\n  --white: #fff;\n  --black: #000;\n  --text-dark: var(--black);\n  --text-light: var(--white);\n  --text-light-muted: oklch(0.9 0.01 239);\n  --bg-light: var(--base);\n  --text-s: 0.9rem;\n  --text-m: 1rem;\n  --text-l: 1.3rem;\n  --h1: 2.6rem;\n  --h3: 1.4rem;\n  --space-xs: 0.5rem;\n  --space-s: 1rem;\n  --space-m: 1.5rem;\n  --space-l: 2.5rem;\n  --radius: 6px;\n  --radius-m: var(--radius);\n}\nbody {\n  margin: 0;\n  font-family: Georgia, serif;\n  font-size: var(--text-m);\n  color: var(--text-dark);\n  background: var(--white);\n}\n\n.apertura {\n  padding: var(--space-l) var(--space-m);\n}\n.apertura__titolo {\n  font-size: var(--h1);\n  margin: 0;\n}\n.apertura__testo {\n  font-size: var(--text-l);\n}\n\n.dove {\n  padding: var(--space-m);\n}\n.dove__titolo {\n  font-size: var(--h3);\n}\n.dove__testo {\n  font-size: var(--text-m);\n}\n\n.piatti {\n  padding: var(--space-l) var(--space-m);\n  background: var(--bg-light);\n}\n.piatti__titolo {\n  font-size: var(--h3);\n}\n.piatti__elenco {\n  display: grid;\n  gap: var(--space-m);\n  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));\n}\n\n.piatto {\n  padding: var(--space-m);\n  border-radius: var(--radius-m);\n  background: var(--white);\n}\n.piatto__nome {\n  font-size: var(--h3);\n  margin: 0 0 var(--space-xs);\n}\n.piatto__testo {\n  font-size: var(--text-m);\n}\n.piatto__link {\n  font-size: var(--text-s);\n  color: var(--primary);\n}\n\n.testata {\n  display: flex;\n  justify-content: space-between;\n  padding: var(--space-s) var(--space-m);\n  background: var(--primary);\n}\n.testata__marchio {\n  font-size: var(--text-l);\n  color: var(--text-light);\n}\n.testata__menu {\n  display: flex;\n  gap: var(--space-s);\n}\n.testata__voce {\n  font-size: var(--text-m);\n  color: var(--text-light-muted);\n}\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\u003cheader class=\"testata\">\n  \u003ca class=\"testata__marchio\" href=\"#\">Trattoria\u003c/a>\n  \u003cnav class=\"testata__menu\" aria-label=\"Principale\">\n    \u003ca class=\"testata__voce\" href=\"#piatti\">Piatti\u003c/a>\n    \u003ca class=\"testata__voce\" href=\"#dove\">Dove siamo\u003c/a>\n  \u003c/nav>\n\u003c/header>\n\u003cmain>\n  \u003csection class=\"apertura\">\n    \u003ch1 class=\"apertura__titolo\">Cucina alla brace\u003c/h1>\n    \u003cp class=\"apertura__testo\">Carne e verdure cotte sul fuoco di legna.\u003c/p>\n  \u003c/section>\n  \u003csection class=\"piatti\" id=\"piatti\">\n    \u003ch2 class=\"piatti__titolo\">I piatti\u003c/h2>\n    \u003cdiv class=\"piatti__elenco\">\n      \u003carticle class=\"piatto\">\n        \u003ch3 class=\"piatto__nome\">Tagliata\u003c/h3>\n        \u003cp class=\"piatto__testo\">Manzo, rucola e grana.\u003c/p>\n        \u003ca class=\"piatto__link\" href=\"#tagliata\">Ingredienti\u003c/a>\n      \u003c/article>\n      \u003carticle class=\"piatto\">\n        \u003ch3 class=\"piatto__nome\">Verdure grigliate\u003c/h3>\n        \u003cp class=\"piatto__testo\">Zucchine, peperoni e melanzane.\u003c/p>\n        \u003ca class=\"piatto__link\" href=\"#verdure\">Ingredienti\u003c/a>\n      \u003c/article>\n      \u003carticle class=\"piatto\">\n        \u003ch3 class=\"piatto__nome\">Costine\u003c/h3>\n        \u003cp class=\"piatto__testo\">Maiale marinato al rosmarino.\u003c/p>\n        \u003ca class=\"piatto__link\" href=\"#costine\">Ingredienti\u003c/a>\n      \u003c/article>\n    \u003c/div>\n  \u003c/section>\n  \u003csection class=\"dove\" id=\"dove\">\n    \u003ch2 class=\"dove__titolo\">Dove siamo\u003c/h2>\n    \u003cp class=\"dove__testo\">Via del Forno 3, aperti la sera.\u003c/p>\n  \u003c/section>\n\u003c/main>\n\u003c/body>\n\u003c/html>\n"},{"id":"p02","nome":"Orto","gruppo":"fresche","idea":"Verde e testo ampio","doc":"\u003c!doctype html>\n\u003chtml lang=\"it\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>P02 · Orto\u003c/title>\n\u003cstyle>\n:root {\n  --secondary: #1f6f5c;\n  --white: #fff;\n  --black: #000;\n  --text-dark: var(--black);\n  --text-m: 1rem;\n  --text-l: 1.3rem;\n  --h1: 2.6rem;\n  --space-s: 1rem;\n  --space-l: 2.5rem;\n}\nbody {\n  margin: 0;\n  font-family: system-ui, sans-serif;\n  font-size: var(--text-m);\n  color: var(--text-dark);\n}\n\n.corpo {\n  padding: var(--space-l);\n}\n.corpo__titolo {\n  font-size: var(--h1);\n}\n.corpo__testo {\n  font-size: var(--text-l);\n}\n\n.intestazione {\n  padding: var(--space-s);\n  background: var(--secondary);\n}\n.intestazione__nome {\n  font-size: var(--text-l);\n  color: var(--white);\n  margin: 0;\n}\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\u003cheader class=\"intestazione\">\n  \u003cp class=\"intestazione__nome\">Trattoria\u003c/p>\n\u003c/header>\n\u003cmain class=\"corpo\">\n  \u003ch1 class=\"corpo__titolo\">Dall'orto alla tavola\u003c/h1>\n  \u003cp class=\"corpo__testo\">Verdure di stagione, ogni giorno.\u003c/p>\n\u003c/main>\n\u003c/body>\n\u003c/html>\n"}]}</script>
+<script>
+// Visore di kit proposte: una proposta alla volta, senza librerie. I dati stanno in #kp-dati (JSON).
+(() => {
+  'use strict';
+  const dati = JSON.parse(document.getElementById('kp-dati').textContent);
+  const proposte = dati.proposte;
+  const riquadro = document.querySelector('.kp-visore__riquadro');
+  const scelta = document.getElementById('kp-scelta');
+  const idea = document.querySelector('.kp-idea');
+  const filtri = [...document.querySelectorAll('.kp-filtro')];
+  const etichetta = (p) => `${p.id.toUpperCase()} · ${p.nome}`;
+  const trova = (id) => proposte.find((p) => p.id === id);
+
+  let filtro = '';
+  let visibili = proposte;
+  let cur = null;
+  let solo = false;
+
+  function ricalcola() {
+    visibili = filtro === '' ? proposte : proposte.filter((p) => p.gruppo === filtro);
+  }
+
+  // Il selettore elenca le proposte visibili; con almeno due gruppi le raggruppa.
+  function riempiScelta() {
+    const opzione = (p) => {
+      const o = document.createElement('option');
+      o.value = p.id;
+      o.textContent = etichetta(p);
+      return o;
+    };
+    scelta.textContent = '';
+    if (dati.gruppi.length < 2) {
+      visibili.forEach((p) => scelta.append(opzione(p)));
+      return;
+    }
+    for (const g of dati.gruppi) {
+      const membri = visibili.filter((p) => p.gruppo === g.id);
+      if (membri.length === 0) continue;
+      const og = document.createElement('optgroup');
+      og.label = g.nome;
+      membri.forEach((p) => og.append(opzione(p)));
+      scelta.append(og);
+    }
+    visibili.filter((p) => !dati.gruppi.some((g) => g.id === p.gruppo)).forEach((p) => scelta.append(opzione(p)));
+  }
+
+  // Riporta su barre, selettore, contatori, frecce e titoli la proposta corrente.
+  function aggiorna() {
+    const p = trova(cur);
+    const i = visibili.findIndex((x) => x.id === cur);
+    document.title = `${etichetta(p)} — ${dati.titolo}`;
+    riquadro.title = etichetta(p);
+    scelta.value = cur;
+    idea.textContent = p.idea;
+    document.querySelectorAll('.kp-conta').forEach((c) => {
+      c.textContent = `${i + 1} / ${visibili.length}`;
+    });
+    document.querySelectorAll('[data-vai="-1"]').forEach((b) => {
+      b.disabled = i <= 0;
+    });
+    document.querySelectorAll('[data-vai="1"]').forEach((b) => {
+      b.disabled = i >= visibili.length - 1;
+    });
+    filtri.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.gruppo === filtro)));
+  }
+
+  // Mostra una proposta; con hash, aggiorna l'indirizzo (una voce nella cronologia).
+  function scegli(id, { hash = true } = {}) {
+    const p = trova(id);
+    if (!p) return;
+    if (id !== cur) {
+      cur = id;
+      riquadro.srcdoc = p.doc;
+    }
+    aggiorna();
+    if (hash) {
+      const h = `#${solo ? 'solo/' : ''}${id}`;
+      if (location.hash !== h) location.hash = h;
+    }
+  }
+
+  function vai(passo) {
+    const n = visibili[visibili.findIndex((p) => p.id === cur) + passo];
+    if (n) scegli(n.id);
+  }
+
+  // Un filtro restringe l'elenco; se la proposta corrente non c'è, va alla prima del gruppo.
+  function filtra(gruppo) {
+    const nuovo = proposte.filter((p) => gruppo === '' || p.gruppo === gruppo);
+    if (nuovo.length === 0) return;
+    filtro = gruppo;
+    ricalcola();
+    riempiScelta();
+    if (visibili.some((p) => p.id === cur)) aggiorna();
+    else scegli(visibili[0].id);
+  }
+
+  // Legge l'indirizzo: #id, oppure #solo/id per il riquadro a tutto schermo.
+  function leggiHash() {
+    const m = /^#(solo\/)?([a-z0-9-]+)$/.exec(location.hash);
+    solo = Boolean(m && m[1]);
+    document.body.classList.toggle('kp-solo', solo);
+    const id = m && trova(m[2]) ? m[2] : proposte[0].id;
+    if (!visibili.some((p) => p.id === id)) {
+      filtro = '';
+      ricalcola();
+    }
+    riempiScelta();
+    scegli(id, { hash: false });
+  }
+
+  document.addEventListener('click', (e) => {
+    const freccia = e.target.closest('[data-vai]');
+    if (freccia) {
+      if (!freccia.disabled) vai(Number(freccia.dataset.vai));
+      return;
+    }
+    const f = e.target.closest('.kp-filtro');
+    if (f) filtra(f.dataset.gruppo);
+  });
+
+  scelta.addEventListener('change', () => scegli(scelta.value));
+  window.addEventListener('hashchange', leggiHash);
+
+  // Le frecce della tastiera, tranne quando il fuoco è in un campo di scrittura o in un selettore.
+  document.addEventListener('keydown', (e) => {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    const t = e.target;
+    if (t instanceof Element && t.closest('select, input, textarea')) return;
+    vai(e.key === 'ArrowLeft' ? -1 : 1);
+  });
+
+  ricalcola();
+  leggiHash();
+})();
+</script>
+</body>
+</html>

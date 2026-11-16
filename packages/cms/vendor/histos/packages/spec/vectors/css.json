@@ -1,0 +1,269 @@
+{
+  "$comment": "Shared vectors for the style compiler (docs/spec/styles.md). Run by packages/dsl (css.ts) and plugin/tests (CssCompiler.php).",
+  "compile": [
+    {
+      "selector": ".card",
+      "body": "padding: 1rem; &:hover { color:red }",
+      "css": ".card{padding: 1rem;&:hover{ color:red }}"
+    },
+    {
+      "selector": ".card",
+      "body": "color:red; &__title { font-weight:700; &--big { font-size:2em } } &--dark { color:#fff }",
+      "css": ".card{color:red;}.card__title{font-weight:700;}.card__title--big{font-size:2em;}.card--dark{color:#fff;}"
+    },
+    {
+      "selector": ".a, .b",
+      "body": "&__x, &__y { margin:0 }",
+      "css": ".a__x,.a__y,.b__x,.b__y{margin:0;}"
+    },
+    {
+      "selector": ".q",
+      "body": "/* note; { */ content: \"a;b{c}\"; &:is(.x, .y) { top:0 }",
+      "css": ".q{content: \"a;b{c}\";&:is(.x, .y){ top:0 }}"
+    },
+    {
+      "selector": ".m",
+      "body": "@media (width > 40em) { padding:0 }",
+      "css": ".m{@media (width > 40em){ padding:0 }}"
+    },
+    {
+      "selector": ".x",
+      "body": "content:\"</style>\"",
+      "css": ".x{content:\"\\3C /style>\";}"
+    },
+    {
+      "selector": ".only",
+      "body": "&__child { a:b }",
+      "css": ".only__child{a:b;}"
+    },
+    {
+      "selector": ".e",
+      "body": "",
+      "css": ""
+    },
+    {
+      "selector": ".r",
+      "body": "@media (width < 48em){gap:0}",
+      "css": ".r{@media (width < 48em){gap:0}}"
+    },
+    {
+      "selector": ".s",
+      "body": "content:\"a</STYLE>b\"",
+      "css": ".s{content:\"a\\3C /STYLE>b\";}"
+    },
+    {
+      "selector": ".card",
+      "body": "padding:1rem; @media (width > 40em) { padding:2rem; &__title { font-size:2em } }",
+      "css": ".card{padding:1rem;@media (width > 40em){padding:2rem;}}@media (width > 40em){.card__title{font-size:2em;}}"
+    },
+    {
+      "selector": ".card",
+      "body": "@container (width < 30rem) { &--wide { gap:0 } }",
+      "css": "@container (width < 30rem){.card--wide{gap:0;}}"
+    },
+    {
+      "selector": ".card",
+      "body": "@supports (display:grid) { @media (--tablet) { &__x { color:red } } &:hover { color:blue } }",
+      "css": ".card{@supports (display:grid){&:hover{ color:blue }}}@supports (display:grid){@media (--tablet){.card__x{color:red;}}}"
+    },
+    {
+      "selector": ".card",
+      "body": "@media print { color:black; &:hover { color:red } }",
+      "css": ".card{@media print{ color:black; &:hover { color:red } }}"
+    }
+  ],
+  "keyClass": [
+    {
+      "selector": ".card:hover > .x",
+      "key": "card"
+    },
+    {
+      "selector": "a.btn--primary",
+      "key": "btn--primary"
+    },
+    {
+      "selector": "h1, #main",
+      "key": null
+    }
+  ],
+  "namedQueries": {
+    "queries": {
+      "tablet": "(width < 64em)",
+      "card-narrow": "(width < 30em)",
+      "u": "ur",
+      "l": "l(a.b/c)",
+      "slashes": "//altro.sito/x",
+      "screen": "screen and (min-width: 40em)"
+    },
+    "cases": [
+      {
+        "css": ".a{color:red}",
+        "out": ".a{color:red}"
+      },
+      {
+        "css": "@media (--tablet){.a{color:red}}",
+        "out": "@media (width < 64em){.a{color:red}}"
+      },
+      {
+        "css": "@media screen and (--tablet){.a{x:1}}",
+        "out": "@media screen and (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": ".c{@container card (--card-narrow){gap:0}}",
+        "out": ".c{@container card (width < 30em){gap:0}}"
+      },
+      {
+        "css": "@media (--unknown){.a{x:1}}",
+        "out": "@media (--unknown){.a{x:1}}"
+      },
+      {
+        "css": ".a{--tablet:1;width:calc(var(--tablet) * 1px)}",
+        "out": ".a{--tablet:1;width:calc(var(--tablet) * 1px)}"
+      },
+      {
+        "css": "@supports (--tablet){.a{x:1}}",
+        "out": "@supports (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media (--tablet) and (--card-narrow){.a{x:1}}",
+        "out": "@media (width < 64em) and (width < 30em){.a{x:1}}"
+      },
+      {
+        "css": ".a{color:red;@media (--tablet){color:blue}}",
+        "out": ".a{color:red;@media (width < 64em){color:blue}}"
+      },
+      {
+        "css": ".a{@media (--tablet){.b{x:1}}@media (--card-narrow){x:2}}",
+        "out": ".a{@media (width < 64em){.b{x:1}}@media (width < 30em){x:2}}"
+      },
+      {
+        "css": "@media(--tablet){.a{x:1}}",
+        "out": "@media (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": "@layer base;@media (--tablet){.a{x:1}}",
+        "out": "@layer base;@media (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": "/* note */@media (--tablet){.a{x:1}}",
+        "out": "/* note */@media (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": "@MEDIA not (--tablet){.a{x:1}}",
+        "out": "@MEDIA not (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": "@media (--screen){.a{x:1}}",
+        "out": "@media screen and (min-width: 40em){.a{x:1}}"
+      },
+      {
+        "css": "@media(--screen){.a{x:1}}",
+        "out": "@media screen and (min-width: 40em){.a{x:1}}"
+      },
+      {
+        "css": ".a{x:\"}\"}\n.b{@container (--card-narrow){gap:0}}\n",
+        "out": ".a{x:\"}\"}\n.b{@container (width < 30em){gap:0}}\n"
+      },
+      {
+        "css": ".a{content:\"@media\" ur(--l)}",
+        "out": ".a{content:\"@media\" ur(--l)}"
+      },
+      {
+        "css": ".a{content:\"@media (--tablet)\"}",
+        "out": ".a{content:\"@media (--tablet)\"}"
+      },
+      {
+        "css": ".a{background:/*@media*/ur(--l)}",
+        "out": ".a{background:/*@media*/ur(--l)}"
+      },
+      {
+        "css": ".a{/* @media (--tablet) */color:red}",
+        "out": ".a{/* @media (--tablet) */color:red}"
+      },
+      {
+        "css": ".a{x:@media (--tablet)}",
+        "out": ".a{x:@media (--tablet)}"
+      },
+      {
+        "css": ".a{x:(;@media (--tablet))}",
+        "out": ".a{x:(;@media (--tablet))}"
+      },
+      {
+        "css": ".a{x:[{;@media (--tablet){}}]}",
+        "out": ".a{x:[{;@media (--tablet){}}]}"
+      },
+      {
+        "css": ".a{b:\"x\n@media (--tablet){c:d}}",
+        "out": ".a{b:\"x\n@media (--tablet){c:d}}"
+      },
+      {
+        "css": "x;@media (--tablet){.a{x:1}}",
+        "out": "x;@media (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "}@media (--tablet){.a{x:1}}",
+        "out": "}@media (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media-x (--tablet){.a{x:1}}",
+        "out": "@media-x (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media \"x\" (--tablet){.a{x:1}}",
+        "out": "@media \"x\" (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media /* x */ (--tablet){.a{x:1}}",
+        "out": "@media /* x */ (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media url(x) (--tablet){.a{x:1}}",
+        "out": "@media url(x) (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media \\28 x) (--tablet){.a{x:1}}",
+        "out": "@media \\28 x) (--tablet){.a{x:1}}"
+      },
+      {
+        "css": "@media ur(--l){.a{x:1}}",
+        "out": "@media ur(--l){.a{x:1}}"
+      },
+      {
+        "css": "@media (--u)l(a){.a{x:1}}",
+        "out": "@media (--u)l(a){.a{x:1}}"
+      },
+      {
+        "css": "@media (--u)(a){.a{x:1}}",
+        "out": "@media (--u)(a){.a{x:1}}"
+      },
+      {
+        "css": "@media (--slashes){.a{x:1}}",
+        "out": "@media (--slashes){.a{x:1}}"
+      },
+      {
+        "css": "@media (--u) l(a), (--tablet){.a{x:1}}",
+        "out": "@media ur l(a), (width < 64em){.a{x:1}}"
+      },
+      {
+        "css": ".a{@media print}@media (--tablet){.b{color:blue}}.c{color:green}",
+        "out": ".a{@media print}@media (width < 64em){.b{color:blue}}.c{color:green}"
+      },
+      {
+        "css": ".a{@media print}@media (--unknown){.b{color:blue}}.c{color:green}",
+        "out": ".a{@media print}@media (--unknown){.b{color:blue}}.c{color:green}"
+      },
+      {
+        "css": ".a{@container card}@media (--tablet){.b{color:blue}}.c{color:green}",
+        "out": ".a{@container card}@media (width < 64em){.b{color:blue}}.c{color:green}"
+      },
+      {
+        "css": ".a{color:red;@media print}\n@media (--tablet){.b{color:blue}}\n.c{color:green}\n",
+        "out": ".a{color:red;@media print}\n@media (width < 64em){.b{color:blue}}\n.c{color:green}\n"
+      },
+      {
+        "css": ".a{@media (--tablet)}.b{@media (--tablet){x:1}}",
+        "out": ".a{@media (width < 64em)}.b{@media (width < 64em){x:1}}"
+      }
+    ]
+  }
+}

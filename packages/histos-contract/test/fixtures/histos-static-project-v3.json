@@ -1,0 +1,337 @@
+{
+  "profile": {
+    "manifest": {
+      "format": "xb-site",
+      "version": 2,
+      "generator": {
+        "name": "Histos CMS",
+        "version": "0.1.14",
+        "engineCommit": "9bc212050403dd056ac21edfcff398b514e4a3c1"
+      },
+      "project": {
+        "id": "550e8400-e29b-41d4-a716-446655440100",
+        "name": "Fixture CMS relazionale",
+        "defaultLocale": "it-IT"
+      },
+      "selection": {
+        "kind": "workspace-head",
+        "snapshot": "550e8400-e29b-41d4-a716-446655440109"
+      },
+      "requiredCapabilities": [
+        "documents:page:v1",
+        "styles:global:v1",
+        "media:asset:v1",
+        "templates:definition:v1",
+        "content:types:v1",
+        "content:records:v1",
+        "content:taxonomies:v1",
+        "content:queries:v1"
+      ],
+      "profile": "histos-static-project-v3",
+      "files": [
+        {
+          "path": "entities.ndjson",
+          "bytes": 5441,
+          "sha256": "dc8efaf95a0c60a8daaffca51a4d57dee402196fea573f8dc7fda4dbeeb950f0",
+          "mediaType": "application/x-ndjson"
+        },
+        {
+          "path": "references.ndjson",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "mediaType": "application/x-ndjson"
+        }
+      ],
+      "manifestHash": "f426ac01c8e289fac71ba0ccafc42db8720d13a62517a58664bfa6095aff3a45"
+    },
+    "entities": [
+      {
+        "id": "28ea43cd-b08b-5834-877f-70ff5fce70e4",
+        "kind": "query-preset",
+        "schemaVersion": 1,
+        "revisionHash": "8d9502267a4e4d337c4ca5ce8b00f27ff9f0e538cda4ff8e55261e807efd0b4e",
+        "payload": {
+          "key": "upcoming_events",
+          "label": "Prossimi eventi",
+          "typeKey": "events",
+          "limit": 12,
+          "offset": 6,
+          "offsetParam": "start",
+          "orderBy": "publishedAt",
+          "order": "desc",
+          "filter": {
+            "taxonomyKey": "event-category",
+            "termIds": [
+              "550e8400-e29b-41d4-a716-446655440106"
+            ],
+            "operator": "IN"
+          }
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440101",
+        "kind": "document",
+        "schemaVersion": 1,
+        "revisionHash": "d3736c4d5ab99489edb8c6bcdd162c9fcd29b9ac06528d255b68f741a0539667",
+        "payload": {
+          "documentType": "page",
+          "title": "Home",
+          "slug": "home",
+          "status": "published",
+          "content": "<!-- wp:xb/text {\"uid\":\"fixturehome01\",\"content\":\"Eventi\"} /-->",
+          "script": ""
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440102",
+        "kind": "styles",
+        "schemaVersion": 1,
+        "revisionHash": "c64a130aea95f4dfc1783c321ada43fd8c803b08d227f9b6feb7b6298761d2e8",
+        "payload": {
+          "styles": [],
+          "globals": [],
+          "compiledCss": "",
+          "design": {},
+          "tokenOverrides": {},
+          "queries": {}
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440103",
+        "kind": "content-type",
+        "schemaVersion": 1,
+        "revisionHash": "b3f93d7a8d35afd51594437f080508f203283ecb89eb9e24b5cfd6d8b73f6cda",
+        "payload": {
+          "key": "speaker",
+          "label": "Relatori",
+          "fields": [
+            {
+              "key": "biography",
+              "label": "Biografia",
+              "type": "rich-text",
+              "required": false,
+              "public": true,
+              "multiple": false
+            },
+            {
+              "key": "editor_note",
+              "label": "Nota redazione",
+              "type": "text",
+              "required": false,
+              "public": false,
+              "multiple": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440104",
+        "kind": "content-type",
+        "schemaVersion": 1,
+        "revisionHash": "55f3d25d08f8dd5458e3064680800ab9a377cb08045d172de074df0b04552881",
+        "payload": {
+          "key": "events",
+          "label": "Eventi",
+          "fields": [
+            {
+              "key": "starts_at",
+              "label": "Inizio",
+              "type": "datetime",
+              "required": true,
+              "public": true,
+              "multiple": false
+            },
+            {
+              "key": "speaker",
+              "label": "Relatore",
+              "type": "relation",
+              "required": true,
+              "public": true,
+              "multiple": false,
+              "targetType": "speaker"
+            },
+            {
+              "key": "private_note",
+              "label": "Nota interna",
+              "type": "text",
+              "required": false,
+              "public": false,
+              "multiple": false
+            }
+          ],
+          "singleTemplateRef": "content/event-single",
+          "archiveTemplateRef": "content/event-archive"
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440105",
+        "kind": "taxonomy",
+        "schemaVersion": 1,
+        "revisionHash": "c6afad61984d360e2601650e7280ee6e1362a42a6c7e870e3807a72039a30a58",
+        "payload": {
+          "key": "event-category",
+          "label": "Categorie evento",
+          "types": [
+            "events"
+          ]
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440106",
+        "kind": "term",
+        "schemaVersion": 1,
+        "revisionHash": "fad848fd83f393ca11fe0e6286d4c165d1808ba6339d8b6ab3b80379f34f324e",
+        "payload": {
+          "taxonomyKey": "event-category",
+          "slug": "formazione",
+          "label": "Formazione",
+          "parentId": null
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440107",
+        "kind": "content-record",
+        "schemaVersion": 1,
+        "revisionHash": "fce415c3fdc7d373ad15f01e6b24a02c456e85782450449af97a5c5fe74690f8",
+        "payload": {
+          "typeKey": "speaker",
+          "slug": "ada-relatrice",
+          "locale": "en-US",
+          "title": "Ada Relatrice",
+          "status": "published",
+          "publishedAt": "2026-10-22T10:00:00.000Z",
+          "excerpt": "",
+          "order": 0,
+          "values": {
+            "biography": "Ricercatrice",
+            "editor_note": "Solo redazione"
+          },
+          "terms": {
+            "speaker-topic": [
+              "550e8400-e29b-41d4-a716-446655440111"
+            ]
+          }
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440108",
+        "kind": "content-record",
+        "schemaVersion": 1,
+        "revisionHash": "7d15debf5cea558b515b01418673831a3e8622dd924e868cf39c51d448a671ff",
+        "payload": {
+          "typeKey": "events",
+          "slug": "incontro-portabile",
+          "locale": "it-IT",
+          "title": "Incontro portabile",
+          "status": "published",
+          "publishedAt": "2026-10-22T11:00:00.000Z",
+          "excerpt": "",
+          "order": 0,
+          "values": {
+            "starts_at": "2026-11-15T09:30:00+01:00",
+            "speaker": "550e8400-e29b-41d4-a716-446655440107",
+            "private_note": "Non esportare nel frontend"
+          },
+          "terms": {
+            "event-category": [
+              "550e8400-e29b-41d4-a716-446655440106"
+            ]
+          }
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440110",
+        "kind": "taxonomy",
+        "schemaVersion": 1,
+        "revisionHash": "9578760493b79072de0f2356aa52f8538c2a4223dbe789c1a5c09cd1a6913aa7",
+        "payload": {
+          "key": "speaker-topic",
+          "label": "Ambiti relatori",
+          "types": [
+            "speaker"
+          ]
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440111",
+        "kind": "term",
+        "schemaVersion": 1,
+        "revisionHash": "3dd6781bcb8a9fa0c8c866c53cd5a68eeca587bdd1eeef614ddbf3e93c0892be",
+        "payload": {
+          "taxonomyKey": "speaker-topic",
+          "slug": "ricerca",
+          "label": "Ricerca",
+          "parentId": null
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440112",
+        "kind": "template",
+        "schemaVersion": 1,
+        "revisionHash": "5437fa83d8212bdac20e55372a1ad3d2f5c862a4f804bf6d1d67f95cbcca8088",
+        "payload": {
+          "title": "Scheda evento",
+          "ref": "content/event-single",
+          "schema": {
+            "props": {
+              "page": {
+                "type": "object",
+                "default": {
+                  "slug": "",
+                  "title": "",
+                  "url": "/"
+                }
+              }
+            }
+          },
+          "content": "<!-- wp:xb/element {\"uid\":\"qnuprju73b\",\"tag\":\"main\"} --><!-- wp:xb/slot {\"uid\":\"h58p4dthb9\",\"name\":\"default\"} /--><!-- /wp:xb/element -->",
+          "script": ""
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440113",
+        "kind": "template",
+        "schemaVersion": 1,
+        "revisionHash": "0274365e8a58be4daf1aed3d32788521c67b8cca23d2b922027c22abce58e410",
+        "payload": {
+          "title": "Archivio eventi",
+          "ref": "content/event-archive",
+          "schema": {
+            "props": {
+              "page": {
+                "type": "object",
+                "default": {
+                  "slug": "",
+                  "title": "",
+                  "url": "/"
+                }
+              }
+            }
+          },
+          "content": "<!-- wp:xb/element {\"uid\":\"rjx2ol0hoo\",\"tag\":\"main\"} --><!-- wp:xb/slot {\"uid\":\"vra71f4irc\",\"name\":\"default\"} /--><!-- /wp:xb/element -->",
+          "script": ""
+        }
+      },
+      {
+        "id": "8639dee0-8a03-5dc5-9679-525f38152c47",
+        "kind": "query-source",
+        "schemaVersion": 1,
+        "revisionHash": "c7583d70d3d850941592c6e28bb80ced41a7eac87d959220830b5c9e1d5215aa",
+        "payload": {
+          "name": "featured",
+          "data": [
+            {
+              "href": "/eventi/",
+              "label": "In evidenza"
+            }
+          ]
+        }
+      }
+    ],
+    "references": []
+  },
+  "files": {
+    "entities.ndjson": "eyJpZCI6IjI4ZWE0M2NkLWIwOGItNTgzNC04NzdmLTcwZmY1ZmNlNzBlNCIsImtpbmQiOiJxdWVyeS1wcmVzZXQiLCJwYXlsb2FkIjp7ImZpbHRlciI6eyJvcGVyYXRvciI6IklOIiwidGF4b25vbXlLZXkiOiJldmVudC1jYXRlZ29yeSIsInRlcm1JZHMiOlsiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTA2Il19LCJrZXkiOiJ1cGNvbWluZ19ldmVudHMiLCJsYWJlbCI6IlByb3NzaW1pIGV2ZW50aSIsImxpbWl0IjoxMiwib2Zmc2V0Ijo2LCJvZmZzZXRQYXJhbSI6InN0YXJ0Iiwib3JkZXIiOiJkZXNjIiwib3JkZXJCeSI6InB1Ymxpc2hlZEF0IiwidHlwZUtleSI6ImV2ZW50cyJ9LCJyZXZpc2lvbkhhc2giOiI4ZDk1MDIyNjdhNGU0ZDMzN2M0Y2E1Y2U4YjAwZjI3ZmY5ZjBlNTM4Y2RhNGZmOGU1NTI2MWU4MDdlZmQwYjRlIiwic2NoZW1hVmVyc2lvbiI6MX0KeyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDEwMSIsImtpbmQiOiJkb2N1bWVudCIsInBheWxvYWQiOnsiY29udGVudCI6IjwhLS0gd3A6eGIvdGV4dCB7XCJ1aWRcIjpcImZpeHR1cmVob21lMDFcIixcImNvbnRlbnRcIjpcIkV2ZW50aVwifSAvLS0+IiwiZG9jdW1lbnRUeXBlIjoicGFnZSIsInNjcmlwdCI6IiIsInNsdWciOiJob21lIiwic3RhdHVzIjoicHVibGlzaGVkIiwidGl0bGUiOiJIb21lIn0sInJldmlzaW9uSGFzaCI6ImQzNzM2YzRkNWFiOTk0ODllZGI4YzZiY2RkMTYyYzlmY2QyOWI5YWMwNjUyOGQyNTViNjhmNzQxYTA1Mzk2NjciLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTAyIiwia2luZCI6InN0eWxlcyIsInBheWxvYWQiOnsiY29tcGlsZWRDc3MiOiIiLCJkZXNpZ24iOnt9LCJnbG9iYWxzIjpbXSwicXVlcmllcyI6e30sInN0eWxlcyI6W10sInRva2VuT3ZlcnJpZGVzIjp7fX0sInJldmlzaW9uSGFzaCI6ImM2NGExMzBhZWE5NWY0ZGZjMTc4M2MzMjFhZGE0M2ZkOGM4MDNiMDhkMjI3ZjliNmZlYjdiNjI5ODc2MWQyZTgiLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTAzIiwia2luZCI6ImNvbnRlbnQtdHlwZSIsInBheWxvYWQiOnsiZmllbGRzIjpbeyJrZXkiOiJiaW9ncmFwaHkiLCJsYWJlbCI6IkJpb2dyYWZpYSIsIm11bHRpcGxlIjpmYWxzZSwicHVibGljIjp0cnVlLCJyZXF1aXJlZCI6ZmFsc2UsInR5cGUiOiJyaWNoLXRleHQifSx7ImtleSI6ImVkaXRvcl9ub3RlIiwibGFiZWwiOiJOb3RhIHJlZGF6aW9uZSIsIm11bHRpcGxlIjpmYWxzZSwicHVibGljIjpmYWxzZSwicmVxdWlyZWQiOmZhbHNlLCJ0eXBlIjoidGV4dCJ9XSwia2V5Ijoic3BlYWtlciIsImxhYmVsIjoiUmVsYXRvcmkifSwicmV2aXNpb25IYXNoIjoiYjNmOTNkN2E4ZDM1YWZkNTE1OTQ0MzdmMDgwNTA4ZjIwMzI4M2VjYjg5ZWI5ZTI0YjVjZmQ2ZDhiNzNmNmNkYSIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMDQiLCJraW5kIjoiY29udGVudC10eXBlIiwicGF5bG9hZCI6eyJhcmNoaXZlVGVtcGxhdGVSZWYiOiJjb250ZW50L2V2ZW50LWFyY2hpdmUiLCJmaWVsZHMiOlt7ImtleSI6InN0YXJ0c19hdCIsImxhYmVsIjoiSW5pemlvIiwibXVsdGlwbGUiOmZhbHNlLCJwdWJsaWMiOnRydWUsInJlcXVpcmVkIjp0cnVlLCJ0eXBlIjoiZGF0ZXRpbWUifSx7ImtleSI6InNwZWFrZXIiLCJsYWJlbCI6IlJlbGF0b3JlIiwibXVsdGlwbGUiOmZhbHNlLCJwdWJsaWMiOnRydWUsInJlcXVpcmVkIjp0cnVlLCJ0YXJnZXRUeXBlIjoic3BlYWtlciIsInR5cGUiOiJyZWxhdGlvbiJ9LHsia2V5IjoicHJpdmF0ZV9ub3RlIiwibGFiZWwiOiJOb3RhIGludGVybmEiLCJtdWx0aXBsZSI6ZmFsc2UsInB1YmxpYyI6ZmFsc2UsInJlcXVpcmVkIjpmYWxzZSwidHlwZSI6InRleHQifV0sImtleSI6ImV2ZW50cyIsImxhYmVsIjoiRXZlbnRpIiwic2luZ2xlVGVtcGxhdGVSZWYiOiJjb250ZW50L2V2ZW50LXNpbmdsZSJ9LCJyZXZpc2lvbkhhc2giOiI1NWYzZDI1ZDA4ZjhkZDU0NThlMzA2NDY4MDgwMGFiOWEzNzdjYjA4MDQ1ZDE3MmRlMDc0ZGYwYjA0NTUyODgxIiwic2NoZW1hVmVyc2lvbiI6MX0KeyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDEwNSIsImtpbmQiOiJ0YXhvbm9teSIsInBheWxvYWQiOnsia2V5IjoiZXZlbnQtY2F0ZWdvcnkiLCJsYWJlbCI6IkNhdGVnb3JpZSBldmVudG8iLCJ0eXBlcyI6WyJldmVudHMiXX0sInJldmlzaW9uSGFzaCI6ImM2YWZhZDYxOTg0ZDM2MGUyNjAxNjUwZTcyODBlZTZlMTM2MmE0MmE2YzdlODcwZTM4MDdhNzIwMzlhMzBhNTgiLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTA2Iiwia2luZCI6InRlcm0iLCJwYXlsb2FkIjp7ImxhYmVsIjoiRm9ybWF6aW9uZSIsInBhcmVudElkIjpudWxsLCJzbHVnIjoiZm9ybWF6aW9uZSIsInRheG9ub215S2V5IjoiZXZlbnQtY2F0ZWdvcnkifSwicmV2aXNpb25IYXNoIjoiZmFkODQ4ZmQ4M2YzOTNjYTExZmUwZTYyODZkNGMxNjVkMTgwOGJhNjMzOWQ4YjZhYjNiODAzNzlmMzRmMzI0ZSIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMDciLCJraW5kIjoiY29udGVudC1yZWNvcmQiLCJwYXlsb2FkIjp7ImV4Y2VycHQiOiIiLCJsb2NhbGUiOiJlbi1VUyIsIm9yZGVyIjowLCJwdWJsaXNoZWRBdCI6IjIwMjYtMTAtMjJUMTA6MDA6MDAuMDAwWiIsInNsdWciOiJhZGEtcmVsYXRyaWNlIiwic3RhdHVzIjoicHVibGlzaGVkIiwidGVybXMiOnsic3BlYWtlci10b3BpYyI6WyI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMTEiXX0sInRpdGxlIjoiQWRhIFJlbGF0cmljZSIsInR5cGVLZXkiOiJzcGVha2VyIiwidmFsdWVzIjp7ImJpb2dyYXBoeSI6IlJpY2VyY2F0cmljZSIsImVkaXRvcl9ub3RlIjoiU29sbyByZWRhemlvbmUifX0sInJldmlzaW9uSGFzaCI6ImZjZTQxNWMzZmRjN2QzNzNhZDE1ZjAxZTZiMjRhMDJjNDU2ZTg1NzgyNDUwNDQ5YWY5N2E1YzVmZTc0NjkwZjgiLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTA4Iiwia2luZCI6ImNvbnRlbnQtcmVjb3JkIiwicGF5bG9hZCI6eyJleGNlcnB0IjoiIiwibG9jYWxlIjoiaXQtSVQiLCJvcmRlciI6MCwicHVibGlzaGVkQXQiOiIyMDI2LTEwLTIyVDExOjAwOjAwLjAwMFoiLCJzbHVnIjoiaW5jb250cm8tcG9ydGFiaWxlIiwic3RhdHVzIjoicHVibGlzaGVkIiwidGVybXMiOnsiZXZlbnQtY2F0ZWdvcnkiOlsiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTA2Il19LCJ0aXRsZSI6IkluY29udHJvIHBvcnRhYmlsZSIsInR5cGVLZXkiOiJldmVudHMiLCJ2YWx1ZXMiOnsicHJpdmF0ZV9ub3RlIjoiTm9uIGVzcG9ydGFyZSBuZWwgZnJvbnRlbmQiLCJzcGVha2VyIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTA3Iiwic3RhcnRzX2F0IjoiMjAyNi0xMS0xNVQwOTozMDowMCswMTowMCJ9fSwicmV2aXNpb25IYXNoIjoiN2QxNWRlYmY1Y2VhNTU4YjUxNWIwMTQxODY3MzgzMWEzZTg2MjJkZDkyNGU4NjhjZjM5YzUxZDQ0OGE2NzFmZiIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMTAiLCJraW5kIjoidGF4b25vbXkiLCJwYXlsb2FkIjp7ImtleSI6InNwZWFrZXItdG9waWMiLCJsYWJlbCI6IkFtYml0aSByZWxhdG9yaSIsInR5cGVzIjpbInNwZWFrZXIiXX0sInJldmlzaW9uSGFzaCI6Ijk1Nzg3NjA0OTNiNzkwNzJkZTBmMjM1NmFhNTJmODUzOGMyYTQyMjNkYmU3ODljMWE1YzA5Y2QxYTY5MTNhYTciLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTExIiwia2luZCI6InRlcm0iLCJwYXlsb2FkIjp7ImxhYmVsIjoiUmljZXJjYSIsInBhcmVudElkIjpudWxsLCJzbHVnIjoicmljZXJjYSIsInRheG9ub215S2V5Ijoic3BlYWtlci10b3BpYyJ9LCJyZXZpc2lvbkhhc2giOiIzZGQ2NzgxYmNiOGE5ZmEwYzhjODY2YzUzY2Q1YTY4ZWVjYTU4N2JkZDFlZWVmNjE0ZGRiZjNlOTNjMDg5MmJlIiwic2NoZW1hVmVyc2lvbiI6MX0KeyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDExMiIsImtpbmQiOiJ0ZW1wbGF0ZSIsInBheWxvYWQiOnsiY29udGVudCI6IjwhLS0gd3A6eGIvZWxlbWVudCB7XCJ1aWRcIjpcInFudXByanU3M2JcIixcInRhZ1wiOlwibWFpblwifSAtLT48IS0tIHdwOnhiL3Nsb3Qge1widWlkXCI6XCJoNThwNGR0aGI5XCIsXCJuYW1lXCI6XCJkZWZhdWx0XCJ9IC8tLT48IS0tIC93cDp4Yi9lbGVtZW50IC0tPiIsInJlZiI6ImNvbnRlbnQvZXZlbnQtc2luZ2xlIiwic2NoZW1hIjp7InByb3BzIjp7InBhZ2UiOnsiZGVmYXVsdCI6eyJzbHVnIjoiIiwidGl0bGUiOiIiLCJ1cmwiOiIvIn0sInR5cGUiOiJvYmplY3QifX19LCJzY3JpcHQiOiIiLCJ0aXRsZSI6IlNjaGVkYSBldmVudG8ifSwicmV2aXNpb25IYXNoIjoiNTQzN2ZhODNkODIxMmJkYWMyMGU1NTM3MmExYWQzZDJmNWM4NjJhNGY4MDRiZjZkMWQ2N2Y5NWNiY2NhODA4OCIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMTMiLCJraW5kIjoidGVtcGxhdGUiLCJwYXlsb2FkIjp7ImNvbnRlbnQiOiI8IS0tIHdwOnhiL2VsZW1lbnQge1widWlkXCI6XCJyangyb2wwaG9vXCIsXCJ0YWdcIjpcIm1haW5cIn0gLS0+PCEtLSB3cDp4Yi9zbG90IHtcInVpZFwiOlwidnJhNzFmNGlyY1wiLFwibmFtZVwiOlwiZGVmYXVsdFwifSAvLS0+PCEtLSAvd3A6eGIvZWxlbWVudCAtLT4iLCJyZWYiOiJjb250ZW50L2V2ZW50LWFyY2hpdmUiLCJzY2hlbWEiOnsicHJvcHMiOnsicGFnZSI6eyJkZWZhdWx0Ijp7InNsdWciOiIiLCJ0aXRsZSI6IiIsInVybCI6Ii8ifSwidHlwZSI6Im9iamVjdCJ9fX0sInNjcmlwdCI6IiIsInRpdGxlIjoiQXJjaGl2aW8gZXZlbnRpIn0sInJldmlzaW9uSGFzaCI6IjAyNzQzNjVlOGE1OGJlNGRhZjFhZWQzZDMyNzg4NTIxYzY3YjhjY2EyM2QyYjkyMjAyN2MyMmFiY2U1OGU0MTAiLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiODYzOWRlZTAtOGEwMy01ZGM1LTk2NzktNTI1ZjM4MTUyYzQ3Iiwia2luZCI6InF1ZXJ5LXNvdXJjZSIsInBheWxvYWQiOnsiZGF0YSI6W3siaHJlZiI6Ii9ldmVudGkvIiwibGFiZWwiOiJJbiBldmlkZW56YSJ9XSwibmFtZSI6ImZlYXR1cmVkIn0sInJldmlzaW9uSGFzaCI6ImM3NTgzZDcwZDNkODUwOTQxNTkyYzZlMjhiYjgwY2VkNDFhN2VhYzg3ZDk1OTIyMDgzMGI1YzllMWQ1MjE1YWEiLCJzY2hlbWFWZXJzaW9uIjoxfQo=",
+    "references.ndjson": ""
+  }
+}

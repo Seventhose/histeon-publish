@@ -1,0 +1,5 @@
+.testata {
+  padding: var(--xb-space-s) var(--xb-space-m);
+  background: var(--xb-primary);
+  &__marchio { font-size: var(--xb-text-l); color: var(--xb-on-primary); }
+}

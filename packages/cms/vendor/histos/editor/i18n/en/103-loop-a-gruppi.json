@@ -1,0 +1,11 @@
+{
+  "Per anno di pubblicazione": "By year of publication",
+  "Per mese di pubblicazione": "By month of publication",
+  "Per iniziale del titolo": "By first letter of the title",
+  "in gruppi per valore di «{0}»": "in groups by the value of “{0}”",
+  "in gruppi per iniziale di «{0}»": "in groups by the first letter of “{0}”",
+  "in gruppi per «{0}» col formato «{1}»": "in groups by “{0}” with the format “{1}”",
+  "In gruppi": "In groups",
+  "No, un elemento per contenuto": "No, one item per content",
+  "Ogni ripetizione è un gruppo: il titolo in {0}, i contenuti in {1}.": "Each repetition is a group: the heading in {0}, the contents in {1}."
+}

@@ -1,0 +1,23 @@
+/* Foglio finto con i nomi di Automatic.css, scritto a mano per le prove: non è il CSS di ACSS. */
+:root {
+  --primary: oklch(0.55 0.15 30);
+  --secondary: #1f6f5c;
+  --base: oklch(0.65 0.044 239);
+  --white: #fff;
+  --black: #000;
+  --text-dark: var(--black);
+  --text-light: var(--white);
+  --text-light-muted: oklch(0.9 0.01 239);
+  --bg-light: var(--base);
+  --text-s: 0.9rem;
+  --text-m: 1rem;
+  --text-l: 1.3rem;
+  --h1: 2.6rem;
+  --h3: 1.4rem;
+  --space-xs: 0.5rem;
+  --space-s: 1rem;
+  --space-m: 1.5rem;
+  --space-l: 2.5rem;
+  --radius: 6px;
+  --radius-m: var(--radius);
+}

@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scelte dell'importazione HTML (doc 27, G1) > ogni sito del corpus ha scelte stabili, con contesti brevi e valori che rispettano le regole 1`] = `
+{
+  "blog-statico": {
+    "classe": 5,
+  },
+  "landing-bootstrap": {
+    "classe": 2,
+    "componente": 1,
+    "prop": 2,
+    "tipo": 1,
+  },
+  "moduli-svg": {
+    "classe": 3,
+  },
+  "script-cdn": {
+    "classe": 1,
+  },
+  "utility-tailwind": {
+    "classe": 16,
+    "componente": 1,
+    "prop": 2,
+    "tipo": 1,
+  },
+  "webflow-like": {
+    "classe": 1,
+    "componente": 1,
+    "prop": 4,
+    "tipo": 1,
+  },
+}
+`;

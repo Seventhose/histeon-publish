@@ -1,0 +1,16 @@
+{
+  "A questo template manca il blocco «Contenuto del post».": "This template lacks the “Post content” block.",
+  "Se il sito lavora con Histeon Publish, senza questo blocco la rilettura e l’invio si fermano su questo template. Aggiungilo dove va il testo della pagina. Mettilo anche in un template di elenchi (archivi, ricerca): lì resta vuoto e non si vede.": "If the site works with Histeon Publish, without this block reading and sending stop at this template. Add it where the page’s text goes. Put it in a list template too (archives, search): there it stays empty and does not show.",
+  "Aggiungi il contenuto del post": "Add the post content",
+  "Contenuto del post aggiunto: spostalo dove va il testo della pagina, poi salva.": "Post content added: move it where the page’s text goes, then save.",
+  "Raggruppa il risultato nel loop": "Group the result in the loop",
+  "La query resta una sola: il loop ne divide il risultato.": "It stays one query: the loop splits its result.",
+  "\"{0}\" ora si ripete per ogni risultato di \"{1}\", in gruppi: ogni gruppo ha il suo titolo ({2}) e i suoi contenuti.": "\"{0}\" now repeats for every result of \"{1}\", in groups: each group has its heading ({2}) and its contents.",
+  "Gruppi del loop": "Groups of the loop",
+  "{0} gruppo": "{0} group",
+  "{0} gruppi": "{0} groups",
+  "nel loop: ognuno ripete il suo titolo, poi i suoi contenuti.": "in the loop: each repeats its heading, then its contents.",
+  "(senza valore)": "(no value)",
+  "Il titolo del gruppo è": "The group’s heading is",
+  "le chiavi qui sotto valgono nel loop interno su": "the keys below work in the inner loop over"
+}

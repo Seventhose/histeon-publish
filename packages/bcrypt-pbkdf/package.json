@@ -1,0 +1,8 @@
+{
+  "name": "bcrypt-pbkdf",
+  "version": "1.0.3",
+  "description": "OpenBSD bcrypt_pbkdf port using Node.js SHA-512",
+  "license": "BSD-3-Clause",
+  "main": "index.js",
+  "private": true
+}

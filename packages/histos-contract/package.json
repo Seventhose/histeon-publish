@@ -1,0 +1,35 @@
+{
+  "name": "@histos-publish/histos-contract",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
+    },
+    "./css-resources": {
+      "types": "./dist/src/css-resources.d.ts",
+      "import": "./dist/src/css-resources.js"
+    },
+    "./core-preset": {
+      "types": "./dist/src/core-preset.d.ts",
+      "import": "./dist/src/core-preset.js"
+    },
+    "./framework-config": {
+      "types": "./dist/src/framework-config.d.ts",
+      "import": "./dist/src/framework-config.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@xb/spec": "0.1.0",
+    "ajv": "8.20.0"
+  }
+}

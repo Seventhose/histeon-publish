@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Coro di prova</title>
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "6c1d2e8f-4b7a-4f3e-9a21-0b5c7d9e2f41", "name": "Coro di prova", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#5b2333", "accent": "#c8a24a", "font_body": "Inter, system-ui, sans-serif" } }
+</script>
+<script type="application/json" data-histos="assets">[ { "name": "organo", "data": "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACQAQCdASoQAAwAAoBCJaACdLoAA5gA/vD6K/8Q50OdDmtz15T4laAA", "alt": "L'organo del duomo visto dalla navata" }, { "name": "logo", "data": "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACQAQCdASoQAAwAAoBCJaACdLoAA5gA/vD6K/8Q50OdDmtz15T4laAA", "alt": "Coro di prova" }, { "name": "locandina", "data": "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACQAQCdASoQAAwAAoBCJaACdLoAA5gA/vD6K/8Q50OdDmtz15T4laAA", "alt": "" } ]</script>
+<script type="application/json" data-histos="content">
+{ "types": [
+  { "key": "concerto", "label": "Concerti", "singleTemplate": "site/concerto", "archiveTemplate": "site/archivio",
+    "fields": [ { "key": "data", "label": "Data", "type": "date", "required": true, "public": true, "multiple": false },
+                { "key": "luogo", "label": "Luogo", "type": "text", "required": false, "public": true, "multiple": false },
+                { "key": "locandina", "label": "Locandina", "type": "asset", "required": false, "public": true, "multiple": false } ] } ],
+  "taxonomies": [ { "key": "category", "label": "Categorie", "types": ["post"] } ],
+  "terms": [ { "taxonomy": "category", "slug": "notizie", "label": "Notizie" } ],
+  "records": [
+    { "type": "concerto", "slug": "vespri-di-luglio", "title": "Vespri di luglio", "publishedAt": "2026-06-01T00:00:00Z", "order": 1, "values": { "data": "2026-07-12", "luogo": "Duomo", "locandina": "asset:locandina" } },
+    { "type": "concerto", "slug": "messa-a-quattro-voci", "title": "Messa a quattro voci", "publishedAt": "2026-06-01T00:00:00Z", "order": 2, "values": { "data": "2026-08-02", "luogo": "Chiesa di San Marco" } } ],
+  "queries": [ { "key": "prossimi_concerti", "label": "Prossimi concerti", "type": "concerto", "limit": 6, "orderBy": "order", "order": "asc" } ] }
+</script>
+<style data-histos="selectors">
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--xb-space-s);
+  inset-block-start: var(--xb-space-s);
+  z-index: 100;
+  padding: var(--xb-space-xs) var(--xb-space-s);
+  background: var(--xb-surface);
+  color: var(--xb-text);
+  transform: translateY(-200%);
+  &:focus-visible { transform: none; outline: 2px solid var(--xb-focus); }
+}
+.page {
+  max-inline-size: var(--xb-width-content);
+  margin-inline: auto;
+  padding-inline: var(--xb-gutter);
+}
+.site-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--xb-space-s);
+  padding: var(--xb-space-s) var(--xb-gutter);
+  background: var(--xb-surface);
+  border-block-end: 1px solid var(--xb-border);
+  &__image { display: block; }
+  &__nav { @media (width < 48rem) { display: none; } }
+  &__mobile { display: none; @media (width < 48rem) { display: block; } }
+  &__toggle { display: inline-flex; align-items: center; min-block-size: 2.75rem; cursor: pointer; }
+}
+.site-nav {
+  &__list { display: flex; flex-wrap: wrap; gap: var(--xb-space-xs) var(--xb-space-m); list-style: none; margin: 0; padding: 0; }
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    color: var(--xb-link);
+    font-size: var(--xb-text-m);
+    text-decoration: none;
+    &:hover { color: var(--xb-link-hover); text-decoration: underline; }
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+    &[aria-current="page"] { font-weight: 700; text-decoration: underline; }
+  }
+}
+.hero {
+  display: grid;
+  gap: var(--xb-space-l);
+  align-items: center;
+  padding-block: var(--xb-section-m);
+  &__title { font-size: var(--xb-h1); color: var(--xb-heading); text-wrap: balance; margin: 0; }
+  &__lead { font-size: var(--xb-text-l); color: var(--xb-text); max-inline-size: var(--xb-width-prose); }
+  &__action {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding-inline: var(--xb-space-m);
+    border-radius: var(--xb-radius-s);
+    background: var(--xb-primary);
+    color: var(--xb-on-primary);
+    font-weight: 700;
+    text-decoration: none;
+    &:hover { background: var(--xb-primary-hover); }
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+  }
+  &__image { inline-size: 100%; block-size: auto; border-radius: var(--xb-radius-m); }
+  @media (width >= 64em) { grid-template-columns: 1fr 1fr; }
+}
+.events {
+  padding-block: var(--xb-section-m);
+  &__title { font-size: var(--xb-h2); color: var(--xb-heading); }
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--xb-grid-min)), 1fr));
+    gap: var(--xb-grid-gap);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  &__empty { color: var(--xb-text-muted); font-size: var(--xb-text-m); }
+  &__all { display: inline-flex; align-items: center; min-block-size: 2.75rem; color: var(--xb-link); }
+}
+.concert-card {
+  position: relative;
+  display: grid;
+  gap: var(--xb-space-xs);
+  block-size: 100%;
+  padding: var(--xb-space-m);
+  border: 1px solid var(--xb-border);
+  border-radius: var(--xb-radius-m);
+  background: var(--xb-surface);
+  &__image { inline-size: 100%; block-size: auto; border-radius: var(--xb-radius-s); }
+  &__title { font-size: var(--xb-h4); color: var(--xb-heading); margin: 0; overflow-wrap: anywhere; }
+  &__link {
+    color: inherit;
+    text-decoration: none;
+    &::after { content: ""; position: absolute; inset: 0; }
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+  }
+  &:hover .concert-card__title { text-decoration: underline; }
+  &__meta { color: var(--xb-text-muted); font-size: var(--xb-text-s); margin: 0; }
+}
+.post {
+  max-inline-size: var(--xb-width-prose);
+  margin-inline: auto;
+  padding-block: var(--xb-section-m);
+  &__title { font-size: var(--xb-h1); color: var(--xb-heading); text-wrap: balance; }
+  &__meta { color: var(--xb-text-muted); font-size: var(--xb-text-s); }
+  &__content {
+    font-size: var(--xb-text-m);
+    line-height: var(--xb-leading-normal);
+    & > * + * { margin-block-start: var(--xb-flow-text); }
+    & :is(h2, h3) { margin-block-start: var(--xb-flow-heading); color: var(--xb-heading); }
+    & a { color: var(--xb-link); text-decoration: underline; }
+  }
+}
+.faq {
+  max-inline-size: var(--xb-width-prose);
+  margin-inline: auto;
+  padding-block: var(--xb-section-m);
+  &__item { border-block-end: 1px solid var(--xb-border); }
+  &__question {
+    display: flex;
+    align-items: center;
+    min-block-size: 2.75rem;
+    padding-block: var(--xb-space-s);
+    font-size: var(--xb-text-m);
+    font-weight: 700;
+    color: var(--xb-heading);
+    cursor: pointer;
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+  }
+  &__answer { padding-block-end: var(--xb-space-s); }
+}
+.contact-form {
+  display: grid;
+  gap: var(--xb-space-m);
+  max-inline-size: var(--xb-width-prose);
+  &__field { display: grid; gap: var(--xb-space-2xs); }
+  &__label { font-weight: 700; color: var(--xb-heading); }
+  &__input {
+    min-block-size: 2.75rem;
+    padding: var(--xb-space-xs) var(--xb-space-s);
+    border: 1px solid var(--xb-border);
+    border-radius: var(--xb-radius-s);
+    font: inherit;
+    font-size: var(--xb-text-m);
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+  }
+  &__help { color: var(--xb-text-muted); font-size: var(--xb-text-s); margin: 0; }
+  &__submit {
+    justify-self: start;
+    min-block-size: 2.75rem;
+    padding-inline: var(--xb-space-m);
+    border: 0;
+    border-radius: var(--xb-radius-s);
+    background: var(--xb-primary);
+    color: var(--xb-on-primary);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    &:hover { background: var(--xb-primary-hover); }
+    &:focus-visible { outline: 2px solid var(--xb-focus); outline-offset: 2px; }
+  }
+}
+.site-footer {
+  padding: var(--xb-section-s) var(--xb-gutter);
+  background: var(--xb-surface-2);
+  color: var(--xb-text);
+  &__inner { display: grid; gap: var(--xb-space-l); grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--xb-grid-min)), 1fr)); }
+  &__title { font-size: var(--xb-h5); color: var(--xb-heading); }
+  &__list { list-style: none; margin: 0; padding: 0; }
+  &__link { display: inline-flex; align-items: center; min-block-size: 2.75rem; color: var(--xb-link); }
+}
+</style>
+</head>
+<body>
+<template data-histos="part" data-ref="site/header" data-area="header" data-title="Testata">
+<header class="site-header">
+  <a class="skip-link" href="#contenuto">Vai al contenuto</a>
+  <a class="site-header__logo" href="/"><img class="site-header__image" src="asset:logo" alt="Coro di prova, torna alla home" width="160" height="48"></a>
+  <nav class="site-header__nav site-nav" aria-label="Menu principale">
+    <ul class="site-nav__list">
+      <li>{#if page.slug == "chi-siamo"}<a class="site-nav__link" href="/chi-siamo/" aria-current="page">Chi siamo</a>{:else}<a class="site-nav__link" href="/chi-siamo/">Chi siamo</a>{/if}</li>
+      <li>{#if page.url.includes("/concerto/")}<a class="site-nav__link" href="/concerto/" aria-current="page">Concerti</a>{:else}<a class="site-nav__link" href="/concerto/">Concerti</a>{/if}</li>
+      <li>{#if page.slug == "contatti"}<a class="site-nav__link" href="/contatti/" aria-current="page">Contatti</a>{:else}<a class="site-nav__link" href="/contatti/">Contatti</a>{/if}</li>
+    </ul>
+  </nav>
+  <details class="site-header__mobile">
+    <summary class="site-header__toggle">Menu</summary>
+    <nav class="site-nav" aria-label="Menu mobile">
+      <ul class="site-nav__list">
+        <li><a class="site-nav__link" href="/chi-siamo/">Chi siamo</a></li>
+        <li><a class="site-nav__link" href="/concerto/">Concerti</a></li>
+        <li><a class="site-nav__link" href="/contatti/">Contatti</a></li>
+      </ul>
+    </nav>
+  </details>
+</header>
+</template>
+<template data-histos="part" data-ref="site/footer" data-area="footer" data-title="Piè di pagina">
+<footer class="site-footer">
+  <div class="site-footer__inner">
+    <section class="site-footer__group" aria-labelledby="footer-contatti">
+      <h2 class="site-footer__title" id="footer-contatti">Contatti</h2>
+      <p class="site-footer__address">Via dell'Esempio 1<br><a class="site-footer__link" href="tel:+390000000000">000 000 0000</a></p>
+    </section>
+    <nav class="site-footer__nav" aria-label="Note legali">
+      <ul class="site-footer__list">
+        <li><a class="site-footer__link" href="/privacy/">Privacy</a></li>
+        <li><a class="site-footer__link" href="/cookie/">Cookie</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>
+</template>
+<template data-histos="component" data-ref="concert-card" data-title="Scheda del concerto" data-props='{"titolo":{"type":"string"},"url":{"type":"url"},"giorno":{"type":"string"},"data":{"type":"string"},"luogo":{"type":"string"},"immagine":{"type":"image"},"larghezza":{"type":"number","default":640},"altezza":{"type":"number","default":400}}'>
+<article class="concert-card">
+  {#if props.immagine}<img class="concert-card__image" src={props.immagine} alt="" width={props.larghezza} height={props.altezza} loading="lazy">{/if}
+  <h3 class="concert-card__title"><a class="concert-card__link" href={props.url}>{props.titolo}</a></h3>
+  <p class="concert-card__meta"><time datetime={props.giorno}>{props.data}</time> · {props.luogo}</p>
+</article>
+</template>
+<template data-histos="template" data-ref="site/page" data-role="page" data-title="Pagina"><Site.Header /><main class="page" id="contenuto">{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/articolo" data-role="single" data-title="Articolo"><Site.Header />
+<main class="page" id="contenuto">
+  <article class="post">
+    <header class="post__header">
+      <h1 class="post__title">{page.title}</h1>
+      <p class="post__meta"><time datetime={page.publishedAt.date("Y-m-d")}>{page.publishedAt.date("j F Y")}</time></p>
+    </header>
+    <div class="post__content">{@slot}</div>
+  </article>
+</main>
+<Site.Footer /></template>
+<template data-histos="template" data-ref="site/concerto" data-title="Concerto"><Site.Header /><main class="page" id="contenuto"><article class="post"><h1 class="post__title">{page.title}</h1><p class="post__meta"><time datetime={page.fields.data.date("Y-m-d")}>{page.fields.data.date("j F Y")}</time> · {page.fields.luogo}</p><div class="post__content">{@slot}</div></article></main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/archivio" data-role="archive" data-title="Archivio"><Site.Header /><main class="page" id="contenuto"><h1>{page.title}</h1><section class="events" aria-labelledby="events-title"><h2 class="events__title" id="events-title">In programma</h2><ul class="events__list">{#loop main() as concerto}<li><ConcertCard titolo={concerto.title} url={concerto.url} giorno={concerto.fields.data.date("Y-m-d")} data={concerto.fields.data.date("j F Y")} luogo={concerto.fields.luogo} immagine={concerto.fields.locandina} /></li>{:else}<li class="events__empty">Nessun concerto in programma.</li>{/loop}</ul></section>{#if page.totalPages > 1}<nav aria-label="Pagine">{#loop page.pageLinks as l}<a href={l.url}>{l.number}</a>{/loop}</nav>{/if}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/blog" data-role="home" data-title="Notizie"><Site.Header /><main class="page" id="contenuto"><h1>Notizie</h1><ul>{#loop main() as x}<li><a href={x.url}>{x.title}</a></li>{:else}<li>Nessuna notizia.</li>{/loop}</ul>{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/categoria" data-role="category" data-title="Categoria"><Site.Header /><main class="page" id="contenuto"><h1>{page.title}</h1><ul>{#loop main() as x}<li><a href={x.url}>{x.title}</a></li>{:else}<li>Nessuna notizia.</li>{/loop}</ul>{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/pagina-non-trovata" data-role="404" data-title="Non trovata"><Site.Header /><main class="page" id="contenuto"><h1>Pagina non trovata</h1><p><a href="/">Torna alla home</a></p>{@slot}</main><Site.Footer /></template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page">
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__body">
+    <h1 class="hero__title" id="hero-title">Concerti d'organo in duomo, ogni domenica d'estate</h1>
+    <p class="hero__lead">Ingresso libero, alle 21. Il programma cambia ogni settimana.</p>
+    <a class="hero__action" href="/concerto/">Leggi il programma</a>
+  </div>
+  <img class="hero__image" src="asset:organo" alt="L'organo del duomo visto dalla navata" width="1600" height="1000" fetchpriority="high">
+</section>
+<section class="events" aria-labelledby="events-title">
+  <h2 class="events__title" id="events-title">Prossimi concerti</h2>
+  <ul class="events__list">
+    {#loop prossimi_concerti() as concerto}
+      <li><ConcertCard titolo={concerto.title} url={concerto.url} giorno={concerto.fields.data.date("Y-m-d")} data={concerto.fields.data.date("j F Y")} luogo={concerto.fields.luogo} immagine={concerto.fields.locandina} /></li>
+    {:else}
+      <li class="events__empty">Nessun concerto in programma. Torna a trovarci presto.</li>
+    {/loop}
+  </ul>
+  <p><a class="events__all" href="/concerto/">Tutti i concerti</a></p>
+</section>
+<section class="faq" aria-labelledby="faq-title">
+  <h2 class="faq__title" id="faq-title">Domande frequenti</h2>
+  <details class="faq__item" name="faq">
+    <summary class="faq__question">Serve la prenotazione?</summary>
+    <div class="faq__answer"><p>No, l'ingresso è libero fino a esaurimento dei posti.</p></div>
+  </details>
+</section>
+</template>
+<template data-histos="page" data-slug="chi-siamo" data-title="Chi siamo" data-template="site/page"><h1>Chi siamo</h1><p>Il coro canta musica sacra del Cinquecento.</p></template>
+<template data-histos="page" data-slug="contatti" data-title="Contatti" data-template="site/page">
+<h1>Contatti</h1>
+<form class="contact-form" action="/contatti/" method="post">
+  <div class="contact-form__field">
+    <label class="contact-form__label" for="cf-nome">Nome e cognome</label>
+    <input class="contact-form__input" id="cf-nome" name="nome" type="text" autocomplete="name" required>
+  </div>
+  <div class="contact-form__field">
+    <label class="contact-form__label" for="cf-email">Email</label>
+    <input class="contact-form__input" id="cf-email" name="email" type="email" autocomplete="email" required aria-describedby="cf-email-aiuto">
+    <p class="contact-form__help" id="cf-email-aiuto">Ti rispondiamo a questo indirizzo.</p>
+  </div>
+  <div class="contact-form__field">
+    <label class="contact-form__label" for="cf-messaggio">Messaggio</label>
+    <textarea class="contact-form__input" id="cf-messaggio" name="messaggio" rows="6" required></textarea>
+  </div>
+  <button class="contact-form__submit" type="submit">Invia la richiesta</button>
+</form>
+</template>
+<template data-histos="page" data-slug="privacy" data-title="Privacy" data-template="site/page"><h1>Privacy</h1><p>[testo da scrivere]</p></template>
+<template data-histos="page" data-slug="cookie" data-title="Cookie" data-template="site/page"><h1>Cookie</h1><p>[testo da scrivere]</p></template>
+<template data-histos="post" data-slug="stagione-2026" data-title="La stagione 2026" data-status="published" data-published-at="2026-05-10T09:00:00Z" data-excerpt="Il programma dei concerti dell'estate." data-terms='{"category":["notizie"]}'><p>Quest'estate il coro canta in duomo ogni domenica.</p><h2>Il programma</h2><p>Vespri, messe e mottetti del Cinquecento.</p></template>
+</body>
+</html>

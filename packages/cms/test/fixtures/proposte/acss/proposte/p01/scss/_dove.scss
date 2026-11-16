@@ -1,0 +1,5 @@
+.dove {
+  padding: var(--space-m);
+  &__titolo { font-size: var(--h3); }
+  &__testo { font-size: var(--text-m); }
+}

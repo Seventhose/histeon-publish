@@ -1,0 +1,168 @@
+{
+  "$description": "Prova.",
+  "$extensions": {
+    "histeon.css": {
+      "scheme": "light",
+      "exported": 13,
+      "skipped": {
+        "formula": {
+          "text-m": "clamp(1rem, 0.9583rem + 0.1852vw, 1.125rem)",
+          "card-title": "var(--xb-text-m)",
+          "drop-shadow-m": "drop-shadow(0 2px 6px oklch(0% 0 0 / 0.3))"
+        },
+        "unit": {
+          "btn-pad-y": "0.75em"
+        },
+        "type": {
+          "leading-normal": "1.6",
+          "h1-leading": "var(--xb-leading-normal)"
+        }
+      }
+    }
+  },
+  "color": {
+    "primary": {
+      "500": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.62,
+            0.2,
+            265
+          ],
+          "hex": "#497cfd"
+        }
+      },
+      "base": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.55,
+            0.2,
+            265
+          ],
+          "hex": "#3665e4"
+        }
+      },
+      "a10": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.55,
+            0.2,
+            265
+          ],
+          "hex": "#3665e4",
+          "alpha": 0.1
+        }
+      },
+      "on": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "oklch",
+          "components": [
+            0.99,
+            0,
+            0
+          ],
+          "hex": "#fcfcfc"
+        }
+      }
+    },
+    "text": {
+      "base": {
+        "$type": "color",
+        "$value": "{color.primary.500}"
+      },
+      "muted": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2,
+            0.4,
+            0.6
+          ],
+          "hex": "#336699"
+        }
+      }
+    },
+    "link": {
+      "$type": "color",
+      "$value": "{color.text.base}"
+    }
+  },
+  "dimension": {
+    "radius": {
+      "m": {
+        "$type": "dimension",
+        "$value": {
+          "value": 0.5,
+          "unit": "rem"
+        }
+      }
+    },
+    "btn": {
+      "radius": {
+        "$type": "dimension",
+        "$value": "{dimension.radius.m}"
+      }
+    }
+  },
+  "fontFamily": {
+    "font-body": {
+      "$type": "fontFamily",
+      "$value": [
+        "system-ui",
+        "Segoe UI",
+        "sans-serif"
+      ]
+    },
+    "heading-font": {
+      "$type": "fontFamily",
+      "$value": "{fontFamily.font-body}"
+    }
+  },
+  "fontWeight": {
+    "heading-weight": {
+      "$type": "fontWeight",
+      "$value": 700
+    }
+  },
+  "shadow": {
+    "shadow-m": {
+      "$type": "shadow",
+      "$value": {
+        "color": {
+          "colorSpace": "oklch",
+          "components": [
+            0,
+            0,
+            0
+          ],
+          "hex": "#000000",
+          "alpha": 0.1
+        },
+        "offsetX": {
+          "value": 0,
+          "unit": "px"
+        },
+        "offsetY": {
+          "value": 4,
+          "unit": "px"
+        },
+        "blur": {
+          "value": 12,
+          "unit": "px"
+        },
+        "spread": {
+          "value": 0,
+          "unit": "px"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+@import "./theme.css";
+body { font-family: HistosFixture, sans-serif; background-image: url("../images/background.svg"); }

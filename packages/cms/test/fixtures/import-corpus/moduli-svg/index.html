@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><title>Associazione Pane e Rose</title><link rel="stylesheet" href="moduli.css"></head>
+<body><header class="testata"><a href="index.html" class="logo" aria-label="Pane e Rose"><svg viewBox="0 0 64 64" width="48" height="48" role="img"><title>Pane e Rose</title><g fill="#b03a48"><circle cx="32" cy="24" r="12"/><path d="M20 44c8-6 16-6 24 0v8H20z"/></g></svg></a><p class="motto">Dal 1998, in quartiere.</p></header>
+<main><h1>Iscriviti</h1>
+<form class="modulo" action="/iscrizione" method="post">
+<fieldset><legend>I tuoi dati</legend>
+<p><label for="nome">Nome</label><input id="nome" name="nome" autocomplete="given-name" required></p>
+<p><label for="email">Email</label><input id="email" type="email" name="email" required></p>
+<p><label for="quota">Quota</label><select id="quota" name="quota"><option value="ordinaria">Ordinaria</option><option value="sostenitore">Sostenitore</option></select></p>
+<p><label for="note">Note</label><textarea id="note" name="note" rows="3"></textarea></p></fieldset>
+<fieldset><legend>Come vuoi partecipare</legend>
+<p><input type="radio" id="p1" name="partecipa" value="volontario"><label for="p1">Volontariato</label> <input type="radio" id="p2" name="partecipa" value="socio"><label for="p2">Solo socio</label></p>
+<p><input type="checkbox" id="privacy" name="privacy" required><label for="privacy">Ho letto l'informativa</label></p></fieldset>
+<button type="submit" class="invia">Invia l'iscrizione</button></form>
+<details class="faq"><summary>Quanto costa la quota?</summary><p>Venti euro l'anno.</p></details>
+<table class="orari"><caption>Orari della sede</caption><thead><tr><th scope="col">Giorno</th><th scope="col">Ore</th></tr></thead><tbody><tr><td>Lunedì</td><td>18–20</td></tr><tr><td>Giovedì</td><td>17–19</td></tr></tbody></table>
+</main><footer><address>Via dei Mille 4, Bologna · <a href="mailto:info@panerose.example">info@panerose.example</a></address></footer></body></html>

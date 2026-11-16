@@ -1,0 +1,15 @@
+{
+  "Questa pagina puoi solo vederla: chi gestisce il sito non ti ha dato il permesso di modificarla.": "You can only view this page: whoever runs the site has not allowed you to change it.",
+  "Aspetto di questa pagina": "Look of this page",
+  "Questo elemento non ha una classe: l'aspetto si cambia sugli elementi che ne hanno una.": "This element has no class: the look is changed on elements that have one.",
+  "Classe": "Class",
+  "Vale solo per questa pagina: la stessa classe sulle altre pagine resta com'è.": "It applies to this page only: the same class on other pages stays as it is.",
+  "Solo questa pagina": "This page only",
+  "Scrive uno stile proprio di questa pagina: la classe resta com’è sulle altre.": "Writes a style of this page's own: the class stays as it is on the others.",
+  "Scrive nella classe: vale su tutto il sito.": "Writes into the class: it applies to the whole site.",
+  "Vale solo per questa pagina: la stessa classe sulle altre pagine resta com’è. Va online con la prossima pubblicazione.": "It applies to this page only: the same class on other pages stays as it is. It goes live with the next release.",
+  "Aspetto di {0} su questa pagina": "Look of {0} on this page",
+  "Non puoi cambiare {0} su questa pagina.": "You cannot change {0} on this page.",
+  "sola lettura": "read only",
+  "aspetto della pagina": "look of the page"
+}

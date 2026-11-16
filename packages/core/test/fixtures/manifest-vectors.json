@@ -1,0 +1,30 @@
+[
+  {
+    "path": "index.html",
+    "contentsBase64": "PCFkb2N0eXBlIGh0bWw+PHRpdGxlPkhpc3RvczwvdGl0bGU+",
+    "extension": "html",
+    "size": 36,
+    "hash": "2ac704bcee2a1fc059b320d24ae0012d"
+  },
+  {
+    "path": "assets/logo.svg",
+    "contentsBase64": "PHN2Zz48L3N2Zz4=",
+    "extension": "svg",
+    "size": 11,
+    "hash": "2beb3034c5a4d22706a6dfd19fa4b4d1"
+  },
+  {
+    "path": "robots",
+    "contentsBase64": "QWxsb3c6IC8K",
+    "extension": "",
+    "size": 9,
+    "hash": "527aabb1926e74fbf0720a5d43a5082e"
+  },
+  {
+    "path": "bytes.bin",
+    "contentsBase64": "AAH/",
+    "extension": "bin",
+    "size": 3,
+    "hash": "6f6dfe1d60bafeccc9b0a6f1f6f70f14"
+  }
+]

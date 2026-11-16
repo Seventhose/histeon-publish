@@ -1,0 +1,19 @@
+{
+  "Nuovo modulo Fluent Forms": "New Fluent Forms form",
+  "Modulo {0}": "Form {0}",
+  "Modulo: {0}": "Form: {0}",
+  "Chiudi e aggiorna l'anteprima": "Close and refresh the preview",
+  "Modulo Fluent Forms": "Fluent Forms form",
+  "Campi, messaggi e notifiche si cambiano nell'editor di Fluent Forms.": "Fields, messages and notifications are changed in the Fluent Forms editor.",
+  "Modifica il modulo": "Edit the form",
+  "Moduli (Fluent Forms)": "Forms (Fluent Forms)",
+  "Nuovo modulo Fluent Forms…": "New Fluent Forms form…",
+  "Invio del modulo": "Form submission",
+  "Endpoint di invio": "Submission endpoint",
+  "/api/moduli oppure https://…": "/api/forms or https://…",
+  "Senza endpoint, il modulo non può essere incluso in una build pubblicabile.": "Without an endpoint, this form cannot be included in a publishable build.",
+  "I dati partono dal browser verso questo indirizzo. Histeon non li riceve: verifica il servizio e la sua informativa privacy.": "The browser sends data directly to this address. Histeon does not receive it: verify the service and its privacy notice.",
+  "Metodo": "Method",
+  "Scegli GET o POST prima della build.": "Choose GET or POST before building.",
+  "Usa POST per i dati personali. GET inserisce i valori nell’URL ed è adatto solo a ricerche pubbliche.": "Use POST for personal data. GET puts values in the URL and is suitable only for public searches."
+}

@@ -1,0 +1,43 @@
+{
+  "name": "@histos-publish/connector",
+  "version": "0.1.0",
+  "private": true,
+  "license": "GPL-3.0-or-later",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./protocol": {
+      "types": "./dist/protocol.d.ts",
+      "import": "./dist/protocol.js"
+    },
+    "./tools": {
+      "types": "./dist/tools.d.ts",
+      "import": "./dist/tools.js"
+    },
+    "./data-directory": {
+      "types": "./dist/data-directory.d.ts",
+      "import": "./dist/data-directory.js"
+    },
+    "./session-file": {
+      "types": "./dist/session-file.d.ts",
+      "import": "./dist/session-file.js"
+    },
+    "./errors": {
+      "types": "./dist/errors.d.ts",
+      "import": "./dist/errors.js"
+    },
+    "./client-script": "./dist/histos-publish-connector.mjs"
+  },
+  "scripts": {
+    "build": "tsc -b && node build.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

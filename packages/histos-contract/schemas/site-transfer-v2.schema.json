@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://histos.example/schemas/site-transfer-v2.schema.json",
+  "title": "Histos site transfer manifest v2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["format", "version", "generator", "project", "selection", "requiredCapabilities", "profile", "files", "manifestHash"],
+  "properties": {
+    "format": { "const": "xb-site" },
+    "version": { "const": 2 },
+    "generator": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "version", "engineCommit"],
+      "properties": {
+        "name": { "const": "Histos CMS" },
+        "version": { "type": "string", "minLength": 1, "maxLength": 64 },
+        "engineCommit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "project": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "$ref": "#/definitions/uuid" },
+        "name": { "type": "string", "minLength": 1, "maxLength": 160 },
+        "baseUrl": { "type": "string", "maxLength": 2048, "pattern": "^https?://" },
+        "defaultLocale": { "type": "string", "minLength": 2, "maxLength": 64, "pattern": "^[A-Za-z]{2,8}(-[A-Za-z0-9]{1,8})*$" }
+      }
+    },
+    "selection": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "snapshot"],
+      "properties": {
+        "kind": { "enum": ["workspace-head", "release"] },
+        "snapshot": { "$ref": "#/definitions/uuid" }
+      }
+    },
+    "requiredCapabilities": { "type": "array", "items": { "type": "string", "pattern": "^[a-z][a-z0-9-]*:[a-zA-Z0-9._-]+:v[1-9][0-9]*$" }, "uniqueItems": true },
+    "profile": { "enum": ["histos-static-page-v1", "histos-static-project-v1", "histos-static-project-v2", "histos-static-project-v3", "histos-static-project-v4"] },
+    "files": {
+      "type": "array", "minItems": 2, "maxItems": 10000,
+      "items": { "$ref": "#/definitions/file" }
+    },
+    "leftOut": {
+      "type": "array", "minItems": 1, "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "title", "reason"],
+        "properties": {
+          "kind": { "enum": ["page", "post", "component", "template-part", "template", "query"] },
+          "title": { "type": "string", "maxLength": 160 },
+          "reason": { "type": "string", "maxLength": 300 },
+          "blocks": { "const": true }
+        }
+      }
+    },
+    "manifestHash": { "$ref": "#/definitions/sha256" }
+  },
+  "definitions": {
+    "uuid": { "type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "file": {
+      "type": "object", "additionalProperties": false,
+      "required": ["path", "bytes", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1, "maxLength": 512, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[A-Za-z0-9._/-]+$" },
+        "bytes": { "type": "integer", "minimum": 0, "maximum": 536870912 },
+        "sha256": { "$ref": "#/definitions/sha256" },
+        "mediaType": { "type": "string", "maxLength": 128 }
+      }
+    }
+  }
+}

@@ -1,0 +1,2 @@
+# Text files keep LF on every platform: vendored snapshots and fixtures are checked byte by byte.
+* text=auto eol=lf

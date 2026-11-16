@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "dataDir", "site", "cloudflare"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "dataDir": { "type": "string", "minLength": 1, "pattern": "^/" },
+    "listen": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "host": { "type": "string", "default": "127.0.0.1" },
+        "port": { "type": "integer", "minimum": 1024, "maximum": 65535, "default": 8787 },
+        "allInterfaces": { "type": "boolean", "default": false },
+        "allowedHosts": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "pattern": "^(?:\\[[0-9A-Fa-f:.]+\\]|[A-Za-z0-9.-]+):[0-9]{1,5}$"
+          }
+        }
+      }
+    },
+    "site": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "origin"],
+      "properties": {
+        "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+        "origin": { "type": "string", "minLength": 8, "maxLength": 2048 },
+        "privateNetwork": { "type": "boolean", "default": false },
+        "crawl": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "concurrency": { "type": "integer", "minimum": 1, "maximum": 8, "default": 4 },
+            "delayMs": { "type": "integer", "minimum": 0, "maximum": 30000, "default": 50 },
+            "timeoutMs": { "type": "integer", "minimum": 1000, "maximum": 120000, "default": 60000 },
+            "maxPages": { "type": "integer", "minimum": 1, "maximum": 20000, "default": 5000 },
+            "maxDepth": { "type": "integer", "minimum": 0, "maximum": 20, "default": 12 },
+            "maxBytes": { "type": "integer", "minimum": 1, "maximum": 1073741824, "default": 536870912 },
+            "includeFeeds": { "type": "boolean", "default": false }
+          }
+        },
+        "rewrite": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "externalAssets": {
+              "type": "array",
+              "maxItems": 100,
+              "items": { "type": "string", "minLength": 1, "maxLength": 4096 },
+              "default": []
+            }
+          }
+        },
+        "pagefind": { "type": "boolean", "default": false },
+        "forms": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["wordpress"],
+          "properties": {
+            "wordpress": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["restUrl", "fluentFormIds", "turnstileSiteKey"],
+              "properties": {
+                "restUrl": { "type": "string", "minLength": 12, "maxLength": 2048 },
+                "fluentFormIds": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 100,
+                  "uniqueItems": true,
+                  "items": { "type": "integer", "minimum": 1, "maximum": 2147483647 }
+                },
+                "turnstileSiteKey": { "type": "string", "minLength": 1, "maxLength": 200 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cloudflare": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accountId", "script"],
+      "properties": {
+        "accountId": { "type": "string", "pattern": "^[0-9a-f]{32}$" },
+        "script": { "type": "string", "pattern": "^[a-z0-9-]{1,63}$" },
+        "maxFiles": { "type": "integer", "minimum": 1, "maximum": 100000, "default": 20000 }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "publishPerHour": { "type": "integer", "minimum": 1, "maximum": 600, "default": 30 },
+        "requestsPerMinute": { "type": "integer", "minimum": 10, "maximum": 6000, "default": 120 }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "jobsDays": { "type": "integer", "minimum": 1, "maximum": 3650, "default": 90 },
+        "keepBundles": { "type": "integer", "minimum": 0, "maximum": 5, "default": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "version": 1,
+  "content": "<!-- wp:xb/raw {\"uid\":\"raw00000001\",\"content\":\"<article><p>HTML &amp; grezzo</p></article>\"} /--><!-- wp:paragraph {\"className\":\"wp-block-paragraph\"} --><p class=\"wp-block-paragraph\">Blocco <em>statico</em></p><!-- /wp:paragraph -->",
+  "expectedBody": "<article><p>HTML &amp; grezzo</p></article><p class=\"wp-block-paragraph\">Blocco <em>statico</em></p>"
+}

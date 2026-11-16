@@ -1,0 +1,129 @@
+{
+  "profile": {
+    "manifest": {
+      "format": "xb-site",
+      "version": 2,
+      "generator": {
+        "name": "Histos CMS",
+        "version": "0.1.14",
+        "engineCommit": "9bc212050403dd056ac21edfcff398b514e4a3c1"
+      },
+      "project": {
+        "id": "550e8400-e29b-41d4-a716-446655440120",
+        "name": "Fixture CMS template",
+        "defaultLocale": "en-US"
+      },
+      "selection": {
+        "kind": "workspace-head",
+        "snapshot": "550e8400-e29b-41d4-a716-446655440125"
+      },
+      "requiredCapabilities": [
+        "documents:page:v1",
+        "styles:global:v1",
+        "media:asset:v1",
+        "components:definition:v1",
+        "templates:definition:v1"
+      ],
+      "profile": "histos-static-project-v2",
+      "files": [
+        {
+          "path": "entities.ndjson",
+          "bytes": 1667,
+          "sha256": "a5551d5614fe1ab2b8a3d7370c5275155fb30531b2f513ce093fcd2af4fe58a0",
+          "mediaType": "application/x-ndjson"
+        },
+        {
+          "path": "references.ndjson",
+          "bytes": 165,
+          "sha256": "4815b3d568e424224a0964de1e1f85ac4d5b92e0eb50673b1d3a75d7412e501f",
+          "mediaType": "application/x-ndjson"
+        }
+      ],
+      "manifestHash": "0bb486c4e7aab3bcde58ae45c0bd6d43ea788a3386eac182bc3e570a6205f5aa"
+    },
+    "entities": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440121",
+        "kind": "document",
+        "schemaVersion": 1,
+        "revisionHash": "a059b9595651859176a38c3646f827f119432b47910bd3ce78367a4b5bce9a8e",
+        "payload": {
+          "documentType": "page",
+          "title": "Pagina modello",
+          "slug": "pagina-modello",
+          "status": "published",
+          "content": "<!-- wp:xb/element {\"uid\":\"fixturepage01\",\"tag\":\"main\"} --><!-- wp:xb/text {\"uid\":\"fixturepage02\",\"content\":\"Test template\"} /--><!-- /wp:xb/element -->",
+          "script": "",
+          "templateRef": "site/page"
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440122",
+        "kind": "styles",
+        "schemaVersion": 1,
+        "revisionHash": "c64a130aea95f4dfc1783c321ada43fd8c803b08d227f9b6feb7b6298761d2e8",
+        "payload": {
+          "styles": [],
+          "globals": [],
+          "compiledCss": "",
+          "design": {},
+          "tokenOverrides": {},
+          "queries": {}
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440123",
+        "kind": "template-part",
+        "schemaVersion": 1,
+        "revisionHash": "248b8f6c5345f5d203338296e75bff02e1d4bc42fb3b72c3737ea9c371467756",
+        "payload": {
+          "title": "Intestazione",
+          "ref": "site/header",
+          "schema": {
+            "props": {}
+          },
+          "content": "<!-- wp:xb/element {\"uid\":\"fixturehead01\",\"tag\":\"header\"} --><!-- wp:xb/text {\"uid\":\"fixturehead02\",\"content\":\"Sito\"} /--><!-- /wp:xb/element -->",
+          "script": "",
+          "area": "header"
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440124",
+        "kind": "template",
+        "schemaVersion": 1,
+        "revisionHash": "728d16f091d355ea41a5d18d8c4278ee94d3e18e82a70f1704a9c516a669c61a",
+        "payload": {
+          "title": "Pagina",
+          "ref": "site/page",
+          "schema": {
+            "props": {
+              "page": {
+                "type": "object",
+                "default": {
+                  "slug": "",
+                  "title": "",
+                  "url": "/"
+                }
+              }
+            }
+          },
+          "content": "<!-- wp:xb/component {\"uid\":\"fixturepart01\",\"ref\":\"site/header\"} /--><!-- wp:xb/slot {\"uid\":\"fixtureslot01\",\"name\":\"default\"} /-->",
+          "script": ""
+        }
+      }
+    ],
+    "references": [
+      {
+        "ownerId": "550e8400-e29b-41d4-a716-446655440124",
+        "blockUid": "fixturepart01",
+        "path": "attrs.ref",
+        "targetId": "550e8400-e29b-41d4-a716-446655440123",
+        "role": "document"
+      }
+    ]
+  },
+  "files": {
+    "entities.ndjson": "eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDEyMSIsImtpbmQiOiJkb2N1bWVudCIsInBheWxvYWQiOnsiY29udGVudCI6IjwhLS0gd3A6eGIvZWxlbWVudCB7XCJ1aWRcIjpcImZpeHR1cmVwYWdlMDFcIixcInRhZ1wiOlwibWFpblwifSAtLT48IS0tIHdwOnhiL3RleHQge1widWlkXCI6XCJmaXh0dXJlcGFnZTAyXCIsXCJjb250ZW50XCI6XCJUZXN0IHRlbXBsYXRlXCJ9IC8tLT48IS0tIC93cDp4Yi9lbGVtZW50IC0tPiIsImRvY3VtZW50VHlwZSI6InBhZ2UiLCJzY3JpcHQiOiIiLCJzbHVnIjoicGFnaW5hLW1vZGVsbG8iLCJzdGF0dXMiOiJwdWJsaXNoZWQiLCJ0ZW1wbGF0ZVJlZiI6InNpdGUvcGFnZSIsInRpdGxlIjoiUGFnaW5hIG1vZGVsbG8ifSwicmV2aXNpb25IYXNoIjoiYTA1OWI5NTk1NjUxODU5MTc2YTM4YzM2NDZmODI3ZjExOTQzMmI0NzkxMGJkM2NlNzgzNjdhNGI1YmNlOWE4ZSIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMjIiLCJraW5kIjoic3R5bGVzIiwicGF5bG9hZCI6eyJjb21waWxlZENzcyI6IiIsImRlc2lnbiI6e30sImdsb2JhbHMiOltdLCJxdWVyaWVzIjp7fSwic3R5bGVzIjpbXSwidG9rZW5PdmVycmlkZXMiOnt9fSwicmV2aXNpb25IYXNoIjoiYzY0YTEzMGFlYTk1ZjRkZmMxNzgzYzMyMWFkYTQzZmQ4YzgwM2IwOGQyMjdmOWI2ZmViN2I2Mjk4NzYxZDJlOCIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAxMjMiLCJraW5kIjoidGVtcGxhdGUtcGFydCIsInBheWxvYWQiOnsiYXJlYSI6ImhlYWRlciIsImNvbnRlbnQiOiI8IS0tIHdwOnhiL2VsZW1lbnQge1widWlkXCI6XCJmaXh0dXJlaGVhZDAxXCIsXCJ0YWdcIjpcImhlYWRlclwifSAtLT48IS0tIHdwOnhiL3RleHQge1widWlkXCI6XCJmaXh0dXJlaGVhZDAyXCIsXCJjb250ZW50XCI6XCJTaXRvXCJ9IC8tLT48IS0tIC93cDp4Yi9lbGVtZW50IC0tPiIsInJlZiI6InNpdGUvaGVhZGVyIiwic2NoZW1hIjp7InByb3BzIjp7fX0sInNjcmlwdCI6IiIsInRpdGxlIjoiSW50ZXN0YXppb25lIn0sInJldmlzaW9uSGFzaCI6IjI0OGI4ZjZjNTM0NWY1ZDIwMzMzODI5NmU3NWJmZjAyZTFkNGJjNDJmYjNiNzJjMzczN2VhOWMzNzE0Njc3NTYiLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTI0Iiwia2luZCI6InRlbXBsYXRlIiwicGF5bG9hZCI6eyJjb250ZW50IjoiPCEtLSB3cDp4Yi9jb21wb25lbnQge1widWlkXCI6XCJmaXh0dXJlcGFydDAxXCIsXCJyZWZcIjpcInNpdGUvaGVhZGVyXCJ9IC8tLT48IS0tIHdwOnhiL3Nsb3Qge1widWlkXCI6XCJmaXh0dXJlc2xvdDAxXCIsXCJuYW1lXCI6XCJkZWZhdWx0XCJ9IC8tLT4iLCJyZWYiOiJzaXRlL3BhZ2UiLCJzY2hlbWEiOnsicHJvcHMiOnsicGFnZSI6eyJkZWZhdWx0Ijp7InNsdWciOiIiLCJ0aXRsZSI6IiIsInVybCI6Ii8ifSwidHlwZSI6Im9iamVjdCJ9fX0sInNjcmlwdCI6IiIsInRpdGxlIjoiUGFnaW5hIn0sInJldmlzaW9uSGFzaCI6IjcyOGQxNmYwOTFkMzU1ZWE0MWE1ZDE4ZDhjNDI3OGVlOTRkM2UxOGU4MmE3MGYxNzA0YTljNTE2YTY2OWM2MWEiLCJzY2hlbWFWZXJzaW9uIjoxfQo=",
+    "references.ndjson": "eyJibG9ja1VpZCI6ImZpeHR1cmVwYXJ0MDEiLCJvd25lcklkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTI0IiwicGF0aCI6ImF0dHJzLnJlZiIsInJvbGUiOiJkb2N1bWVudCIsInRhcmdldElkIjoiNTUwZTg0MDAtZTI5Yi00MWQ0LWE3MTYtNDQ2NjU1NDQwMTIzIn0K"
+  }
+}

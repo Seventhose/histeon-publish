@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Negozio · prototipo Histos</title>
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "7c2e4a10-5b3d-4f6e-9a8b-1c2d3e4f5a6b", "name": "Negozio", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "shop": { "url": "https://negozio.example", "currency": "EUR" } }
+</script>
+<script type="application/json" data-histos="assets">
+[
+  { "name": "tazza", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGM4YaMBAAL8AS3/gzpXAAAAAElFTkSuQmCC", "alt": "Tazza blu" },
+  { "name": "tazza-retro", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQk5MDAAC4AFuF/QUSAAAAAElFTkSuQmCC", "alt": "Tazza, retro" }
+]
+</script>
+<script type="application/json" data-histos="content">
+{
+  "types": [
+    { "key": "product", "label": "Prodotti", "singleTemplate": "shop/prodotto", "archiveTemplate": "shop/negozio" }
+  ],
+  "taxonomies": [
+    { "key": "product_cat", "label": "Categorie prodotto", "types": ["product"] },
+    { "key": "product_tag", "label": "Tag prodotto", "types": ["product"] }
+  ],
+  "terms": [
+    { "taxonomy": "product_cat", "slug": "cucina", "label": "Cucina" },
+    { "taxonomy": "product_cat", "slug": "tazze", "label": "Tazze", "parent": "cucina" },
+    { "taxonomy": "product_tag", "slug": "ceramica", "label": "Ceramica" }
+  ],
+  "records": [
+    { "type": "product", "slug": "tazza-blu", "title": "Tazza blu", "status": "published", "publishedAt": "2026-10-01T09:00:00Z",
+      "excerpt": "Ceramica smaltata a mano & cotta due volte.",
+      "values": { "regular_price": 24, "sale_price": 19.5, "sku": "TZ-BLU", "stock_status": "instock", "image": "asset:tazza", "gallery": ["asset:tazza-retro"] },
+      "terms": { "product_cat": ["tazze"], "product_tag": ["ceramica"] } },
+    { "type": "product", "slug": "piatto-grande", "title": "Piatto grande", "status": "published", "publishedAt": "2026-10-02T09:00:00Z",
+      "excerpt": "Esaurito per ora.",
+      "values": { "regular_price": 40, "sku": "PT-GRANDE", "stock_status": "outofstock" },
+      "terms": { "product_cat": ["cucina"] } },
+    { "type": "product", "slug": "ciotola", "title": "Ciotola", "status": "draft", "values": { "regular_price": 12 } }
+  ],
+  "queries": [
+    { "key": "prodotti", "label": "Prodotti", "type": "product", "limit": 12, "orderBy": "title", "order": "asc" }
+  ]
+}
+</script>
+</head>
+<body>
+<template data-histos="component" data-ref="foto" data-title="Foto" data-props='{"src":{"type":"image","default":""},"alt":{"type":"string","default":""},"classe":{"type":"string","default":""}}'>
+  {#if props.src}<img class={props.classe} src={props.src} alt={props.alt}>{/if}
+</template>
+<template data-histos="template" data-ref="shop/pagina" data-title="Pagina">
+  <main>{@slot}</main>
+</template>
+<template data-histos="template" data-ref="shop/prodotto" data-title="Prodotto">
+  <main><article class="prodotto"><h1>{this.title}</h1>
+    <Foto classe="principale" src={this.image.url} alt={this.image.alt} />
+    <p class="prezzo">{this.product.priceText}</p>
+    {#if this.product.onSale}<p class="pieno">{this.product.regularPrice}</p>{/if}
+    <p class="breve">{this.product.shortDescription}</p>
+    <p class="sku">{this.product.sku}</p>
+    {#loop this.product.gallery as foto}<Foto classe="galleria" src={foto.url} alt={foto.alt} />{/loop}
+    {#loop this.product.categories as categoria}<a class="categoria" href={categoria.url}>{categoria.name}</a>{/loop}
+    {#if this.product.addToCartUrl}<a class="carrello" href={this.product.addToCartUrl}>{this.product.addToCartText}</a>{/if}
+    {@slot}</article></main>
+</template>
+<template data-histos="template" data-ref="shop/negozio" data-title="Negozio">
+  <main><h1>{page.title}</h1>{#loop main() as prodotto}<article class="scheda"><a class="nome" href={prodotto.url}>{prodotto.title}</a><span class="prezzo">{prodotto.product.priceText}</span>{#if prodotto.product.inStock}<span class="disponibile">sì</span>{/if}{#if prodotto.product.addToCartUrl}<a class="carrello" href={prodotto.product.addToCartUrl}>{prodotto.product.addToCartText}</a>{/if}</article>{/loop}{@slot}</main>
+</template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="shop/pagina">
+  <h1>Negozio</h1>
+  <section>{#loop prodotti() as prodotto}<p class="vetrina">{prodotto.title}: {prodotto.product.priceText}</p>{/loop}</section>
+</template>
+</body>
+</html>

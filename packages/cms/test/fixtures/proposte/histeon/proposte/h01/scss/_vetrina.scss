@@ -1,0 +1,5 @@
+.vetrina {
+  padding: var(--xb-space-l) var(--xb-space-m);
+  &__titolo { font-size: var(--xb-h1); }
+  &__elenco { display: grid; gap: var(--xb-space-m); padding: 0; list-style: none; }
+}

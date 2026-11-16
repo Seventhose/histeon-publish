@@ -1,0 +1,14 @@
+{
+  "name": "histos-publish-local-addon",
+  "productName": "Histeon Publish",
+  "version": "0.1.2",
+  "description": "Apre il sito Local selezionato in Histeon Publish per prepararlo alla pubblicazione statica.",
+  "slug": "histos-publish-local-addon",
+  "icon": "icon.svg",
+  "author": "Histeon Publish",
+  "license": "GPL-3.0-or-later",
+  "keywords": ["Local", "WordPress", "Histeon Publish"],
+  "files": ["README.md", "icon.svg", "main.js", "renderer.js"],
+  "main": "main.js",
+  "renderer": "renderer.js"
+}

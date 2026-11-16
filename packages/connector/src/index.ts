@@ -1,0 +1,12 @@
+export { main, GUIDE, type MainOptions } from "./cli.js";
+export { ConnectorClient, CALL_BODY_MAX_BYTES, RESPONSE_MAX_BYTES, type ClientOptions } from "./client.js";
+export { CLIENT_SCRIPT_NAME, CONNECTOR_DIRECTORY_NAME, SESSION_FILE_NAME, connectorDirectory, defaultDataDirectory } from "./data-directory.js";
+export { ConnectorError, OFF_MESSAGE, connectorOff, plain } from "./errors.js";
+export { PROTOTYPE_FILE_MAX_BYTES, PROTOTYPE_INLINE_MAX_BYTES, inlinePrototype, readPrototypeFile, type PrototypeSource } from "./files.js";
+export { AGENT_DOCS, AGENT_DOC_TOPICS, DOCS_URI_PREFIX, agentDoc } from "./docs.js";
+export { PROTOTYPE_AI_MANUAL, manualSection } from "./manual.js";
+export { MANUAL_URI, MCP_INSTRUCTIONS, MCP_LINE_MAX_BYTES, MCP_MAX_IN_FLIGHT, runMcp, type McpOptions } from "./mcp.js";
+export * from "./protocol.js";
+export { findTool, runTool, type ToolContext, type ToolValue } from "./runner.js";
+export { SESSION_FILE_MAX_BYTES, parseSession, processAlive, readSessionFile, sessionKey, type ConnectorSession, type SessionRead } from "./session-file.js";
+export * from "./tools.js";

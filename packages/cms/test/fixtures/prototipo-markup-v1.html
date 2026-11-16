@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Markup v1 · prototipo Histos</title>
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "6a0c41f2-93d4-4e1b-8f57-2b9e0c7d5a31", "name": "Markup v1", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#c83c28" } }
+</script>
+<script type="application/json" data-histos="assets">
+[
+  { "name": "foto", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAABCAIAAAB7QOjdAAAADUlEQVR4nGM4YaMBRAAJewJZIY5p1AAAAABJRU5ErkJggg==", "alt": "Foto" },
+  { "name": "foto-2x", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAACCAIAAADwyuo0AAAAEElEQVR4nGM4YaMBRwzIHAB++glhzkZgJwAAAABJRU5ErkJggg==", "alt": "Foto, doppia" },
+  { "name": "foto-stretta", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAMAAAABCAIAAACUgoPjAAAADUlEQVR4nGPQsDkBQQAPvgOFzDvsaAAAAABJRU5ErkJggg==", "alt": "Foto stretta" },
+  { "name": "opera", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGMQWWADRAwQCgAZrgPBnPOw3AAAAABJRU5ErkJggg==", "alt": "Opera" }
+]
+</script>
+<script type="application/json" data-histos="content">
+{
+  "types": [
+    { "key": "opera", "label": "Opere", "fields": [
+      { "key": "immagine", "label": "Immagine", "type": "asset", "required": false, "public": true, "multiple": false }
+    ] }
+  ],
+  "taxonomies": [],
+  "terms": [],
+  "records": [
+    { "type": "opera", "slug": "notturno", "title": "Notturno", "status": "published", "publishedAt": "2026-10-02T09:00:00Z", "values": { "immagine": "asset:opera" } }
+  ],
+  "queries": [
+    { "key": "opere_tutte", "label": "Tutte le opere", "type": "opera", "limit": 6, "orderBy": "title", "order": "asc" }
+  ]
+}
+</script>
+<style data-histos="selectors">
+.icona { width: 1.5rem; height: 1.5rem; }
+.scheda { padding: 1rem; }
+</style>
+</head>
+<body>
+<template data-histos="component" data-ref="ui/icona" data-title="Icona" data-props='{"label":{"type":"string","default":"Cerca"}}'>
+  <svg xmlns="http://www.w3.org/2000/svg" viewbox="0 0 24 24" width="24" height="24" class="icona" fill="none" stroke="currentColor" stroke-width="2" role="img" focusable="false"><title>{props.label}</title><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3" stroke-linecap="round"/></svg>
+</template>
+<template data-histos="component" data-ref="scheda" data-title="Scheda" data-props='{"titolo":{"type":"string","default":""},"immagine":{"type":"image","default":""}}'>
+  <article class="scheda">{#if props.immagine}<img src={props.immagine} alt={props.titolo}>{/if}<h2>{props.titolo}</h2></article>
+</template>
+<template data-histos="component" data-ref="modulo" data-title="Modulo con slot" data-props='{}'>
+  <form action="/contatti/invio/" method="post" class="modulo">{@slot}<button type="submit">Invia</button></form>
+</template>
+<template data-histos="template" data-ref="site/page" data-title="Pagina">
+  <main>{@slot}</main>
+</template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page">
+  <h1>Laboratorio</h1>
+  <section class="icone" aria-label="Icone"><Ui.Icona label="Cerca nel sito" /><svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><g fill="var(--xb-color-primary)"><rect x="1" y="1" width="14" height="14" rx="2"/><polygon points="4,12 8,4 12,12"/></g><line x1="1" y1="15" x2="15" y2="1" stroke="#1d1d1b" stroke-dasharray="2 1"/></svg></section>
+  <picture><source media="(min-width: 800px)" type="image/png" srcset="asset:foto 1x, asset:foto-2x 2x"><img src="asset:foto-stretta" srcset="asset:foto-stretta 1x, asset:foto-2x 2x" sizes="100vw" alt="Foto del laboratorio" width="3" height="1"></picture>
+  <details name="faq" open><summary>Come si ordina?</summary><p>Scrivendoci dal modulo qui sotto.</p></details>
+  <details name="faq"><summary>Spedite all'estero?</summary><p>Sì, in tutta Europa.</p></details>
+  <form action="/cerca/" method="get" class="ricerca" role="search"><label for="q">Cerca</label><input id="q" type="search" name="q" placeholder="Cerca un'opera" autocomplete="off"><button type="submit">Cerca</button></form>
+  <form action="https://moduli.example.org/contatti" method="post" class="contatti"><fieldset><legend>Scrivici</legend><label for="nome">Nome</label><input id="nome" type="text" name="nome" autocomplete="name" required><label for="messaggio">Messaggio</label><textarea id="messaggio" name="messaggio" rows="4" maxlength="2000">Buongiorno,
+vorrei sapere di più.</textarea><select name="motivo" aria-label="Motivo"><optgroup label="Lavoro"><option value="preventivo" selected>Preventivo</option></optgroup><option value="altro">Altro</option></select><label><input type="checkbox" name="privacy" value="si" required> Accetto</label></fieldset><button type="submit">Invia</button></form>
+  <section class="opere" aria-label="Opere">{#loop opere_tutte() as opera}<Scheda titolo={opera.title} immagine={opera.fields.immagine} />{:else}<p class="opere-vuote">Nessuna opera in archivio.</p>{/loop}</section>
+</template>
+<template data-histos="page" data-slug="iscrizione" data-title="Iscrizione" data-template="site/page">
+  <h1>Iscrizione</h1>
+  <Modulo><label for="email">Email</label><input id="email" type="email" name="email" autocomplete="email" required></Modulo>
+</template>
+</body>
+</html>

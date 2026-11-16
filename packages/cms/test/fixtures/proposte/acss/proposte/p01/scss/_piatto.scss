@@ -1,0 +1,8 @@
+.piatto {
+  padding: var(--space-m);
+  border-radius: var(--radius-m);
+  background: var(--white);
+  &__nome { font-size: var(--h3); margin: 0 0 var(--space-xs); }
+  &__testo { font-size: var(--text-m); }
+  &__link { font-size: var(--text-s); color: var(--primary); }
+}

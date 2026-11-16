@@ -1,0 +1,20 @@
+{
+  "Libreria": "Library",
+  "«{0}» salvata nella libreria.": "“{0}” saved to the library.",
+  "Sezione non valida.": "Invalid section.",
+  "Togliere «{0}» dalla libreria?": "Remove “{0}” from the library?",
+  "«{0}» tolta dalla libreria.": "“{0}” removed from the library.",
+  "Libreria esportata.": "Library exported.",
+  "File troppo grande.": "File too large.",
+  "Il file non è una libreria di Histeon.": "The file is not a Histeon library.",
+  "Importate {0} sezioni; {1} c'erano già.": "Imported {0} sections; {1} were already here.",
+  "Salva l'elemento selezionato": "Save the selected element",
+  "Nome della sezione (es. Hero con immagine)": "Section name (e.g. Hero with image)",
+  "Salva nella libreria": "Save to the library",
+  "Seleziona un elemento della pagina per salvarlo nella libreria, con gli stili delle sue classi.": "Select an element of the page to save it to the library, with the styles of its classes.",
+  "Cerca una sezione…": "Search a section…",
+  "Cerca una sezione": "Search a section",
+  "Importa…": "Import…",
+  "La libreria è vuota. Le sezioni salvate qui si inseriscono in qualsiasi pagina, e con «Esporta» passano a un altro sito.": "The library is empty. Sections saved here can be inserted in any page, and with “Export” they move to another site.",
+  "Togli «{0}» dalla libreria": "Remove “{0}” from the library"
+}

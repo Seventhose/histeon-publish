@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Galleria · prototipo Histos</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter">
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "3b1f0d2e-6c55-4c1a-9d9e-6a7f6f3f2a10", "name": "Galleria", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#c83c28" } }
+</script>
+<script type="application/json" data-histos="assets">
+[
+  { "name": "ehi", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGM4YaMBAAL8AS3/gzpXAAAAAElFTkSuQmCC", "alt": "Ehi, con cornice" },
+  { "name": "texture", "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGOQk5MDAAC4AFuF/QUSAAAAAElFTkSuQmCC" }
+]
+</script>
+<script type="application/json" data-histos="content">
+{
+  "types": [
+    { "key": "serie", "label": "Serie", "fields": [] },
+    { "key": "opera", "label": "Opere", "singleTemplate": "site/opera", "archiveTemplate": "site/opere",
+      "fields": [
+        { "key": "prezzo", "label": "Prezzo", "type": "decimal", "required": false, "public": true, "multiple": false },
+        { "key": "immagine", "label": "Immagine", "type": "asset", "required": false, "public": true, "multiple": false },
+        { "key": "serie", "label": "Serie", "type": "relation", "targetType": "serie", "required": false, "public": true, "multiple": false }
+      ] }
+  ],
+  "taxonomies": [
+    { "key": "tema", "label": "Temi", "types": ["opera"] },
+    { "key": "category", "label": "Categorie", "types": ["post"] }
+  ],
+  "terms": [
+    { "taxonomy": "tema", "slug": "notte", "label": "Notte" },
+    { "taxonomy": "tema", "slug": "cani", "label": "Cani", "parent": "notte" },
+    { "taxonomy": "category", "slug": "racconti", "label": "Racconti" }
+  ],
+  "records": [
+    { "type": "serie", "slug": "quadretti", "title": "Quadretti", "status": "published", "publishedAt": "2026-10-01T09:00:00Z" },
+    { "type": "opera", "slug": "ehi", "title": "Ehi", "status": "published", "publishedAt": "2026-10-02T09:00:00Z", "order": 11,
+      "values": { "prezzo": 90, "immagine": "asset:ehi", "serie": "serie/quadretti" }, "terms": { "tema": ["notte", "cani"] } }
+  ],
+  "queries": [
+    { "key": "opere_recenti", "label": "Opere recenti", "type": "opera", "limit": 6, "orderBy": "publishedAt", "order": "desc" },
+    { "key": "opere_notte", "label": "Opere della notte", "type": "opera", "limit": 6, "orderBy": "title", "order": "asc", "filter": { "taxonomyKey": "tema", "terms": ["notte"], "operator": "IN" } }
+  ]
+}
+</script>
+<style data-histos="global" data-name="Base">
+:root { --carta: #f6f1e7; }
+body { margin: 0; background: var(--carta) url("asset:texture"); font-family: var(--xb-font-body, system-ui); }
+</style>
+<style data-histos="selectors">
+.testata {
+  display: flex;
+  gap: var(--xb-space-m, 1rem);
+  @media (width < 700px) { flex-direction: column; }
+}
+.opera {
+  padding: 1rem;
+  &:hover { outline: 1px solid currentColor; }
+}
+</style>
+<script>console.log("anteprima: non entra nel progetto")</script>
+</head>
+<body>
+<p>Questo testo è fuori dai template.</p>
+<template data-histos="part" data-ref="site/header" data-area="header" data-title="Testata">
+  <header class="testata"><img src="asset:ehi" alt="Logo"><nav><a href="/">Home</a> <a href="/opera/">Opere</a> <a href="/blog/">Diario</a></nav></header>
+</template>
+<template data-histos="component" data-ref="card-opera" data-title="Scheda opera" data-props='{"titolo":{"type":"string","default":""},"immagine":{"type":"image","default":""},"url":{"type":"url","default":"/"}}'>
+  <article class="opera"><a href={props.url}>{#if props.immagine}<img src={props.immagine} alt={props.titolo}>{/if}{@slot media}<h3>{props.titolo}</h3></a></article>
+</template>
+<template data-histos="template" data-ref="site/page" data-title="Pagina">
+  <Site.Header /><main>{@slot}</main>
+</template>
+<template data-histos="template" data-ref="site/single" data-title="Articolo" data-role="single">
+  <Site.Header /><article><h1>{page.title}</h1>{@slot}</article>
+</template>
+<template data-histos="template" data-ref="site/opera" data-title="Opera">
+  <Site.Header /><main><h1>{page.title}</h1>{@slot}</main>
+</template>
+<template data-histos="template" data-ref="site/opere" data-title="Opere" data-role="archive">
+  <Site.Header /><main><h1>Opere</h1>{#loop opere_recenti() as opera}<CardOpera titolo={opera.title} immagine={opera.fields.immagine} url={opera.url} />{/loop}{@slot}</main>
+</template>
+<template data-histos="template" data-ref="site/non-trovato" data-title="Non trovato" data-role="404">
+  <Site.Header /><main><h1>Pagina non trovata</h1>{@slot}</main>
+</template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page">
+  <section class="hero"><h1>Studio Ehi</h1><p>Quadretti, libri, racconti.</p></section>
+  <CardOpera titolo="Ehi" url="/opera/ehi/">{#slot media}<img src="asset:ehi" alt="Ehi">{/slot}</CardOpera>
+  <section>{#loop opere_notte() as opera}<CardOpera titolo={opera.title} immagine={opera.fields.immagine} url={opera.url} />{/loop}</section>
+</template>
+<template data-histos="page" data-slug="contatti" data-title="Contatti" data-template="site/page" data-status="draft">
+  <p>Scrivimi.</p>
+</template>
+<template data-histos="post" data-slug="un-antico-sogno" data-title="Un antico sogno" data-published-at="2026-10-20T08:30:00Z" data-excerpt="Un racconto breve." data-terms='{"category":["racconti"]}'>
+  <p>C'era una volta un cane che guardava la notte.</p>
+</template>
+</body>
+</html>

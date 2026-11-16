@@ -1,0 +1,21 @@
+{
+  "Aggiungi uno script": "Add a script",
+  "Appena arriva (async)": "As soon as it arrives (async)",
+  "Dopo la pagina (defer)": "After the page (defer)",
+  "Dove": "Where",
+  "Id": "Id",
+  "Impronta di integrità": "Integrity hash",
+  "In fondo alla pagina": "At the end of the page",
+  "Indirizzo del file": "File address",
+  "Librerie e file che ogni pagina, o ogni pagina di un tipo, carica. Indirizzo di questo sito o https; un file di un altro sito va con la sua impronta di integrità.": "Libraries and files that every page, or every page of one type, loads. An address of this site or https; a file from another site goes with its integrity hash.",
+  "Modulo (type=\"module\")": "Module (type=\"module\")",
+  "Nella testata": "In the head",
+  "Salva in sviluppo": "Save in development",
+  "Salvati in sviluppo: vanno sul sito con la prossima release.": "Saved in development: they go to the site with the next release.",
+  "Script del sito": "Site scripts",
+  "Solo «{0}»": "Only “{0}”",
+  "Subito, blocca la pagina": "Right away, blocks the page",
+  "Togli": "Remove",
+  "Tutto il sito": "The whole site",
+  "può cambiare gli script del sito.": "can change the site scripts."
+}

@@ -1,0 +1,9 @@
+{
+  "Esporta i token (DTCG)": "Export tokens (DTCG)",
+  "I token calcolati nel formato del Design Tokens Community Group, per Figma o Penpot: tokens.chiaro.json e tokens.scuro.json.": "The computed tokens in the Design Tokens Community Group format, for Figma or Penpot: tokens.chiaro.json (light) and tokens.scuro.json (dark).",
+  "Token di Histeon CSS, tema chiaro.": "Histeon CSS tokens, light theme.",
+  "Token di Histeon CSS, tema scuro.": "Histeon CSS tokens, dark theme.",
+  "Quelli che il formato DTCG non può contenere (formule CSS, unità non ammesse, altri tipi) sono elencati in $extensions.": "Those the DTCG format cannot hold (CSS formulas, units it does not admit, other types) are listed in $extensions.",
+  "Token esportati: {0}; lasciati fuori {1}, elencati nel file.": "Tokens exported: {0}; {1} left out, listed in the file.",
+  "Il tema scuro è spento: solo il file del tema chiaro.": "The dark theme is off: only the light theme file."
+}

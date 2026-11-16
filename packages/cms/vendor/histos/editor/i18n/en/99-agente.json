@@ -1,0 +1,19 @@
+{
+  "Hai modifiche non salvate in questo documento: annullando le modifiche dell’agente le perdi. Procedere?": "You have unsaved changes in this document: undoing the agent's changes loses them. Go ahead?",
+  "Tenute le modifiche dell’agente.": "The agent's changes were kept.",
+  "Annullate, tranne: {0}.": "Undone, except: {0}.",
+  "Modifiche dell’agente annullate: tutto è com’era prima.": "The agent's changes were undone: everything is as it was before.",
+  "Modifiche dell’agente AI": "AI agent's changes",
+  "L’agente AI sta lavorando": "The AI agent is working",
+  "L’agente AI ha finito": "The AI agent has finished",
+  "ha cambiato {0} documento dalle {1}": "changed {0} document since {1}",
+  "ha cambiato {0} documenti dalle {1}": "changed {0} documents since {1}",
+  "Tieni": "Keep",
+  "Annulla tutto": "Undo all",
+  "Vedi come": "See as",
+  "Chi visita ora": "The current visitor",
+  "Contrasto {0}:1 (serve almeno {1}:1) per «{2}»: il testo si legge a fatica.": "Contrast {0}:1 (at least {1}:1 needed) for “{2}”: the text is hard to read.",
+  "Con la stessa tinta, più scuro: {0}.": "Same hue, darker: {0}.",
+  "Con la stessa tinta, più chiaro: {0}.": "Same hue, lighter: {0}.",
+  "Cambia lo sfondo: nessuna tinta di questo colore basta.": "Change the background: no shade of this colour is enough."
+}

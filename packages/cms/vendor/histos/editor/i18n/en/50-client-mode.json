@@ -1,0 +1,18 @@
+{
+  "Non disponibile in modalità contenuti.": "Not available in content mode.",
+  "Modalità contenuti: clic su un testo per cambiarlo, seleziona un'immagine per sostituirla. Salvi in sviluppo; la pubblicazione la fa chi gestisce il sito.": "Content mode: click a text to change it, select an image to replace it. You save to development; whoever runs the site publishes.",
+  "Modalità contenuti": "Content mode",
+  "Scrivi direttamente sulla tela: clic su un testo per cambiarlo. Per un'immagine, selezionala e scegline un'altra qui.": "Write right on the canvas: click a text to change it. For an image, select it and choose another one here.",
+  "espressioni {…} cambiate": "{…} expressions changed",
+  "immagine dinamica cambiata": "dynamic image changed",
+  "espressione {…} aggiunta all'immagine": "{…} expression added to the image",
+  "codice HTML cambiato": "HTML code changed",
+  "attributi cambiati": "attributes changed",
+  "elementi aggiunti o tolti": "elements added or removed",
+  "tipo di blocco cambiato": "block type changed",
+  "In modalità contenuti si cambiano solo testi e immagini ({0}).": "In content mode only texts and images change ({0}).",
+  "stili": "styles",
+  "props del componente": "component props",
+  "Questo componente non ha props che puoi cambiare.": "This component has no props you can change.",
+  "la prop «{0}» non si può cambiare così": "the prop «{0}» cannot change this way"
+}

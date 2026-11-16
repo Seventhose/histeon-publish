@@ -1,0 +1,195 @@
+diff --git a/src/components/CssPanel.svelte b/src/components/CssPanel.svelte
+index bca1860..51ee09c 100644
+--- a/src/components/CssPanel.svelte
++++ b/src/components/CssPanel.svelte
+@@ -38,9 +38,14 @@
+   let newClass = $state('');
+   let importDialog: HTMLDialogElement | undefined = $state();
+   let importCss = $state('');
++  let importCssSource = $state<'none' | 'file' | 'preset'>('none');
+   let importCorePreset = $state<ExternalFrameworkSource['preset']>();
++  let importPresetWarnings = $state<string[]>([]);
++  let importFrameworkConfiguration = $state<ExternalFrameworkSource['configuration']>();
+   let importPresetFilename = $state('');
+   let importPresetSummary = $state('');
++  let importConfigurationFilename = $state('');
++  let importConfigurationSummary = $state('');
+   let importName = $state('');
+   let importVersion = $state('');
+   let importLicense = $state('');
+@@ -403,9 +408,14 @@
+ 
+   function openFrameworkImport() {
+     importCss = '';
++    importCssSource = 'none';
+     importCorePreset = undefined;
++    importPresetWarnings = [];
++    importFrameworkConfiguration = undefined;
+     importPresetFilename = '';
+     importPresetSummary = '';
++    importConfigurationFilename = '';
++    importConfigurationSummary = '';
+     importName = '';
+     importVersion = '';
+     importLicense = '';
+@@ -755,9 +765,6 @@
+     const file = input.files?.[0];
+     if (!file) return;
+     importError = '';
+-    importCorePreset = undefined;
+-    importPresetFilename = '';
+-    importPresetSummary = '';
+     if (!file.name.toLowerCase().endsWith('.css')) {
+       importError = t('Scegli un file .css.');
+       input.value = '';
+@@ -774,7 +781,9 @@
+       if (new TextEncoder().encode(css).byteLength > 1024 * 1024) throw new Error(t('Il file CSS supera il limite di 1 MiB.'));
+       importCss = css;
+       importCssFilename = file.name;
+-      importName = file.name.replace(/\.css$/iu, '').replace(/[-_]+/gu, ' ').trim();
++      importCssSource = 'file';
++      if (!importCorePreset) importName = file.name.replace(/\.css$/iu, '').replace(/[-_]+/gu, ' ').trim();
++      else importPresetSummary = `${t('Preset Core conservato; nel sito verrà usato il CSS selezionato separatamente.')}${importPresetWarnings.length ? ` ${importPresetWarnings.join(' ')}` : ''}`;
+       importWarning = cssResources(css).length > 0;
+     } catch (error) {
+       importError = error instanceof Error ? error.message : t('Non riesco a leggere il file CSS.');
+@@ -787,33 +796,66 @@
+     const file = input.files?.[0];
+     if (!file) return;
+     importError = '';
++    const hasSeparateCss = importCssSource === 'file';
+     try {
+       const imported = parseCoreFrameworkPresetFile(file.name, await file.arrayBuffer());
++      importFrameworkConfiguration = undefined;
++      importConfigurationFilename = '';
++      importConfigurationSummary = '';
+       importCorePreset = imported.source;
+       importPresetFilename = file.name;
+-      importCssFilename = file.name;
++      if (!hasSeparateCss) importCssFilename = file.name;
+       importFramework = 'core-framework';
+       importName = typeof imported.preset.name === 'string' ? imported.preset.name.slice(0, 120) : 'Core Framework';
+       importVersion = typeof imported.preset.app_version === 'string' ? imported.preset.app_version.slice(0, 80) : '';
+       importLicense = '';
+-      importCss = imported.css;
+-      importPresetSummary = imported.css.trim()
+-        ? t('Preset Core riconosciuto: la configurazione originale sarà conservata; il CSS incluso sarà usato nel sito.')
+-        : t('Preset Core riconosciuto e conservato, ma non contiene cssString: non sarà applicato né rigenerato da Histeon Publish.');
+-      importWarning = cssResources(imported.css).length > 0;
++      importPresetWarnings = imported.warnings;
++      if (!hasSeparateCss) {
++        importCss = imported.css;
++        importCssSource = imported.css.trim() ? 'preset' : 'none';
++      }
++      importPresetSummary = hasSeparateCss
++        ? `${t('Preset Core riconosciuto e conservato. Il CSS scelto separatamente sarà applicato al sito.')}${imported.warnings.length ? ` ${imported.warnings.join(' ')}` : ''}`
++        : imported.cssKind === 'generated'
++          ? `${t('Preset Core 1.1.0 riconosciuto: Histeon Publish ha rigenerato il CSS dalle impostazioni e dagli stili salvati.')}${imported.warnings.length ? ` ${imported.warnings.join(' ')}` : ''}`
++          : imported.cssKind === 'embedded'
++            ? t('Preset Core riconosciuto: la configurazione originale sarà conservata; il CSS incluso sarà usato nel sito.')
++          : imported.cssKind === 'unsupported'
++            ? `${t('Preset Core conservato, ma Histeon Publish non può rigenerare tutte le funzioni contenute nel preset.')}${imported.warnings.length ? ` ${imported.warnings.join(' ')}` : ''}`
++            : t('Preset Core riconosciuto e conservato, ma il CSS non è incluso e questa versione non ha un generatore verificato. Puoi scegliere il CSS esportato separatamente da Core Framework.');
++      importWarning = cssResources(importCss).length > 0;
+     } catch (error) {
+-      importCorePreset = undefined;
+-      importCss = '';
+-      importPresetSummary = '';
+       importError = error instanceof Error ? error.message : t('Non riesco a leggere il preset Core Framework.');
+       input.value = '';
+     }
+   }
+ 
++  async function readFrameworkConfiguration(event: Event) {
++    const input = event.currentTarget as HTMLInputElement;
++    const file = input.files?.[0];
++    if (!file) return;
++    importError = '';
++    try {
++      if (file.size < 1 || file.size > 1024 * 1024) throw new Error(t('La configurazione deve contenere da 1 byte a 1 MiB.'));
++      const data = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(await file.arrayBuffer());
++      if (!data.trim() || data.includes('\0')) throw new Error(t('Il file di configurazione è vuoto o non è testo UTF-8 valido.'));
++      importFrameworkConfiguration = { format: 'opaque-utf8-v1', data };
++      importConfigurationFilename = file.name;
++      importConfigurationSummary = t('Configurazione originale conservata senza interpretarla o generare CSS.');
++      if (!importName.trim()) importName = file.name.replace(/\.[^.]+$/u, '').replace(/[-_]+/gu, ' ').trim();
++    } catch (error) {
++      importFrameworkConfiguration = undefined;
++      importConfigurationFilename = '';
++      importConfigurationSummary = '';
++      importError = error instanceof Error ? error.message : t('Non riesco a leggere la configurazione del framework.');
++      input.value = '';
++    }
++  }
++
+   async function saveFrameworkImport(event: SubmitEvent) {
+     event.preventDefault();
+-    if (importUploading || (!importCss.trim() && !importCorePreset) || !importName.trim() || !importRights) {
+-      importError = t('Scegli CSS o un preset Core, indica la provenienza e conferma di poterlo usare.');
++    if (importUploading || (!importCss.trim() && !importCorePreset && !importFrameworkConfiguration) || !importName.trim() || !importRights) {
++      importError = t('Scegli CSS o una configurazione, indica la provenienza e conferma di poterla usare.');
+       return;
+     }
+     if (importUrl.trim()) {
+@@ -831,9 +873,10 @@
+       ...(importLicense.trim() ? { license: importLicense.trim() } : {}),
+       ...(importUrl.trim() ? { sourceUrl: importUrl.trim() } : {}),
+       ...(importCorePreset ? { preset: importCorePreset } : {}),
++      ...(importFrameworkConfiguration ? { configuration: importFrameworkConfiguration } : {}),
+     };
+     let css = importCss;
+-    if (!css.trim() && importCorePreset) {
++    if (!css.trim() && (importCorePreset || importFrameworkConfiguration)) {
+       const id = app.addFrameworkCss('', source, []);
+       if (!id) return;
+       chosen = SHEET + id;
+@@ -1000,9 +1043,12 @@
+ 
+   {#if sheetTarget}
+     {@const selectedSheet = app.globals.find((sheet) => sheet.id === sheetTarget)}
++    {#if selectedSheet?.source?.configuration}
++      <p class="note" role="note">{t('Configurazione originale conservata senza interpretarla o generare CSS. Non importare password o chiavi segrete: entra nel progetto e viene inclusa nei trasferimenti.')}</p>
++    {/if}
+     {#if selectedSheet?.source?.preset}
+       <p class="note" role="note">{selectedSheet.css.trim()
+-        ? t('Configurazione originale Core conservata. Histeon Publish applica il CSS incluso; le modifiche qui non riscrivono i parametri del preset.')
++        ? t('Configurazione originale Core conservata. Histeon Publish applica il foglio CSS associato; le modifiche qui non riscrivono i parametri del preset.')
+         : t('Configurazione Core conservata, ma senza CSS applicabile. Il sito non usa né rigenera questo preset.')}</p>
+     {/if}
+   {/if}
+@@ -1016,10 +1062,13 @@
+       <label>{t('File CSS (.css, massimo 1 MiB)')}<input type="file" accept=".css,text/css" onchange={readFrameworkCss} /></label>
+       <label>{t('Cartella CSS e risorse collegate (facoltativa)')}<input type="file" accept=".css,image/avif,image/gif,image/jpeg,image/png,image/webp,.woff,.woff2,.ttf,.otf" webkitdirectory multiple onchange={readAssetDirectory} /></label>
+       <label>{t('Preset Core Framework (.core o .json, massimo 1 MiB)')}<input type="file" accept=".core,.json,application/json" onchange={readCoreFrameworkPreset} /></label>
++      <label>{t('Configurazione grezza del framework (facoltativa, testo UTF-8, massimo 1 MiB)')}<input type="file" accept=".json,.txt,.yaml,.yml,.toml,.ini,.cfg,application/json,text/plain" onchange={readFrameworkConfiguration} /></label>
++      <p class="note" role="note">{t('Se importi una configurazione grezza, entra nel backup e nei trasferimenti del progetto. Non inserire password, token o chiavi private.')}</p>
+       {#if importAssetSummary}<p class="note">{importAssetSummary}</p>{/if}
+       {#if importPresetSummary}<p class="note" role="status">{importPresetSummary}</p>{/if}
++      {#if importConfigurationSummary}<p class="note" role="status">{importConfigurationSummary}{importConfigurationFilename ? ` (${importConfigurationFilename})` : ''}</p>{/if}
+       {#if importProgress}<p role="status">{importProgress}</p>{/if}
+-      {#if importCss || importCorePreset}
++      {#if importCss || importCorePreset || importFrameworkConfiguration}
+         <label>{t('Tipo')}<select bind:value={importFramework} disabled={Boolean(importCorePreset)}>
+           <option value="automatic-css">Automatic.css (ACSS)</option>
+           <option value="core-framework">Core Framework</option>
+@@ -1035,7 +1084,7 @@
+         <label class="import-confirm"><input type="checkbox" bind:checked={importRights} />{t('Confermo di poter usare e conservare nel progetto il CSS, il preset o la configurazione selezionati.')}</label>
+       {/if}
+       {#if importError}<p class="import-error" role="alert">{importError}</p>{/if}
+-      <div class="import-actions"><button type="button" disabled={importUploading} onclick={() => importDialog?.close()}>{t('Annulla')}</button><button type="submit" disabled={(!importCss.trim() && !importCorePreset) || !importRights || importUploading}>{importUploading ? t('Caricamento…') : importCorePreset && !importCss.trim() ? t('Conserva preset Core') : t('Aggiungi foglio CSS')}</button></div>
++      <div class="import-actions"><button type="button" disabled={importUploading} onclick={() => importDialog?.close()}>{t('Annulla')}</button><button type="submit" disabled={(!importCss.trim() && !importCorePreset && !importFrameworkConfiguration) || !importRights || importUploading}>{importUploading ? t('Caricamento…') : !importCss.trim() && (importCorePreset || importFrameworkConfiguration) ? t('Conserva configurazione') : t('Aggiungi foglio CSS')}</button></div>
+     </form>
+   </dialog>
+ 
+diff --git a/src/lib/api.ts b/src/lib/api.ts
+index 753dcc8..565dbd2 100644
+--- a/src/lib/api.ts
++++ b/src/lib/api.ts
+@@ -96,6 +96,7 @@ export interface ExternalFrameworkSource {
+   license?: string;
+   sourceUrl?: string;
+   preset?: { format: 'core-lz-utf16-v1' | 'core-json-v1'; data: string };
++  configuration?: { format: 'opaque-utf8-v1'; data: string };
+   rightsConfirmed: true;
+ }
+ 

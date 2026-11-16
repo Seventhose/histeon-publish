@@ -1,0 +1,5 @@
+.apertura {
+  padding: var(--space-l) var(--space-m);
+  &__titolo { font-size: var(--h1); margin: 0; }
+  &__testo { font-size: var(--text-l); }
+}

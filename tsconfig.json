@@ -1,0 +1,29 @@
+{
+  "files": [],
+  "references": [
+    {
+      "path": "packages/core"
+    },
+    {
+      "path": "packages/connector"
+    },
+    {
+      "path": "packages/cli"
+    },
+    {
+      "path": "packages/server"
+    },
+    {
+      "path": "packages/histos-contract"
+    },
+    {
+      "path": "packages/cms"
+    },
+    {
+      "path": "packages/cms/tsconfig.histos-dsl.json"
+    },
+    {
+      "path": "packages/cf-mock"
+    }
+  ]
+}

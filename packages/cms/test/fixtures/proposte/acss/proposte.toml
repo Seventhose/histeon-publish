@@ -1,0 +1,23 @@
+titolo = "Trattoria"
+framework = "acss"
+variabili = "variabili-acss-finte.css"
+
+[[gruppo]]
+id = "calde"
+nome = "Calde"
+
+[[gruppo]]
+id = "fresche"
+nome = "Fresche"
+
+[[proposta]]
+id = "p01"
+nome = "Brace"
+gruppo = "calde"
+idea = "Rosso mattone e schede dei piatti"
+
+[[proposta]]
+id = "p02"
+nome = "Orto"
+gruppo = "fresche"
+idea = "Verde e testo ampio"

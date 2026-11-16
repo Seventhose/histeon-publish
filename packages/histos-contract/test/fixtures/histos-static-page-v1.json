@@ -1,0 +1,122 @@
+{
+  "profile": {
+    "manifest": {
+      "format": "xb-site",
+      "version": 2,
+      "generator": {
+        "name": "Histos CMS",
+        "version": "0.1.14",
+        "engineCommit": "9bc212050403dd056ac21edfcff398b514e4a3c1"
+      },
+      "project": {
+        "id": "12345678-1234-4234-8234-123456789abc",
+        "name": "Fixture condivisa 😀"
+      },
+      "selection": {
+        "kind": "workspace-head",
+        "snapshot": "52345678-1234-4234-8234-123456789abc"
+      },
+      "requiredCapabilities": [
+        "documents:page:v1",
+        "styles:global:v1",
+        "media:asset:v1"
+      ],
+      "profile": "histos-static-page-v1",
+      "files": [
+        {
+          "path": "entities.ndjson",
+          "bytes": 1326,
+          "sha256": "ddb0b638e11aeb2fdcc145cbf499b074b72e526c0d14bec719c4e1e40dec27f6",
+          "mediaType": "application/x-ndjson"
+        },
+        {
+          "path": "media/a28e827571c11e01d31deef69ec6b4c4783942d68001730523a2c16e682d40ae",
+          "bytes": 68,
+          "sha256": "a28e827571c11e01d31deef69ec6b4c4783942d68001730523a2c16e682d40ae",
+          "mediaType": "application/octet-stream"
+        },
+        {
+          "path": "references.ndjson",
+          "bytes": 168,
+          "sha256": "cfaf30d33eed96f8e6f4ad190da453b54e35c971acd31c8a5a5fec1d97f71df9",
+          "mediaType": "application/x-ndjson"
+        }
+      ],
+      "manifestHash": "3c7372a333407f388582805679c01f19b1771f5a083e6b341a1cdd43b8f918c2"
+    },
+    "entities": [
+      {
+        "id": "22345678-1234-4234-8234-123456789abc",
+        "kind": "document",
+        "schemaVersion": 1,
+        "payload": {
+          "documentType": "page",
+          "title": "Pagina prova 😀",
+          "slug": "pagina-prova",
+          "status": "draft",
+          "content": "<!-- wp:xb/element {\"uid\":\"a1b2c3d4\",\"tag\":\"img\",\"attributes\":{\"alt\":\"Logo\",\"src\":\"histos-media://42345678-1234-4234-8234-123456789abc\"}} /-->",
+          "script": ""
+        },
+        "revisionHash": "74fee38d2b9eb6aad94afd064a9c35096d02368bfe5695f55b3e0c067ac7fadc"
+      },
+      {
+        "id": "32345678-1234-4234-8234-123456789abc",
+        "kind": "styles",
+        "schemaVersion": 1,
+        "payload": {
+          "styles": [
+            {
+              "id": "hero",
+              "selector": ".hero",
+              "css": "color: red;"
+            }
+          ],
+          "globals": [
+            {
+              "id": "global-1",
+              "css": "body { margin: 0; }"
+            }
+          ],
+          "compiledCss": "",
+          "design": {},
+          "tokenOverrides": {},
+          "queries": {
+            "mobile": "(width < 40em)",
+            "tablet": "(width < 64em)",
+            "desktop": "(width >= 64em)"
+          }
+        },
+        "revisionHash": "6bea4e6b8fd87a281f090acbe083962f9c6124a95a48cd0a9557eb316b4363f7"
+      },
+      {
+        "id": "42345678-1234-4234-8234-123456789abc",
+        "kind": "asset",
+        "schemaVersion": 1,
+        "payload": {
+          "sha256": "a28e827571c11e01d31deef69ec6b4c4783942d68001730523a2c16e682d40ae",
+          "mediaType": "image/png",
+          "bytes": 68,
+          "path": "media/a28e827571c11e01d31deef69ec6b4c4783942d68001730523a2c16e682d40ae",
+          "alt": "Logo accessibile",
+          "title": "logo.png",
+          "caption": "Didascalia fixture"
+        },
+        "revisionHash": "3c287e57926174488ea504295c74e603f3c2b6fb242e75cdccac089c29719405"
+      }
+    ],
+    "references": [
+      {
+        "ownerId": "22345678-1234-4234-8234-123456789abc",
+        "blockUid": "a1b2c3d4",
+        "path": "attrs.attributes.src",
+        "targetId": "42345678-1234-4234-8234-123456789abc",
+        "role": "media"
+      }
+    ]
+  },
+  "files": {
+    "entities.ndjson": "eyJpZCI6IjIyMzQ1Njc4LTEyMzQtNDIzNC04MjM0LTEyMzQ1Njc4OWFiYyIsImtpbmQiOiJkb2N1bWVudCIsInBheWxvYWQiOnsiY29udGVudCI6IjwhLS0gd3A6eGIvZWxlbWVudCB7XCJ1aWRcIjpcImExYjJjM2Q0XCIsXCJ0YWdcIjpcImltZ1wiLFwiYXR0cmlidXRlc1wiOntcImFsdFwiOlwiTG9nb1wiLFwic3JjXCI6XCJoaXN0b3MtbWVkaWE6Ly80MjM0NTY3OC0xMjM0LTQyMzQtODIzNC0xMjM0NTY3ODlhYmNcIn19IC8tLT4iLCJkb2N1bWVudFR5cGUiOiJwYWdlIiwic2NyaXB0IjoiIiwic2x1ZyI6InBhZ2luYS1wcm92YSIsInN0YXR1cyI6ImRyYWZ0IiwidGl0bGUiOiJQYWdpbmEgcHJvdmEg8J+YgCJ9LCJyZXZpc2lvbkhhc2giOiI3NGZlZTM4ZDJiOWViNmFhZDk0YWZkMDY0YTljMzUwOTZkMDIzNjhiZmU1Njk1ZjU1YjNlMGMwNjdhYzdmYWRjIiwic2NoZW1hVmVyc2lvbiI6MX0KeyJpZCI6IjMyMzQ1Njc4LTEyMzQtNDIzNC04MjM0LTEyMzQ1Njc4OWFiYyIsImtpbmQiOiJzdHlsZXMiLCJwYXlsb2FkIjp7ImNvbXBpbGVkQ3NzIjoiIiwiZGVzaWduIjp7fSwiZ2xvYmFscyI6W3siY3NzIjoiYm9keSB7IG1hcmdpbjogMDsgfSIsImlkIjoiZ2xvYmFsLTEifV0sInF1ZXJpZXMiOnsiZGVza3RvcCI6Iih3aWR0aCA+PSA2NGVtKSIsIm1vYmlsZSI6Iih3aWR0aCA8IDQwZW0pIiwidGFibGV0IjoiKHdpZHRoIDwgNjRlbSkifSwic3R5bGVzIjpbeyJjc3MiOiJjb2xvcjogcmVkOyIsImlkIjoiaGVybyIsInNlbGVjdG9yIjoiLmhlcm8ifV0sInRva2VuT3ZlcnJpZGVzIjp7fX0sInJldmlzaW9uSGFzaCI6IjZiZWE0ZTZiOGZkODdhMjgxZjA5MGFjYmUwODM5NjJmOWM2MTI0YTk1YTQ4Y2QwYTk1NTdlYjMxNmI0MzYzZjciLCJzY2hlbWFWZXJzaW9uIjoxfQp7ImlkIjoiNDIzNDU2NzgtMTIzNC00MjM0LTgyMzQtMTIzNDU2Nzg5YWJjIiwia2luZCI6ImFzc2V0IiwicGF5bG9hZCI6eyJhbHQiOiJMb2dvIGFjY2Vzc2liaWxlIiwiYnl0ZXMiOjY4LCJjYXB0aW9uIjoiRGlkYXNjYWxpYSBmaXh0dXJlIiwibWVkaWFUeXBlIjoiaW1hZ2UvcG5nIiwicGF0aCI6Im1lZGlhL2EyOGU4Mjc1NzFjMTFlMDFkMzFkZWVmNjllYzZiNGM0NzgzOTQyZDY4MDAxNzMwNTIzYTJjMTZlNjgyZDQwYWUiLCJzaGEyNTYiOiJhMjhlODI3NTcxYzExZTAxZDMxZGVlZjY5ZWM2YjRjNDc4Mzk0MmQ2ODAwMTczMDUyM2EyYzE2ZTY4MmQ0MGFlIiwidGl0bGUiOiJsb2dvLnBuZyJ9LCJyZXZpc2lvbkhhc2giOiIzYzI4N2U1NzkyNjE3NDQ4OGVhNTA0Mjk1Yzc0ZTYwM2YzYzJiNmZiMjQyZTc1Y2RjY2FjMDg5YzI5NzE5NDA1Iiwic2NoZW1hVmVyc2lvbiI6MX0K",
+    "references.ndjson": "eyJibG9ja1VpZCI6ImExYjJjM2Q0Iiwib3duZXJJZCI6IjIyMzQ1Njc4LTEyMzQtNDIzNC04MjM0LTEyMzQ1Njc4OWFiYyIsInBhdGgiOiJhdHRycy5hdHRyaWJ1dGVzLnNyYyIsInJvbGUiOiJtZWRpYSIsInRhcmdldElkIjoiNDIzNDU2NzgtMTIzNC00MjM0LTgyMzQtMTIzNDU2Nzg5YWJjIn0K",
+    "media/a28e827571c11e01d31deef69ec6b4c4783942d68001730523a2c16e682d40ae": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+kRZ0AAAAASUVORK5CYII="
+  }
+}

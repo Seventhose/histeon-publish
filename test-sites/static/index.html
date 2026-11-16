@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <title>Sito statico di prova</title>
+  <link rel="stylesheet" href="/assets/css/main.css?v=1">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta property="og:image" content="/assets/images/hero.svg">
+  <style>.inline { background-image: url('/assets/images/inline.svg'); }</style>
+</head>
+<body>
+  <h1>Pagina iniziale</h1>
+  <a href="/about/?from=home">Chi siamo</a>
+  <a href="/redirect-permanent">Redirect permanente</a>
+  <a href="/redirect-temporary">Redirect temporaneo</a>
+  <a href="/missing">Pagina mancante</a>
+  <a href="/404.html">404 personalizzata</a>
+  <a href="/spa/">Applicazione</a>
+  <img src="/assets/images/hero.svg" srcset="/assets/images/hero.svg 1x, /assets/images/hero@2x.svg 2x" loading="lazy">
+  <img data-src="/assets/images/lazy.svg" alt="Caricamento differito">
+  <img src="/assets/images/Photo.svg" alt="Maiuscola">
+  <img src="/assets/images/photo.svg" alt="Minuscola">
+  <form action="/contact/" method="post"><input name="email"></form>
+  <script src="/assets/js/site.js"></script>
+</body>
+</html>

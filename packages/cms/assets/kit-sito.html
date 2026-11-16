@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it" data-histos-prototype="1">
+<head>
+<meta charset="utf-8">
+<title>Sito d'esempio</title>
+<script type="application/json" data-histos="manifest">
+{ "format": "histos-prototype", "version": 1, "id": "6d1e4b2a-0c3f-4a8e-9f57-2b8c1d0e9a64", "name": "Sito d'esempio", "locale": "it-IT", "timeZone": "Europe/Rome", "framework": "histos-css", "design": { "primary": "#1f3a93", "accent": "#f8ce3c", "font_body": "Inter, system-ui, sans-serif" } }
+</script>
+<script type="application/json" data-histos="assets">[ { "name": "foto", "data": "data:image/webp;base64,UklGRjQAAABXRUJQVlA4ICgAAACQAQCdASoQAAwAAoBCJaACdLoAA5gA/vD6K/8Q50OdDmtz15T4laAA", "alt": "Foto di prova" } ]</script>
+<script type="application/json" data-histos="content">
+{ "types": [
+  { "key": "progetto", "label": "Progetti", "singleTemplate": "site/progetto", "archiveTemplate": "site/progetti",
+    "fields": [ { "key": "immagine", "label": "Immagine", "type": "asset", "required": false, "public": true, "multiple": false },
+                { "key": "anno", "label": "Anno", "type": "integer", "required": false, "public": true, "multiple": false } ] } ],
+  "taxonomies": [ { "key": "category", "label": "Categorie", "types": ["post"] } ],
+  "terms": [ { "taxonomy": "category", "slug": "notizie", "label": "Notizie" }, { "taxonomy": "category", "slug": "appuntamenti", "label": "Appuntamenti" } ],
+  "records": [
+    { "type": "progetto", "slug": "progetto-uno", "title": "Progetto uno", "publishedAt": "2026-01-10T09:00:00Z", "order": 1, "excerpt": "Il primo progetto, in breve.", "values": { "immagine": "asset:foto", "anno": 2024 } },
+    { "type": "progetto", "slug": "progetto-due", "title": "Progetto due", "publishedAt": "2026-02-10T09:00:00Z", "order": 2, "excerpt": "Il secondo progetto, in breve.", "values": { "immagine": "asset:foto", "anno": 2025 } },
+    { "type": "progetto", "slug": "progetto-tre", "title": "Progetto tre", "publishedAt": "2026-03-10T09:00:00Z", "order": 3, "excerpt": "Il terzo progetto, in breve.", "values": { "immagine": "asset:foto", "anno": 2026 } } ],
+  "queries": [ { "key": "progetti_recenti", "label": "Progetti recenti", "type": "progetto", "limit": 3, "orderBy": "publishedAt", "order": "desc" },
+               { "key": "articoli_recenti", "label": "Articoli recenti", "type": "post", "limit": 3, "orderBy": "publishedAt", "order": "desc" } ] }
+</script>
+<style data-histos="global" data-name="Base">
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-family: var(--xb-font-body); line-height: 1.6; color: var(--xb-color-text, #1a1a1a); }
+img { max-width: 100%; height: auto; }
+:where(a, button, summary, input, textarea):focus-visible { outline: 2px solid var(--xb-primary); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+<style data-histos="selectors">
+.testata {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--xb-space-m);
+  padding: var(--xb-space-m);
+  &__salta { position: absolute; left: -100vw; &:focus { left: var(--xb-space-s); } }
+  &__logo { font-weight: 700; text-decoration: none; }
+  &__nav { display: flex; gap: var(--xb-space-s); @media (width < 48rem) { display: none; } }
+  &__mobile { display: none; @media (width < 48rem) { display: block; } }
+  &__mobile-nav { display: grid; gap: var(--xb-space-xs); padding-block: var(--xb-space-s); }
+}
+.contenuto { max-width: 72rem; margin-inline: auto; padding: var(--xb-space-m); }
+.griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr)); gap: var(--xb-space-m); padding: 0; list-style: none; }
+.scheda {
+  display: grid;
+  gap: var(--xb-space-xs);
+  &__img { width: 100%; height: auto; }
+  &__titolo { margin: 0; font-size: var(--xb-text-l); }
+}
+.figura {
+  margin: 0;
+  &__img { width: 100%; height: auto; }
+}
+.notizie { padding: 0; list-style: none; }
+.paginazione { display: flex; flex-wrap: wrap; gap: var(--xb-space-s); margin-block: var(--xb-space-m); }
+.modulo { display: grid; gap: var(--xb-space-s); max-width: 32rem; }
+.piede { padding: var(--xb-space-m); border-top: 1px solid currentColor; }
+</style>
+</head>
+<body>
+<template data-histos="part" data-ref="site/header" data-area="header" data-title="Testata"><header class="testata">
+  <a class="testata__salta" href="#contenuto">Vai al contenuto</a>
+  <a class="testata__logo" href="/">Sito d'esempio</a>
+  <nav class="testata__nav" aria-label="Menu principale">
+    {#if page.slug == "chi-siamo"}<a href="/chi-siamo/" aria-current="page">Chi siamo</a>{:else}<a href="/chi-siamo/">Chi siamo</a>{/if}
+    {#if page.url.includes("/progetto/")}<a href="/progetto/" aria-current="page">Progetti</a>{:else}<a href="/progetto/">Progetti</a>{/if}
+    {#if page.url.includes("/blog/")}<a href="/blog/" aria-current="page">Notizie</a>{:else}<a href="/blog/">Notizie</a>{/if}
+    {#if page.slug == "contatti"}<a href="/contatti/" aria-current="page">Contatti</a>{:else}<a href="/contatti/">Contatti</a>{/if}
+  </nav>
+  <details class="testata__mobile"><summary>Menu</summary><nav class="testata__mobile-nav" aria-label="Menu mobile">
+    {#if page.slug == "chi-siamo"}<a href="/chi-siamo/" aria-current="page">Chi siamo</a>{:else}<a href="/chi-siamo/">Chi siamo</a>{/if}
+    {#if page.url.includes("/progetto/")}<a href="/progetto/" aria-current="page">Progetti</a>{:else}<a href="/progetto/">Progetti</a>{/if}
+    {#if page.url.includes("/blog/")}<a href="/blog/" aria-current="page">Notizie</a>{:else}<a href="/blog/">Notizie</a>{/if}
+    {#if page.slug == "contatti"}<a href="/contatti/" aria-current="page">Contatti</a>{:else}<a href="/contatti/">Contatti</a>{/if}
+  </nav></details>
+</header></template>
+<template data-histos="part" data-ref="site/footer" data-area="footer" data-title="Piè di pagina"><footer class="piede"><p>Sito d'esempio · <a href="/contatti/">Scrivici</a></p></footer></template>
+<template data-histos="component" data-ref="scheda" data-title="Scheda" data-props='{"immagine":{"type":"image"},"titolo":{"type":"string"},"testo":{"type":"string"},"url":{"type":"url"},"larghezza":{"type":"number","default":16},"altezza":{"type":"number","default":12}}'><article class="scheda"><img class="scheda__img" src={props.immagine} width={props.larghezza} height={props.altezza} alt=""/><h2 class="scheda__titolo"><a href={props.url}>{props.titolo}</a></h2><p>{props.testo}</p></article></template>
+<template data-histos="component" data-ref="figura" data-title="Figura" data-props='{"immagine":{"type":"image"},"larghezza":{"type":"number","default":16},"altezza":{"type":"number","default":12}}'><figure class="figura"><img class="figura__img" src={props.immagine} width={props.larghezza} height={props.altezza} alt=""/></figure></template>
+<template data-histos="template" data-ref="site/page" data-role="page" data-title="Pagina"><Site.Header /><main id="contenuto" class="contenuto">{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/progetto" data-title="Progetto"><Site.Header /><main id="contenuto" class="contenuto"><h1>{page.title}</h1><p>{page.excerpt}</p><Figura immagine={page.fields.immagine} /><p>Anno: {page.fields.anno}</p>{@slot}<p><a href="/progetto/">Tutti i progetti</a></p></main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/progetti" data-role="archive" data-title="Archivio"><Site.Header /><main id="contenuto" class="contenuto"><h1>{page.title}</h1>{#if page.totalRecords}<ul class="griglia">{#loop main() as x}<li><Scheda immagine={x.fields.immagine} titolo={x.title} testo={x.excerpt} url={x.url} /></li>{/loop}</ul>{:else}<p>Ancora niente qui.</p>{/if}{#if page.totalPages > 1}<nav class="paginazione" aria-label="Pagine dell'archivio">{#if page.prevUrl}<a href={page.prevUrl} rel="prev">Pagina precedente</a>{/if}{#loop page.pageLinks as l}{#if l.current}<span aria-current="page">{l.number}</span>{:else}<a href={l.url}>{l.number}</a>{/if}{/loop}{#if page.nextUrl}<a href={page.nextUrl} rel="next">Pagina seguente</a>{/if}</nav>{/if}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/blog" data-role="home" data-title="Notizie"><Site.Header /><main id="contenuto" class="contenuto"><h1>Notizie</h1>{#if page.totalRecords}<ul class="notizie">{#loop main() as x}<li><h2><a href={x.url}>{x.title}</a></h2><p>{x.publishedAt.date("j F Y")} · {#loop x.terms.category as c}<a href="/category/{c.slug}/">{c.label}</a> {/loop}</p><p>{x.excerpt}</p></li>{/loop}</ul>{:else}<p>Nessuna notizia per ora.</p>{/if}{#if page.totalPages > 1}<nav class="paginazione" aria-label="Pagine delle notizie">{#if page.prevUrl}<a href={page.prevUrl} rel="prev">Notizie più recenti</a>{/if}{#if page.nextUrl}<a href={page.nextUrl} rel="next">Notizie precedenti</a>{/if}</nav>{/if}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/categoria" data-role="category" data-title="Categoria"><Site.Header /><main id="contenuto" class="contenuto"><h1>{page.title}</h1><ul class="notizie">{#loop main() as x}<li><h2><a href={x.url}>{x.title}</a></h2><p>{x.excerpt}</p></li>{:else}<li>Nessuna notizia in questa categoria.</li>{/loop}</ul>{#if page.totalPages > 1}<nav class="paginazione" aria-label="Pagine della categoria">{#if page.prevUrl}<a href={page.prevUrl} rel="prev">Più recenti</a>{/if}{#if page.nextUrl}<a href={page.nextUrl} rel="next">Precedenti</a>{/if}</nav>{/if}{@slot}</main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/articolo" data-role="single" data-title="Articolo"><Site.Header /><main id="contenuto" class="contenuto"><article><h1>{page.title}</h1><p>{page.publishedAt.date("j F Y")} · {#loop page.terms.category as c}<a href={c.url}>{c.label}</a> {/loop}</p>{@slot}</article><p><a href="/blog/">Tutte le notizie</a></p></main><Site.Footer /></template>
+<template data-histos="template" data-ref="site/pagina-non-trovata" data-role="404" data-title="Non trovata"><Site.Header /><main id="contenuto" class="contenuto"><h1>Pagina non trovata</h1><p>L'indirizzo non esiste più. <a href="/">Torna alla home</a>.</p>{@slot}</main><Site.Footer /></template>
+<template data-histos="page" data-slug="home" data-title="Home" data-template="site/page"><h1>Sito d'esempio</h1><p>Una frase che dice chi siete e cosa fate.</p><h2>Progetti recenti</h2><ul class="griglia">{#loop progetti_recenti() as p}<li><Scheda immagine={p.fields.immagine} titolo={p.title} testo={p.excerpt} url={p.url} /></li>{:else}<li>Ancora nessun progetto.</li>{/loop}</ul><h2>Ultime notizie</h2><ul class="notizie">{#loop articoli_recenti() as a}<li><a href={a.url}>{a.title}</a></li>{:else}<li>Nessuna notizia per ora.</li>{/loop}</ul></template>
+<template data-histos="page" data-slug="chi-siamo" data-title="Chi siamo" data-template="site/page"><h1>Chi siamo</h1><p>Chi siete, da quando, e perché qualcuno dovrebbe scrivervi.</p><h2>Come lavoriamo</h2><p>Due o tre frasi sul metodo.</p><img src="asset:foto" width="16" height="12" alt="Foto di prova"/></template>
+<template data-histos="page" data-slug="contatti" data-title="Contatti" data-template="site/page"><h1>Contatti</h1><p>Scrivici: rispondiamo entro due giorni lavorativi.</p><form class="modulo" action="/contatti/" method="post"><label for="nome">Nome</label><input id="nome" name="nome" autocomplete="name" required/><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required/><label for="messaggio">Messaggio</label><textarea id="messaggio" name="messaggio" rows="5"></textarea><button type="submit">Invia</button></form></template>
+<template data-histos="post" data-slug="prima-notizia" data-title="Prima notizia" data-status="published" data-published-at="2026-03-01T09:00:00Z" data-excerpt="Il riassunto della prima notizia." data-terms='{"category":["notizie"]}'><p>Il testo della prima notizia.</p><h2>Un sottotitolo</h2><p>Altro testo.</p></template>
+<template data-histos="post" data-slug="seconda-notizia" data-title="Seconda notizia" data-status="published" data-published-at="2026-03-15T09:00:00Z" data-excerpt="Il riassunto della seconda notizia." data-terms='{"category":["appuntamenti"]}'><p>Il testo della seconda notizia.</p><blockquote><p>Una citazione.</p></blockquote></template>
+</body>
+</html>

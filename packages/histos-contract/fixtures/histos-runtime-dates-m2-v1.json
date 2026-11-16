@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "locale": "it-IT",
+  "timeZone": "Europe/Rome",
+  "props": {
+    "spring": "2026-03-29 02:30:00",
+    "autumn": "2026-10-25 02:30:00",
+    "utc": "2026-10-23T00:30:00Z"
+  },
+  "expressions": [
+    "props.spring.date('Y-m-d H:i P I W z L t')",
+    "props.autumn.date('Y-m-d H:i P I')",
+    "props.utc.date('Y-m-d H:i P')"
+  ],
+  "expectedText": "2026-03-29 03:30 +02:00 1 13 87 0 31|2026-10-25 02:30 +01:00 0|2026-10-23 02:30 +02:00"
+}

@@ -1,0 +1,49 @@
+name: histos-publish-wordpress-fixture
+services:
+  database:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: wordpress
+      MARIADB_USER: wordpress
+      MARIADB_PASSWORD: ${WP_FIXTURE_DB_PASSWORD:?Esegui ./up.sh per generare le credenziali}
+      MARIADB_ROOT_PASSWORD: ${WP_FIXTURE_ROOT_PASSWORD:?Esegui ./up.sh per generare le credenziali}
+    volumes: [database:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+  wordpress:
+    image: wordpress:php8.3-apache
+    depends_on:
+      database:
+        condition: service_healthy
+    ports: ["127.0.0.1:${WP_FIXTURE_PORT:-8877}:80"]
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${WP_FIXTURE_DB_PASSWORD:?Esegui ./up.sh per generare le credenziali}
+      WORDPRESS_CONFIG_EXTRA: "define('WP_DEBUG', false); define('WP_DEBUG_DISPLAY', false);"
+    volumes: [wordpress:/var/www/html]
+  wpcli:
+    image: wordpress:cli-php8.3
+    profiles: ["tools"]
+    user: "0:0"
+    depends_on:
+      database:
+        condition: service_healthy
+      wordpress:
+        condition: service_started
+    environment:
+      WORDPRESS_DB_HOST: database:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: ${WP_FIXTURE_DB_PASSWORD:?Esegui ./up.sh per generare le credenziali}
+      WP_FIXTURE_ADMIN_USER: ${WP_FIXTURE_ADMIN_USER:-histos-fixture}
+      WP_FIXTURE_ADMIN_PASSWORD: ${WP_FIXTURE_ADMIN_PASSWORD:?Esegui ./up.sh per generare le credenziali}
+    volumes: [wordpress:/var/www/html]
+    entrypoint: ["sh", "-c", "sleep infinity"]
+volumes:
+  database:
+  wordpress:

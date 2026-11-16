@@ -1,0 +1,9 @@
+{
+  "Uscita con {0} errore e {1}": "Released with {0} error and {1}",
+  "Uscita con {0} errori e {1}": "Released with {0} errors and {1}",
+  "{0} avviso": "{0} warning",
+  "{0} avvisi": "{0} warnings",
+  ", su {0} di {1} pagina": ", on {0} of {1} page",
+  ", su {0} di {1} pagine": ", on {0} of {1} pages",
+  "Quello che i controlli della finestra Pubblica avevano trovato: un promemoria, non una prova.": "What the checks of the Publish window had found: a reminder, not a proof."
+}

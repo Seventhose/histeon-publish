@@ -1,0 +1,2 @@
+@font-face { font-family: HistosFixture; src: url("../fonts/fixture.woff2") format("woff2"); }
+.hero { background: url("../images/hero.svg?width=800"); }

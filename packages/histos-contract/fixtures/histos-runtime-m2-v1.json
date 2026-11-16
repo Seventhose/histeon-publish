@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "locale": "en-US",
+  "timeZone": "UTC",
+  "components": [
+    {
+      "ref": "ui/list",
+      "title": "List",
+      "schema": {
+        "props": {
+          "items": {
+            "type": "array",
+            "default": []
+          },
+          "title": {
+            "type": "string",
+            "default": "voci"
+          },
+          "amount": {
+            "type": "number",
+            "default": 1234.5
+          },
+          "when": {
+            "type": "string",
+            "default": "2026-10-23T00:30:00Z"
+          }
+        }
+      },
+      "content": "<!-- wp:xb/element {\"uid\":\"tlz015v65p\",\"tag\":\"section\"} --><!-- wp:xb/element {\"uid\":\"1wv7yporpd\",\"tag\":\"h2\"} --><!-- wp:xb/text {\"uid\":\"88wrnh0zx3\",\"content\":\"{props.title.upper()}\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"li52hztzaa\",\"tag\":\"ul\"} --><!-- wp:xb/loop {\"uid\":\"hsw5tpfcov\",\"source\":{\"kind\":\"expr\",\"expr\":\"props.items\"},\"as\":\"item\",\"index\":\"idx\"} --><!-- wp:xb/element {\"uid\":\"pn7f7laza6\",\"tag\":\"li\",\"attributes\":{\"data-index\":\"{idx}\",\"class\":\"{item.active ? \\u0022attivo\\u0022 : \\u0022normale\\u0022}\"}} --><!-- wp:xb/text {\"uid\":\"c5u748mx0f\",\"content\":\"{item.name.capitalize()} — {item.tags.join(\\u0022, \\u0022)}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/loop --><!-- /wp:xb/element --><!-- wp:xb/if {\"uid\":\"fnlo9fuz8f\"} --><!-- wp:xb/branch {\"uid\":\"3ze9m1g5bd\",\"test\":\"slots.default.empty\"} --><!-- wp:xb/element {\"uid\":\"p07soohama\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"d9ti86h8l4\",\"content\":\"Nessun contenuto aggiuntivo\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- wp:xb/branch {\"uid\":\"odufhqr1nn\"} --><!-- wp:xb/slot {\"uid\":\"4b790htqe4\",\"name\":\"default\"} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/element {\"uid\":\"fmt0000001\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fmt0000002\",\"content\":\"{props.amount.number(2)} | {props.when.date('Y-m-d H:i P')}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->"
+    },
+    {
+      "ref": "ui/values",
+      "title": "Value parity",
+      "schema": {
+        "props": {}
+      },
+      "content": "<!-- wp:xb/element {\"uid\":\"chym1dua2x\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"ei8lld2xuw\",\"content\":\"{[] || \\u0022fallback\\u0022}|{[] \\u0026\\u0026 \\u0022fallback\\u0022}|{[1,2,3].slice(1,-1).join(\\u0022|\\u0022)}|{\\u0022uno due tre\\u0022.truncateWords(2)}|{true.number(0)}|{{\\u0022a\\u0022:1,\\u0022b\\u0022:2} == {\\u0022b\\u0022:2,\\u0022a\\u0022:1}}|{0 ?? 7}|{0 || 7}|{null ?? 7}|{\\u0022ÿ\\u0022 \\u003c \\u0022😀\\u0022}|{\\u0022😀\\u0022 \\u003e \\u0022ÿ\\u0022}|{\\u0022é\\u0022 == \\u0022é\\u0022}|{\\u0022😀\\u0022.length()}|{\\u0022é\\u0022.length()}|{[\\u0022uno\\u0022,\\u0022due\\u0022][1]}|{false \\u0026\\u0026 missing.deep.path}|{true || missing.deep.path}|{9007199254740991 \\u003c 9007199254740992}|{1 == 1.0}|{\\u00221\\u0022 == 1}|{\\u00221\\u0022 != 1}|{2 \\u003c= 2}|{\\u0022a\\u0022 \\u003c= \\u0022a\\u0022}|{2 \\u003e= 2}|{\\u0022b\\u0022 \\u003e= \\u0022a\\u0022}|{null \\u003c 1}|{![]}|{! [\\u0022\\u0022]}|{false ? \\u0022sì\\u0022 : \\u0022no\\u0022}|{true \\u0026\\u0026 4}|{false || 7}\"} /--><!-- /wp:xb/element -->"
+    },
+    {
+      "ref": "ui/wrapper",
+      "title": "Wrapper",
+      "schema": {
+        "props": {
+          "heading": {
+            "type": "string",
+            "default": "elenco"
+          },
+          "cards": {
+            "type": "array",
+            "default": [
+              {
+                "name": "prima",
+                "active": true,
+                "tags": [
+                  "uno",
+                  "due"
+                ]
+              },
+              {
+                "name": "seconda",
+                "active": false,
+                "tags": [
+                  "tre"
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "content": "<!-- wp:xb/component {\"uid\":\"38s82cu32w\",\"ref\":\"ui/list\",\"props\":{\"title\":{\"expr\":\"props.heading\"},\"items\":{\"expr\":\"props.cards\"}}} /--><!-- wp:xb/component {\"uid\":\"val0000003\",\"ref\":\"ui/values\"} /-->"
+    }
+  ],
+  "instance": "<!-- wp:xb/component {\"uid\":\"2v9ptju8z5\",\"ref\":\"ui/wrapper\"} /-->",
+  "expectedBody": "<section><h2>ELENCO</h2><ul><li data-index=\"0\" class=\"attivo\">Prima — uno, due</li><li data-index=\"1\" class=\"normale\">Seconda — tre</li></ul><p>Nessun contenuto aggiuntivo</p><p>1,234.50 | 2026-10-23 00:30 +00:00</p></section><p>true|false|2|uno due…|0|false|0|true|7|true|true|false|1|2|due|false|true|true|true|false|true|true|true|true|true|false|true|false|no|true|true</p>"
+}

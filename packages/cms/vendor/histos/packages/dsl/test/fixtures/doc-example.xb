@@ -1,0 +1,8 @@
+<section xb:label="Ultimi articoli" class="posts">
+  {#loop posts(limit: 3, type: "post") as post, i}
+    <Card title={post.title} url={post.url} featured={i == 0}>
+      {#slot media}<img src={post.image.url} alt={post.image.alt}>{/slot}
+      <p>{post.excerpt.truncateWords(20) ?? "Nessun estratto"}</p>
+    </Card>
+  {/loop}
+</section>

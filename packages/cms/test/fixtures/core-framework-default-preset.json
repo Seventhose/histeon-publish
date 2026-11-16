@@ -1,0 +1,58 @@
+{
+  "id": "fixture-default",
+  "name": "Default Core Framework Project",
+  "description": "",
+  "date": "2023-05-16T06:39:10.200Z",
+  "preferences": {
+    "root_font_size": 10,
+    "postcss": true,
+    "min_screen_width": 320,
+    "max_screen_width": 1400,
+    "is_rem": true
+  },
+  "breakpoints": [[0, 1400], [0, 992], [0, 768], [0, 480]],
+  "styleSheetData": {
+    "colorStyles": [],
+    "typographyStyles": [
+      {
+        "id": "01GXDT3208JBNT6XESNSE76324",
+        "name": "Contextual variables",
+        "type": "variable",
+        "cssObjects": [
+          {
+            "id": "01GXDT320FNMKNGMYC90312321",
+            "selector": ":root",
+            "declarations": [
+              {
+                "id": "01GXDT320FC0HV9WQ2VJYA067543",
+                "property": "--hero-title-size",
+                "value": "var(--text-4xl)"
+              },
+              {
+                "id": "01GXDT320F345435Q2VJYA067543",
+                "property": "--post-title-size",
+                "value": "var(--text-2xl)"
+              },
+              {
+                "id": "01GXDT320F0989088VJYA067543",
+                "property": "--nav-link-size",
+                "value": "var(--text-s)"
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "spacingStyles": [],
+    "layoutsStyles": [],
+    "designStyles": [],
+    "componentsStyles": [],
+    "fontsStyles": [],
+    "otherStyles": []
+  },
+  "modulesData": {
+    "FONTS": {
+      "fonts": []
+    }
+  }
+}

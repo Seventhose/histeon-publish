@@ -1,0 +1,5 @@
+.corpo {
+  padding: var(--space-l);
+  &__titolo { font-size: var(--h1); }
+  &__testo { font-size: var(--text-l); }
+}

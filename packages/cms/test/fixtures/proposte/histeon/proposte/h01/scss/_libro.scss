@@ -1,0 +1,8 @@
+.libro {
+  padding: var(--xb-space-m);
+  border-radius: var(--xb-radius-m);
+  background: var(--xb-surface);
+  &__titolo { font-size: var(--xb-h3); margin: 0; }
+  &__autore { font-size: var(--xb-text-m); color: var(--xb-text-muted); }
+  &__link { font-size: var(--xb-text-s); color: var(--xb-link); }
+}

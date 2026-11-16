@@ -1,0 +1,9 @@
+<header class="site-header">
+  <!-- wp:navigation {"ref":42,"overlayMenu":"never"} /-->
+</header>
+<main id="main">
+  {@content}
+</main>
+<!-- wp:paragraph {"className":"legacy"} -->
+<p class="legacy">Paragrafo nativo di Gutenberg</p>
+<!-- /wp:paragraph -->

@@ -1,0 +1,111 @@
+{
+  "profile": {
+    "manifest": {
+      "format": "xb-site",
+      "version": 2,
+      "generator": {
+        "name": "Histos CMS",
+        "version": "0.1.14",
+        "engineCommit": "9bc212050403dd056ac21edfcff398b514e4a3c1"
+      },
+      "project": {
+        "id": "550e8400-e29b-41d4-a716-446655440020",
+        "name": "Fixture progetto Histos"
+      },
+      "selection": {
+        "kind": "workspace-head",
+        "snapshot": "550e8400-e29b-41d4-a716-446655440024"
+      },
+      "requiredCapabilities": [
+        "documents:page:v1",
+        "styles:global:v1",
+        "media:asset:v1",
+        "components:definition:v1"
+      ],
+      "profile": "histos-static-project-v1",
+      "files": [
+        {
+          "path": "entities.ndjson",
+          "bytes": 1187,
+          "sha256": "75c0ab22a57c98c1bf9cb3d281841ccf99183b658b97ae41ec21a639f80bd326",
+          "mediaType": "application/x-ndjson"
+        },
+        {
+          "path": "references.ndjson",
+          "bytes": 164,
+          "sha256": "13048be911a7cd2f7c25eeb90f48880804a14677e8a095f1dab5bef001cf4a38",
+          "mediaType": "application/x-ndjson"
+        }
+      ],
+      "manifestHash": "e11c56cab22f538172ded08d2888a69b8936664fbe5d99d6609000c6a50eb8b7"
+    },
+    "entities": [
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440021",
+        "kind": "document",
+        "schemaVersion": 1,
+        "revisionHash": "737f2ea7fc3ce3fe86437614e4349bbf811efe2b0ae833d666fc4a3b2ddb9411",
+        "payload": {
+          "documentType": "page",
+          "title": "Pagina campione",
+          "slug": "pagina-campione",
+          "status": "draft",
+          "content": "<!-- wp:xb/component {\"uid\":\"goldenuse123\",\"ref\":\"ui/card\"} /-->",
+          "script": ""
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440022",
+        "kind": "styles",
+        "schemaVersion": 1,
+        "revisionHash": "86f9ec2b81e7b53dc8ad6cb84d0613747630625b8793d6637fe58ec2bfd160f4",
+        "payload": {
+          "styles": [],
+          "globals": [],
+          "compiledCss": "",
+          "design": {},
+          "tokenOverrides": {},
+          "queries": {
+            "mobile": "(width < 40em)",
+            "tablet": "(width < 64em)",
+            "desktop": "(width >= 64em)"
+          }
+        }
+      },
+      {
+        "id": "550e8400-e29b-41d4-a716-446655440023",
+        "kind": "component",
+        "schemaVersion": 1,
+        "revisionHash": "0c581f9a1d9f27197f78c973e074b10da52a7becde03242ad6a548ae87f1f436",
+        "payload": {
+          "title": "Card",
+          "ref": "ui/card",
+          "schema": {
+            "props": {
+              "heading": {
+                "type": "string",
+                "default": "Titolo",
+                "label": "Titolo"
+              }
+            }
+          },
+          "content": "<!-- wp:xb/element {\"uid\":\"goldenhead123\",\"tag\":\"h2\"} --><!-- wp:xb/text {\"uid\":\"goldenhead124\",\"content\":\"Card campione\"} /--><!-- /wp:xb/element -->",
+          "script": ""
+        }
+      }
+    ],
+    "references": [
+      {
+        "ownerId": "550e8400-e29b-41d4-a716-446655440021",
+        "blockUid": "goldenuse123",
+        "path": "attrs.ref",
+        "targetId": "550e8400-e29b-41d4-a716-446655440023",
+        "role": "document"
+      }
+    ]
+  },
+  "files": {
+    "entities.ndjson": "eyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAyMSIsImtpbmQiOiJkb2N1bWVudCIsInBheWxvYWQiOnsiY29udGVudCI6IjwhLS0gd3A6eGIvY29tcG9uZW50IHtcInVpZFwiOlwiZ29sZGVudXNlMTIzXCIsXCJyZWZcIjpcInVpL2NhcmRcIn0gLy0tPiIsImRvY3VtZW50VHlwZSI6InBhZ2UiLCJzY3JpcHQiOiIiLCJzbHVnIjoicGFnaW5hLWNhbXBpb25lIiwic3RhdHVzIjoiZHJhZnQiLCJ0aXRsZSI6IlBhZ2luYSBjYW1waW9uZSJ9LCJyZXZpc2lvbkhhc2giOiI3MzdmMmVhN2ZjM2NlM2ZlODY0Mzc2MTRlNDM0OWJiZjgxMWVmZTJiMGFlODMzZDY2NmZjNGEzYjJkZGI5NDExIiwic2NoZW1hVmVyc2lvbiI6MX0KeyJpZCI6IjU1MGU4NDAwLWUyOWItNDFkNC1hNzE2LTQ0NjY1NTQ0MDAyMiIsImtpbmQiOiJzdHlsZXMiLCJwYXlsb2FkIjp7ImNvbXBpbGVkQ3NzIjoiIiwiZGVzaWduIjp7fSwiZ2xvYmFscyI6W10sInF1ZXJpZXMiOnsiZGVza3RvcCI6Iih3aWR0aCA+PSA2NGVtKSIsIm1vYmlsZSI6Iih3aWR0aCA8IDQwZW0pIiwidGFibGV0IjoiKHdpZHRoIDwgNjRlbSkifSwic3R5bGVzIjpbXSwidG9rZW5PdmVycmlkZXMiOnt9fSwicmV2aXNpb25IYXNoIjoiODZmOWVjMmI4MWU3YjUzZGM4YWQ2Y2I4NGQwNjEzNzQ3NjMwNjI1Yjg3OTNkNjYzN2ZlNThlYzJiZmQxNjBmNCIsInNjaGVtYVZlcnNpb24iOjF9CnsiaWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMjMiLCJraW5kIjoiY29tcG9uZW50IiwicGF5bG9hZCI6eyJjb250ZW50IjoiPCEtLSB3cDp4Yi9lbGVtZW50IHtcInVpZFwiOlwiZ29sZGVuaGVhZDEyM1wiLFwidGFnXCI6XCJoMlwifSAtLT48IS0tIHdwOnhiL3RleHQge1widWlkXCI6XCJnb2xkZW5oZWFkMTI0XCIsXCJjb250ZW50XCI6XCJDYXJkIGNhbXBpb25lXCJ9IC8tLT48IS0tIC93cDp4Yi9lbGVtZW50IC0tPiIsInJlZiI6InVpL2NhcmQiLCJzY2hlbWEiOnsicHJvcHMiOnsiaGVhZGluZyI6eyJkZWZhdWx0IjoiVGl0b2xvIiwibGFiZWwiOiJUaXRvbG8iLCJ0eXBlIjoic3RyaW5nIn19fSwic2NyaXB0IjoiIiwidGl0bGUiOiJDYXJkIn0sInJldmlzaW9uSGFzaCI6IjBjNTgxZjlhMWQ5ZjI3MTk3Zjc4Yzk3M2UwNzRiMTBkYTUyYTdiZWNkZTAzMjQyYWQ2YTU0OGFlODdmMWY0MzYiLCJzY2hlbWFWZXJzaW9uIjoxfQo=",
+    "references.ndjson": "eyJibG9ja1VpZCI6ImdvbGRlbnVzZTEyMyIsIm93bmVySWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMjEiLCJwYXRoIjoiYXR0cnMucmVmIiwicm9sZSI6ImRvY3VtZW50IiwidGFyZ2V0SWQiOiI1NTBlODQwMC1lMjliLTQxZDQtYTcxNi00NDY2NTU0NDAwMjMifQo="
+  }
+}

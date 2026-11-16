@@ -1,0 +1,5 @@
+.intestazione {
+  padding: var(--space-s);
+  background: var(--secondary);
+  &__nome { font-size: var(--text-l); color: var(--white); margin: 0; }
+}

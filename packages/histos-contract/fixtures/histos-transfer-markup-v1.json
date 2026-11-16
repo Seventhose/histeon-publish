@@ -1,0 +1,7568 @@
+{
+  "version": 1,
+  "id": "histos-transfer-markup-v1",
+  "description": "Markup a Histos transfer profile carries, checked identically by Publish (packages/cms/src/transfer-markup.ts) and Histos on WordPress (plugin/src/Remote/TransferMarkup.php). Canonical copy in Publish; the builder keeps a byte-identical copy in plugin/tests/fixtures/.",
+  "rules": [
+    "Reason codes are compared exactly; messages never are.",
+    "Grammars are compiled with the u flag in JavaScript and /uD in PHP; enum values compare after ASCII lower-casing of the decoded value; SVG grammars match the raw value exactly.",
+    "Element order: tag (G1), context (C1-C7), then each attribute in stored order: name syntax (G2), blocked names and form-only names (G4), blocked prefixes (G5), allowlist (HTML elements: elementAttributes of the tag, plus globalAttributes and the globalAttributePrefixes unless the tag is in elementsWithoutGlobalAttributes; SVG elements: svgAttributes of the tag, plus svgCommonAttributes, svgTextAttributes and every name that starts with one of svgAttributePrefixes and goes beyond it when the tag is in svgTagsWithCommonAttributes); SVG values: boolean or { } -> dynamic, & or \\ -> value, grammar -> value, style (G7) -> style; HTML values: numeric references (G3) -> reference, value rule (static -> dynamic, enum/grammar/length -> value, srcset candidates -> url), URL attributes (G6) -> url, style (G7) -> style, form action/method (G9) -> form; finally form without action or method -> form, source without srcset -> attribute.",
+    "htmlValueRules keys are tag.attribute; *.attribute applies to the new HTML elements only. Every rule requires a static value.",
+    "svgValueRules keys are tag.attribute first, then attribute, then prefix* for a name of svgAttributePrefixes (aria-*, data-*). After its grammar, the style of an SVG element is checked by G7 on the raw value (it has no & and no backslash) -> style.",
+    "C7 (histos-svg-text-v1): tspan only under text or tspan; under text and tspan only tspan, title and desc; stop only under linearGradient or radialGradient, which hold only stop; nothing under stop. Tags are compared exactly: linearGradient and radialGradient are stored in this case. A site without the capability histos-svg-text-v1 is never sent svgTextTags, svgTextAttributes, an aria-* or data-* name outside svgCommonAttributes on an SVG element, or a fill or stroke that starts with url(.",
+    "G3: every &# must match grammars.numericReference with a code point in 0x20-0x7E or 0xA0-0x10FFFF, not a surrogate, not FDD0-FDEF, and not the last two code points of any plane. A named reference in legacyReferences after & and not followed by ;, = or an ASCII letter or digit is refused too (browsers decode it in attributes, PHP does not).",
+    "G6 on the decoded value: remove grammars.urlIgnored, ASCII lower-case, keep the part before {, no colon or a / ? # before it -> safe, else the scheme must be in urlSchemes. A srcset candidate may also be a strict histos-media:// identity. The href of an a may also be exactly a histos-media:// identity (raw value, lower-case uuid): a media file of the project (histos-media-links-v1).",
+    "G7: a style value with { or } is dynamic; on the decoded value, any /* is refused, then CR LF, CR and FF become LF and NUL becomes U+FFFD, then grammars.cssHexEscape (0, surrogates and > 0x10FFFF become U+FFFD) then grammars.cssCharEscape are resolved, ASCII lower-case, refuse a match of grammars.styleResource.",
+    "G9: a form endpoint with an @ in its authority (https://@host/) is refused even with empty userinfo; a relative path is never parsed as host:port.",
+    "Children kinds: element:<tag>, text, space (grammars.whitespace), verbatim, control (xb/if, xb/loop), component, slot.",
+    "Blocks: xb/component, xb/slot, xb/slot-fill and xb/passthrough are refused (context) inside svg and under contentBlockedParents.",
+    "Text: verbatim only under textarea and without grammars.verbatimForbidden; in svg only whitespace except under svgTextParents (title, desc, text, tspan); svgTextParents and option refuse < and apply G3; select, optgroup and picture only whitespace; elsewhere G3 then the inline markup scan (interpolations skipped, <! and <? refused, inlineTags with quoted static attributes, href through G6, balanced).",
+    "Branches (on the blocks as written, before any repair): xb/branch only in xb/if or as the {:else} of xb/loop, which is at most one branch, the loop's last named block, with no test attribute at all -> otherwise context. The {:else} does not see the loop variable or index.",
+    "Documents (import side): a non-empty src is exactly {props.<name>} or histos-media://<lower-case uuid> of an image asset; every srcset candidate of img and source is such an identity, referenced with path attrs.attributes.srcset and its index. The href of an a that is a histos-media:// identity names an image asset of the profile too, referenced with path attrs.attributes.href and no index. Markup and media are checked block by block in document order."
+  ],
+  "lists": {
+    "htmlTags": [
+      "a",
+      "abbr",
+      "article",
+      "aside",
+      "b",
+      "blockquote",
+      "br",
+      "button",
+      "caption",
+      "cite",
+      "code",
+      "dd",
+      "del",
+      "details",
+      "div",
+      "dl",
+      "dt",
+      "em",
+      "fieldset",
+      "figcaption",
+      "figure",
+      "footer",
+      "form",
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5",
+      "h6",
+      "header",
+      "hr",
+      "i",
+      "img",
+      "input",
+      "label",
+      "legend",
+      "li",
+      "main",
+      "mark",
+      "nav",
+      "ol",
+      "optgroup",
+      "option",
+      "output",
+      "p",
+      "picture",
+      "pre",
+      "q",
+      "s",
+      "section",
+      "select",
+      "small",
+      "source",
+      "span",
+      "strong",
+      "sub",
+      "summary",
+      "sup",
+      "table",
+      "tbody",
+      "td",
+      "textarea",
+      "th",
+      "thead",
+      "time",
+      "tr",
+      "u",
+      "ul"
+    ],
+    "newHtmlTags": [
+      "button",
+      "details",
+      "fieldset",
+      "form",
+      "input",
+      "label",
+      "legend",
+      "optgroup",
+      "option",
+      "output",
+      "picture",
+      "select",
+      "source",
+      "summary",
+      "textarea"
+    ],
+    "svgTags": [
+      "svg",
+      "g",
+      "path",
+      "circle",
+      "ellipse",
+      "rect",
+      "line",
+      "polyline",
+      "polygon",
+      "title",
+      "desc",
+      "text",
+      "tspan",
+      "defs",
+      "linearGradient",
+      "radialGradient",
+      "stop"
+    ],
+    "svgTextTags": [
+      "text",
+      "tspan",
+      "defs",
+      "linearGradient",
+      "radialGradient",
+      "stop"
+    ],
+    "voidTags": [
+      "br",
+      "hr",
+      "img",
+      "input",
+      "source",
+      "wbr"
+    ],
+    "markupV1Tags": [
+      "svg",
+      "g",
+      "path",
+      "circle",
+      "ellipse",
+      "rect",
+      "line",
+      "polyline",
+      "polygon",
+      "title",
+      "desc",
+      "text",
+      "tspan",
+      "defs",
+      "linearGradient",
+      "radialGradient",
+      "stop",
+      "picture",
+      "source",
+      "details",
+      "summary"
+    ],
+    "inlineTags": {
+      "a": [
+        "href",
+        "target",
+        "rel"
+      ],
+      "abbr": [
+        "title"
+      ],
+      "b": [],
+      "br": [],
+      "code": [],
+      "em": [],
+      "i": [],
+      "kbd": [],
+      "mark": [],
+      "q": [],
+      "s": [],
+      "small": [],
+      "span": [],
+      "strong": [],
+      "sub": [],
+      "sup": [],
+      "time": [
+        "datetime"
+      ],
+      "u": [],
+      "wbr": []
+    },
+    "globalAttributes": [
+      "class",
+      "id",
+      "style",
+      "title",
+      "lang",
+      "dir",
+      "hidden",
+      "tabindex",
+      "role",
+      "translate",
+      "itemscope",
+      "itemtype",
+      "itemprop",
+      "itemid",
+      "itemref"
+    ],
+    "globalAttributePrefixes": [
+      "aria-",
+      "data-"
+    ],
+    "elementAttributes": {
+      "a": [
+        "href",
+        "target",
+        "rel",
+        "hreflang",
+        "type",
+        "download",
+        "referrerpolicy"
+      ],
+      "abbr": [],
+      "article": [],
+      "aside": [],
+      "b": [],
+      "blockquote": [
+        "cite"
+      ],
+      "br": [],
+      "button": [
+        "type",
+        "name",
+        "value",
+        "disabled"
+      ],
+      "caption": [],
+      "cite": [],
+      "code": [],
+      "dd": [],
+      "del": [
+        "cite",
+        "datetime"
+      ],
+      "details": [
+        "open",
+        "name"
+      ],
+      "div": [],
+      "dl": [],
+      "dt": [],
+      "em": [],
+      "fieldset": [
+        "disabled"
+      ],
+      "figcaption": [],
+      "figure": [],
+      "footer": [],
+      "form": [
+        "action",
+        "method",
+        "enctype",
+        "autocomplete",
+        "novalidate"
+      ],
+      "h1": [],
+      "h2": [],
+      "h3": [],
+      "h4": [],
+      "h5": [],
+      "h6": [],
+      "header": [],
+      "hr": [],
+      "i": [],
+      "img": [
+        "src",
+        "alt",
+        "width",
+        "height",
+        "srcset",
+        "sizes",
+        "loading",
+        "decoding",
+        "fetchpriority",
+        "referrerpolicy"
+      ],
+      "input": [
+        "type",
+        "name",
+        "value",
+        "placeholder",
+        "required",
+        "disabled",
+        "readonly",
+        "checked",
+        "min",
+        "max",
+        "step",
+        "minlength",
+        "maxlength",
+        "size",
+        "multiple",
+        "pattern",
+        "inputmode",
+        "enterkeyhint",
+        "spellcheck",
+        "autocomplete"
+      ],
+      "label": [
+        "for"
+      ],
+      "legend": [],
+      "li": [
+        "value"
+      ],
+      "main": [],
+      "mark": [],
+      "nav": [],
+      "ol": [
+        "start",
+        "reversed",
+        "type"
+      ],
+      "optgroup": [
+        "label",
+        "disabled"
+      ],
+      "option": [
+        "value",
+        "label",
+        "selected",
+        "disabled"
+      ],
+      "output": [
+        "for",
+        "name"
+      ],
+      "p": [],
+      "picture": [],
+      "pre": [],
+      "q": [
+        "cite"
+      ],
+      "s": [],
+      "section": [],
+      "select": [
+        "name",
+        "required",
+        "disabled",
+        "multiple",
+        "size",
+        "autocomplete"
+      ],
+      "small": [],
+      "source": [
+        "srcset",
+        "sizes",
+        "media",
+        "type",
+        "width",
+        "height"
+      ],
+      "span": [],
+      "strong": [],
+      "sub": [],
+      "summary": [],
+      "sup": [],
+      "table": [],
+      "tbody": [],
+      "td": [
+        "colspan",
+        "rowspan",
+        "headers"
+      ],
+      "textarea": [
+        "name",
+        "rows",
+        "cols",
+        "placeholder",
+        "required",
+        "disabled",
+        "readonly",
+        "minlength",
+        "maxlength",
+        "wrap",
+        "autocomplete",
+        "spellcheck"
+      ],
+      "th": [
+        "colspan",
+        "rowspan",
+        "headers",
+        "scope",
+        "abbr"
+      ],
+      "thead": [],
+      "time": [
+        "datetime"
+      ],
+      "tr": [],
+      "u": [],
+      "ul": []
+    },
+    "elementsWithoutGlobalAttributes": [
+      "source"
+    ],
+    "svgCommonAttributes": [
+      "id",
+      "class",
+      "fill",
+      "fill-opacity",
+      "fill-rule",
+      "stroke",
+      "stroke-width",
+      "stroke-opacity",
+      "stroke-linecap",
+      "stroke-linejoin",
+      "stroke-miterlimit",
+      "stroke-dasharray",
+      "stroke-dashoffset",
+      "opacity",
+      "transform",
+      "vector-effect",
+      "color",
+      "clip-rule",
+      "shape-rendering",
+      "paint-order",
+      "display",
+      "visibility",
+      "role",
+      "aria-hidden",
+      "aria-label",
+      "aria-labelledby",
+      "aria-describedby"
+    ],
+    "svgTextAttributes": [
+      "style",
+      "lang",
+      "font-family",
+      "font-size",
+      "font-weight",
+      "font-style",
+      "letter-spacing",
+      "word-spacing",
+      "text-anchor",
+      "dominant-baseline",
+      "text-decoration"
+    ],
+    "svgAttributePrefixes": [
+      "aria-",
+      "data-"
+    ],
+    "svgTextParents": [
+      "title",
+      "desc",
+      "text",
+      "tspan"
+    ],
+    "svgTagsWithCommonAttributes": [
+      "svg",
+      "g",
+      "path",
+      "circle",
+      "ellipse",
+      "rect",
+      "line",
+      "polyline",
+      "polygon",
+      "text",
+      "tspan",
+      "defs",
+      "linearGradient",
+      "radialGradient",
+      "stop"
+    ],
+    "svgAttributes": {
+      "svg": [
+        "viewBox",
+        "width",
+        "height",
+        "preserveAspectRatio",
+        "focusable"
+      ],
+      "g": [],
+      "path": [
+        "d",
+        "pathLength"
+      ],
+      "circle": [
+        "cx",
+        "cy",
+        "r"
+      ],
+      "ellipse": [
+        "cx",
+        "cy",
+        "rx",
+        "ry"
+      ],
+      "rect": [
+        "x",
+        "y",
+        "width",
+        "height",
+        "rx",
+        "ry"
+      ],
+      "line": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "polyline": [
+        "points"
+      ],
+      "polygon": [
+        "points"
+      ],
+      "title": [
+        "id"
+      ],
+      "desc": [
+        "id"
+      ],
+      "text": [
+        "x",
+        "y",
+        "dx",
+        "dy",
+        "textLength",
+        "lengthAdjust"
+      ],
+      "tspan": [
+        "x",
+        "y",
+        "dx",
+        "dy",
+        "textLength",
+        "lengthAdjust"
+      ],
+      "defs": [],
+      "linearGradient": [
+        "x1",
+        "y1",
+        "x2",
+        "y2",
+        "gradientUnits",
+        "gradientTransform",
+        "spreadMethod"
+      ],
+      "radialGradient": [
+        "cx",
+        "cy",
+        "r",
+        "fx",
+        "fy",
+        "fr",
+        "gradientUnits",
+        "gradientTransform",
+        "spreadMethod"
+      ],
+      "stop": [
+        "offset",
+        "stop-color",
+        "stop-opacity"
+      ]
+    },
+    "svgCamelCaseAttributes": [
+      "viewBox",
+      "preserveAspectRatio",
+      "pathLength",
+      "textLength",
+      "lengthAdjust",
+      "gradientUnits",
+      "gradientTransform",
+      "spreadMethod"
+    ],
+    "blockedAttributes": [
+      "formaction",
+      "formmethod",
+      "formenctype",
+      "formtarget",
+      "form",
+      "srcdoc",
+      "nonce",
+      "integrity",
+      "crossorigin",
+      "xmlns",
+      "is",
+      "autofocus",
+      "popovertarget",
+      "popovertargetaction",
+      "command",
+      "commandfor",
+      "interestfor",
+      "ping",
+      "attributionsrc",
+      "background",
+      "data-bind",
+      "data-xb-uid",
+      "data-signals",
+      "data-computed",
+      "data-effect",
+      "data-text",
+      "data-show",
+      "data-class",
+      "data-attr",
+      "data-style",
+      "data-indicator",
+      "data-init",
+      "data-script",
+      "data-method",
+      "data-remote",
+      "data-params",
+      "data-disable-with",
+      "data-turbo-method",
+      "data-turbo-stream",
+      "data-html",
+      "data-template",
+      "data-sanitize",
+      "data-sanitize-fn",
+      "data-allow-list",
+      "data-bs-html",
+      "data-bs-template",
+      "data-bs-sanitize",
+      "data-bs-sanitize-fn",
+      "data-bs-allow-list"
+    ],
+    "formOnlyAttributes": [
+      "action",
+      "method"
+    ],
+    "blockedPrefixes": [
+      "on",
+      "x-",
+      "v-",
+      "hx-",
+      "ng-",
+      "ng_",
+      "data-hx-",
+      "data-ng-",
+      "data-on-",
+      "data-bind-",
+      "data-signals-",
+      "data-computed-",
+      "data-class-",
+      "data-attr-",
+      "data-style-",
+      "data-indicator-",
+      "data-dojo-",
+      "data-ic-"
+    ],
+    "urlAttributes": [
+      "href",
+      "cite",
+      "longdesc",
+      "poster",
+      "data",
+      "codebase",
+      "manifest",
+      "imagesrcset",
+      "itemtype",
+      "itemid"
+    ],
+    "urlSchemes": [
+      "http",
+      "https",
+      "mailto",
+      "tel"
+    ],
+    "contentBlockedParents": [
+      "option",
+      "optgroup",
+      "picture",
+      "select",
+      "textarea"
+    ],
+    "enums": {
+      "autocomplete": [
+        "on",
+        "off",
+        "name",
+        "honorific-prefix",
+        "given-name",
+        "additional-name",
+        "family-name",
+        "honorific-suffix",
+        "nickname",
+        "organization",
+        "organization-title",
+        "street-address",
+        "address-line1",
+        "address-line2",
+        "address-line3",
+        "address-level1",
+        "address-level2",
+        "address-level3",
+        "address-level4",
+        "country",
+        "country-name",
+        "postal-code",
+        "language",
+        "bday",
+        "bday-day",
+        "bday-month",
+        "bday-year",
+        "url",
+        "email",
+        "tel",
+        "tel-country-code",
+        "tel-national",
+        "tel-area-code",
+        "tel-local",
+        "tel-extension"
+      ],
+      "buttonType": [
+        "button",
+        "submit",
+        "reset"
+      ],
+      "dir": [
+        "ltr",
+        "rtl",
+        "auto"
+      ],
+      "enctype": [
+        "application/x-www-form-urlencoded",
+        "multipart/form-data"
+      ],
+      "enterkeyhint": [
+        "enter",
+        "done",
+        "go",
+        "next",
+        "previous",
+        "search",
+        "send"
+      ],
+      "formAutocomplete": [
+        "on",
+        "off"
+      ],
+      "inputmode": [
+        "none",
+        "text",
+        "decimal",
+        "numeric",
+        "tel",
+        "search",
+        "email",
+        "url"
+      ],
+      "inputTypes": [
+        "text",
+        "search",
+        "email",
+        "tel",
+        "url",
+        "number",
+        "range",
+        "date",
+        "time",
+        "datetime-local",
+        "month",
+        "week",
+        "color",
+        "checkbox",
+        "radio",
+        "hidden",
+        "submit",
+        "reset",
+        "button"
+      ],
+      "sourceTypes": [
+        "image/avif",
+        "image/webp",
+        "image/png",
+        "image/jpeg",
+        "image/gif"
+      ],
+      "spellcheck": [
+        "true",
+        "false"
+      ],
+      "wrap": [
+        "soft",
+        "hard"
+      ]
+    },
+    "htmlValueRules": {
+      "*.dir": {
+        "enum": "dir"
+      },
+      "button.type": {
+        "enum": "buttonType"
+      },
+      "details.name": {
+        "grammar": "detailsName"
+      },
+      "form.autocomplete": {
+        "enum": "formAutocomplete"
+      },
+      "form.enctype": {
+        "enum": "enctype"
+      },
+      "img.sizes": {
+        "grammar": "sizes"
+      },
+      "img.srcset": {
+        "grammar": "srcset",
+        "srcset": true
+      },
+      "input.autocomplete": {
+        "enum": "autocomplete"
+      },
+      "input.enterkeyhint": {
+        "enum": "enterkeyhint"
+      },
+      "input.inputmode": {
+        "enum": "inputmode"
+      },
+      "input.pattern": {
+        "maxCodePoints": 256
+      },
+      "input.spellcheck": {
+        "enum": "spellcheck"
+      },
+      "input.type": {
+        "enum": "inputTypes"
+      },
+      "select.autocomplete": {
+        "enum": "autocomplete"
+      },
+      "source.height": {
+        "grammar": "dimension"
+      },
+      "source.media": {
+        "grammar": "sizes"
+      },
+      "source.sizes": {
+        "grammar": "sizes"
+      },
+      "source.srcset": {
+        "grammar": "srcset",
+        "srcset": true
+      },
+      "source.type": {
+        "enum": "sourceTypes"
+      },
+      "source.width": {
+        "grammar": "dimension"
+      },
+      "textarea.autocomplete": {
+        "enum": "autocomplete"
+      },
+      "textarea.wrap": {
+        "enum": "wrap"
+      }
+    },
+    "svgValueRules": {
+      "svg.width": "lengthOrAuto",
+      "svg.height": "lengthOrAuto",
+      "width": "length",
+      "height": "length",
+      "x": "length",
+      "y": "length",
+      "cx": "length",
+      "cy": "length",
+      "r": "length",
+      "x1": "length",
+      "y1": "length",
+      "x2": "length",
+      "y2": "length",
+      "rx": "lengthOrAuto",
+      "ry": "lengthOrAuto",
+      "viewBox": "viewBox",
+      "preserveAspectRatio": "preserveAspectRatio",
+      "pathLength": "number",
+      "stroke-miterlimit": "number",
+      "d": "pathData",
+      "points": "points",
+      "transform": "transform",
+      "fill": "paintServer",
+      "stroke": "paintServer",
+      "color": "paint",
+      "opacity": "opacity",
+      "fill-opacity": "opacity",
+      "stroke-opacity": "opacity",
+      "stroke-width": "length",
+      "stroke-dashoffset": "length",
+      "stroke-dasharray": "dasharray",
+      "fill-rule": "fillRule",
+      "clip-rule": "fillRule",
+      "stroke-linecap": "strokeLinecap",
+      "stroke-linejoin": "strokeLinejoin",
+      "vector-effect": "vectorEffect",
+      "shape-rendering": "shapeRendering",
+      "paint-order": "paintOrder",
+      "display": "display",
+      "visibility": "visibility",
+      "role": "svgRole",
+      "aria-hidden": "boolean",
+      "focusable": "boolean",
+      "class": "svgClass",
+      "id": "id",
+      "aria-labelledby": "idList",
+      "aria-describedby": "idList",
+      "aria-label": "ariaLabel",
+      "text.x": "lengthList",
+      "text.y": "lengthList",
+      "tspan.x": "lengthList",
+      "tspan.y": "lengthList",
+      "dx": "lengthList",
+      "dy": "lengthList",
+      "textLength": "length",
+      "lengthAdjust": "lengthAdjust",
+      "fx": "length",
+      "fy": "length",
+      "fr": "length",
+      "gradientUnits": "gradientUnits",
+      "gradientTransform": "transform",
+      "spreadMethod": "spreadMethod",
+      "offset": "opacity",
+      "stop-color": "paint",
+      "stop-opacity": "opacity",
+      "style": "svgStyle",
+      "lang": "lang",
+      "font-family": "fontFamily",
+      "font-size": "length",
+      "font-weight": "fontWeight",
+      "font-style": "fontStyle",
+      "letter-spacing": "spacing",
+      "word-spacing": "spacing",
+      "text-anchor": "textAnchor",
+      "dominant-baseline": "dominantBaseline",
+      "text-decoration": "textDecoration",
+      "aria-*": "svgData",
+      "data-*": "svgData"
+    },
+    "grammars": {
+      "ariaLabel": "^[^\\x00-\\x1F\\x7F<>\"]{1,256}$",
+      "attributeName": "^[a-z][a-z0-9_-]*$",
+      "boolean": "^(?:true|false)$",
+      "cssCharEscape": "\\\\([^\\r\\n\\f0-9a-fA-F])",
+      "cssHexEscape": "\\\\([0-9a-fA-F]{1,6})[ \\t\\n\\r\\f]?",
+      "dasharray": "^(?:none|[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?(?:(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*|[ \\t\\n\\r\\f]+)[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?){0,15})$",
+      "detailsName": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "dimension": "^[0-9]{1,5}$",
+      "display": "^(?:none|inline)$",
+      "dominantBaseline": "^(?:auto|middle|central|hanging|alphabetic|ideographic|mathematical|text-before-edge|text-after-edge|text-top|text-bottom)$",
+      "fillRule": "^(?:nonzero|evenodd)$",
+      "fontFamily": "^(?:[A-Za-z0-9 ,'._-]{1,256}|var\\(--[A-Za-z0-9_-]{1,64}\\))$",
+      "fontStyle": "^(?:normal|italic|oblique)$",
+      "fontWeight": "^(?:normal|bold|bolder|lighter|[1-9][0-9]{0,2}|1000)$",
+      "formActionForbidden": "[\\p{Cc}\\p{Z}\ufeff\\\\#{}]",
+      "gradientUnits": "^(?:userSpaceOnUse|objectBoundingBox)$",
+      "id": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+      "idList": "^[A-Za-z][A-Za-z0-9_-]{0,63}(?:[ \\t\\n\\r\\f]+[A-Za-z][A-Za-z0-9_-]{0,63}){0,7}$",
+      "inlineAttribute": "^([a-zA-Z_:][a-zA-Z0-9_:.-]*)[ \\t\\n\\r\\f]*=[ \\t\\n\\r\\f]*(?:\"([^\"<>]*)\"|'([^'<>]*)')",
+      "inlineTag": "^<(/?)([a-z][a-z0-9]*)([^>]*)>$",
+      "lang": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{1,8}){0,3}$",
+      "length": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?$",
+      "lengthAdjust": "^(?:spacing|spacingAndGlyphs)$",
+      "lengthList": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?(?:(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*|[ \\t\\n\\r\\f]+)[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?){0,63}$",
+      "lengthOrAuto": "^(?:[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?|auto)$",
+      "number": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?$",
+      "numericReference": "^&#(?:([0-9]{1,7})|[xX]([0-9A-Fa-f]{1,6}));",
+      "opacity": "^[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?%?$",
+      "paint": "^(?:#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})|[A-Za-z]{3,24}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\\([0-9A-Za-z.,%/+ -]{1,64}\\)|var\\(--[A-Za-z0-9_-]{1,64}\\))$",
+      "paintOrder": "^(?:normal|(?:fill|stroke|markers)(?: (?:fill|stroke|markers)){0,2})$",
+      "paintServer": "^(?:#(?:[0-9A-Fa-f]{3,4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})|[A-Za-z]{3,24}|(?:rgba?|hsla?|hwb|lab|lch|oklab|oklch)\\([0-9A-Za-z.,%/+ -]{1,64}\\)|var\\(--[A-Za-z0-9_-]{1,64}\\)|url\\(#[A-Za-z][A-Za-z0-9_-]{0,63}\\))$",
+      "pathData": "^[MmZzLlHhVvCcSsQqTtAa0-9eE.,+ \\t\\n\\r\\f-]{0,32768}$",
+      "points": "^[0-9eE.,+ \\t\\n\\r\\f-]{0,32768}$",
+      "preserveAspectRatio": "^(?:none|x(?:Min|Mid|Max)Y(?:Min|Mid|Max))(?:[ \\t\\n\\r\\f]+(?:meet|slice))?$",
+      "shapeRendering": "^(?:auto|optimizeSpeed|crispEdges|geometricPrecision)$",
+      "sizes": "^[A-Za-z0-9 ().,:%+/*-]{1,512}$",
+      "spacing": "^(?:normal|[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:px|em|rem|%)?)$",
+      "spreadMethod": "^(?:pad|reflect|repeat)$",
+      "srcset": "^[ \\t\\n\\r\\f]*[^ \\t\\n\\r\\f,]+(?:[ \\t\\n\\r\\f]+(?:[1-9][0-9]{0,4}w|[0-9]{1,2}(?:\\.[0-9]{1,2})?x))?(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*[^ \\t\\n\\r\\f,]+(?:[ \\t\\n\\r\\f]+(?:[1-9][0-9]{0,4}w|[0-9]{1,2}(?:\\.[0-9]{1,2})?x))?){0,15}[ \\t\\n\\r\\f]*$",
+      "strokeLinecap": "^(?:butt|round|square)$",
+      "strokeLinejoin": "^(?:miter|miter-clip|round|bevel|arcs)$",
+      "styleResource": "url[ \\t\\n\\r\\f]*\\(|image-set[ \\t\\n\\r\\f]*\\(|cross-fade[ \\t\\n\\r\\f]*\\(|element[ \\t\\n\\r\\f]*\\(|src[ \\t\\n\\r\\f]*\\(|expression[ \\t\\n\\r\\f]*\\(|@import|-moz-binding|behavior[ \\t\\n\\r\\f]*:|javascript[ \\t\\n\\r\\f]*:|vbscript[ \\t\\n\\r\\f]*:|data[ \\t\\n\\r\\f]*:|<[ \\t\\n\\r\\f]*/[ \\t\\n\\r\\f]*style",
+      "svgClass": "^[A-Za-z0-9_ -]{0,256}$",
+      "svgData": "^[^\\x00-\\x1F\\x7F<>\"]{0,256}$",
+      "svgRole": "^(?:img|presentation|none)$",
+      "svgStyle": "^[^\\x00-\\x08\\x0B\\x0C\\x0E-\\x1F\\x7F<>]{0,4096}$",
+      "textAnchor": "^(?:start|middle|end)$",
+      "textDecoration": "^(?:none|underline|overline|line-through)$",
+      "transform": "^[ \\t\\n\\r\\f]*(?:(?:matrix|translate|scale|rotate|skewX|skewY)[ \\t\\n\\r\\f]*\\([0-9eE.,+ \\t\\n\\r\\f-]{0,128}\\)[ \\t\\n\\r\\f]*,?[ \\t\\n\\r\\f]*){1,8}$",
+      "urlIgnored": "[\\x00-\\x20\\x7F]",
+      "vectorEffect": "^(?:none|non-scaling-stroke)$",
+      "verbatimForbidden": "[{}<&]",
+      "viewBox": "^[ \\t\\n\\r\\f]*[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*|[ \\t\\n\\r\\f]+)[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*|[ \\t\\n\\r\\f]+)[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?(?:[ \\t\\n\\r\\f]*,[ \\t\\n\\r\\f]*|[ \\t\\n\\r\\f]+)[+-]?(?:[0-9]+(?:\\.[0-9]*)?|\\.[0-9]+)(?:[eE][+-]?[0-9]+)?[ \\t\\n\\r\\f]*$",
+      "visibility": "^(?:visible|hidden|collapse)$",
+      "whitespace": "^[ \\t\\n\\r\\f]*$"
+    },
+    "legacyReferences": [
+      "AElig",
+      "AMP",
+      "Aacute",
+      "Acirc",
+      "Agrave",
+      "Aring",
+      "Atilde",
+      "Auml",
+      "COPY",
+      "Ccedil",
+      "ETH",
+      "Eacute",
+      "Ecirc",
+      "Egrave",
+      "Euml",
+      "GT",
+      "Iacute",
+      "Icirc",
+      "Igrave",
+      "Iuml",
+      "LT",
+      "Ntilde",
+      "Oacute",
+      "Ocirc",
+      "Ograve",
+      "Oslash",
+      "Otilde",
+      "Ouml",
+      "QUOT",
+      "REG",
+      "THORN",
+      "Uacute",
+      "Ucirc",
+      "Ugrave",
+      "Uuml",
+      "Yacute",
+      "aacute",
+      "acirc",
+      "acute",
+      "aelig",
+      "agrave",
+      "amp",
+      "aring",
+      "atilde",
+      "auml",
+      "brvbar",
+      "ccedil",
+      "cedil",
+      "cent",
+      "copy",
+      "curren",
+      "deg",
+      "divide",
+      "eacute",
+      "ecirc",
+      "egrave",
+      "eth",
+      "euml",
+      "frac12",
+      "frac14",
+      "frac34",
+      "gt",
+      "iacute",
+      "icirc",
+      "iexcl",
+      "igrave",
+      "iquest",
+      "iuml",
+      "laquo",
+      "lt",
+      "macr",
+      "micro",
+      "middot",
+      "nbsp",
+      "not",
+      "ntilde",
+      "oacute",
+      "ocirc",
+      "ograve",
+      "ordf",
+      "ordm",
+      "oslash",
+      "otilde",
+      "ouml",
+      "para",
+      "plusmn",
+      "pound",
+      "quot",
+      "raquo",
+      "reg",
+      "sect",
+      "shy",
+      "sup1",
+      "sup2",
+      "sup3",
+      "szlig",
+      "thorn",
+      "times",
+      "uacute",
+      "ucirc",
+      "ugrave",
+      "uml",
+      "uuml",
+      "yacute",
+      "yen",
+      "yuml"
+    ]
+  },
+  "elements": [
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 24 24",
+        "width": "24",
+        "height": "24",
+        "fill": "none",
+        "stroke": "currentColor",
+        "stroke-width": "2",
+        "stroke-linecap": "round",
+        "stroke-linejoin": "round",
+        "aria-hidden": "true",
+        "focusable": "false"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "search icon, decorative"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 24 24",
+        "role": "img",
+        "aria-label": "Menu",
+        "class": "icona icona--menu"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "menu icon with an accessible name"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0,0,24,24",
+        "preserveAspectRatio": "xMidYMid meet",
+        "width": "1.5em",
+        "height": "auto"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 24 24"
+      },
+      "ctx": {
+        "parent": "button",
+        "svg": false,
+        "form": false,
+        "button": true
+      },
+      "expect": "accept",
+      "note": "svg inside a button"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "M3 12h18M3 6h18M3 18h18",
+        "stroke-linecap": "round"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "m21 21-4.3-4.3",
+        "pathLength": "100",
+        "vector-effect": "non-scaling-stroke"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "cx": "11",
+        "cy": "11",
+        "r": "8",
+        "fill": "var(--xb-primary)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "rect",
+      "attributes": {
+        "x": "4",
+        "y": "4",
+        "width": "16",
+        "height": "16",
+        "rx": "2",
+        "transform": "rotate(45 12 12)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "polygon",
+      "attributes": {
+        "points": "12 2 22 22 2 22",
+        "fill": "#ff0000",
+        "fill-rule": "evenodd"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "line",
+      "attributes": {
+        "x1": "0",
+        "y1": "0",
+        "x2": "24",
+        "y2": "24",
+        "stroke": "rgb(0 0 0 / 50%)",
+        "stroke-dasharray": "4 2"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "ellipse",
+      "attributes": {
+        "cx": "12",
+        "cy": "12",
+        "rx": "auto",
+        "ry": "4",
+        "shape-rendering": "geometricPrecision"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "polyline",
+      "attributes": {
+        "points": "1,2 3,4",
+        "fill": "none",
+        "opacity": "50%"
+      },
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "opacity": "0.5",
+        "paint-order": "stroke fill",
+        "aria-labelledby": "t1 d1"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "desc",
+      "attributes": {
+        "id": "d1"
+      },
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "use",
+      "attributes": {
+        "href": "#a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "foreignObject",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "script",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "style",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "animate",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "image",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "textPath",
+      "attributes": {
+        "href": "#a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "clipPath",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "mask",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "pattern",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "filter",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "symbol",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "marker",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "set",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "50",
+        "y": "40",
+        "class": "ruota__nota",
+        "text-anchor": "middle",
+        "lang": "el"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a line of text"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "0 10 20.5",
+        "y": "92",
+        "dx": "1,2",
+        "dy": "-0.2em",
+        "font-size": "100",
+        "textLength": "120",
+        "lengthAdjust": "spacingAndGlyphs"
+      },
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "tspan",
+      "attributes": {
+        "class": "lettera",
+        "style": "--k:0",
+        "dy": "1.2em",
+        "font-weight": "700",
+        "font-style": "italic"
+      },
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "tspan",
+      "attributes": {
+        "x": "4"
+      },
+      "ctx": {
+        "parent": "tspan",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400 410 420 430 440 450 460 470 480 490 500 510 520 530 540 550 560 570 580 590 600 610 620 630"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "64 positions, one per letter"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "0 10 20 30 40 50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200 210 220 230 240 250 260 270 280 290 300 310 320 330 340 350 360 370 380 390 400 410 420 430 440 450 460 470 480 490 500 510 520 530 540 550 560 570 580 590 600 610 620 630 640"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "more than 64 positions"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-family": "'GFS Didot', serif",
+        "font-size": "11",
+        "text-anchor": "middle",
+        "lang": "el",
+        "letter-spacing": "0.05em",
+        "word-spacing": "normal",
+        "dominant-baseline": "central",
+        "text-decoration": "underline"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-family": "var(--xb-font-heading)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 300 300",
+        "style": "--mc:#d4a843;--ox:0.0px",
+        "data-impasto": "classico",
+        "data-salsa": ""
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "custom properties and states a style sheet selects"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "aria-pressed": "true",
+        "data-seg": "1"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "style": "fill:red"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "defs",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "id": "ph1",
+        "x1": "0",
+        "y1": "0",
+        "x2": "1",
+        "y2": "1",
+        "gradientUnits": "objectBoundingBox",
+        "gradientTransform": "rotate(45)",
+        "spreadMethod": "pad"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "radialGradient",
+      "attributes": {
+        "id": "ph1r",
+        "cx": ".5",
+        "cy": ".25",
+        "r": ".7",
+        "fx": "50%",
+        "fy": "0",
+        "fr": "0"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "id": "a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a gradient need not sit in defs"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "offset": "0",
+        "stop-color": "#16224a"
+      },
+      "ctx": {
+        "parent": "linearGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "offset": "100%",
+        "stop-color": "var(--xb-primary)",
+        "stop-opacity": ".45",
+        "style": "stop-color:#e3b55c"
+      },
+      "ctx": {
+        "parent": "radialGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "rect",
+      "attributes": {
+        "width": "100",
+        "height": "100",
+        "fill": "url(#ph1)",
+        "stroke": "url(#ph1r)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a paint server of the same document"
+    },
+    {
+      "tag": "lineargradient",
+      "attributes": {
+        "id": "a"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag",
+      "note": "only the canonical case is stored"
+    },
+    {
+      "tag": "radialgradient",
+      "attributes": {},
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "1"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "outside svg"
+    },
+    {
+      "tag": "tspan",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "tspan only in text or tspan"
+    },
+    {
+      "tag": "tspan",
+      "attributes": {},
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "text",
+      "attributes": {},
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "a line of text holds only text and tspan"
+    },
+    {
+      "tag": "g",
+      "attributes": {},
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "M0 0"
+      },
+      "ctx": {
+        "parent": "tspan",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "offset": "0"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "stop only in a gradient"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "offset": "0"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "M0 0"
+      },
+      "ctx": {
+        "parent": "linearGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": "radialGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "a gradient holds only its stops"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": "stop",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "href": "#a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "rotate": "45"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "textlength": "10"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "lower-case textlength"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "href": "#b"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "no inherited gradients"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "xlink:href": "#b"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "gradientunits": "userSpaceOnUse"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "rect",
+      "attributes": {
+        "offset": "0"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "title",
+      "attributes": {
+        "style": "fill:red"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "title and desc take no common attributes"
+    },
+    {
+      "tag": "title",
+      "attributes": {
+        "data-x": "1"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "tabindex": "0"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-variant": "small-caps"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "a prefix alone is not a name"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "aria-": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-bind": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "G4 on SVG too"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-init": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-on-click": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "G5 on SVG too"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-xb-uid": "abc"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "style": "fill:url(#a)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style",
+      "note": "G7 on SVG: no url() in a style, a gradient goes in the fill attribute"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "style": "background:URL(https://x/y.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "fill:red/**/"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "@import 'x'"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "tspan",
+      "attributes": {
+        "style": "background:image-set('x' 1x)"
+      },
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "fill:{props.c}"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": true
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "fill:\\75 rl(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "no CSS escapes in an SVG value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "fill:&#117;rl(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "fill:red</style>"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "style": "a\u0000b"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-x": "a\"b"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-x": "<b>"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "data-x": "{props.x}"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "aria-pressed": true
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "aria-hidden": "si"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "the rule of the name wins over the prefix"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-family": "\"GFS Didot\", serif"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "family names in single quotes"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-family": "x;fill:red"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-family": "url(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-size": "calc(1px + 1em)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "font-weight": "heavy"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "text-anchor": "center"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "lang": "it_IT"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "x": "a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "rect",
+      "attributes": {
+        "x": "1 2"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "a list of positions only on text and tspan"
+    },
+    {
+      "tag": "text",
+      "attributes": {
+        "lengthAdjust": "spacingandglyphs"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "gradientUnits": "userspaceonuse"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "gradientTransform": "url(x)"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "linearGradient",
+      "attributes": {
+        "spreadMethod": "mirror"
+      },
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "stop-color": "url(#a)"
+      },
+      "ctx": {
+        "parent": "linearGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "a paint server only in fill and stroke"
+    },
+    {
+      "tag": "stop",
+      "attributes": {
+        "offset": "auto"
+      },
+      "ctx": {
+        "parent": "linearGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "color": "url(#a)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url(#a) red"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url( #a)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url(a.svg#a)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "only a fragment of the same document"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url('#a')"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "URL(#a)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "an HTML element inside svg (C1)"
+    },
+    {
+      "tag": "p",
+      "attributes": {},
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "M0 0"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "an SVG element outside svg"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 24 24"
+      },
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "nested svg"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "outside svg, <title> is RCDATA"
+    },
+    {
+      "tag": "title",
+      "attributes": {},
+      "ctx": {
+        "parent": "title",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "onload": "alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "href": "#a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "xlink:href": "#a"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "xmlns": "http://www.w3.org/2000/svg"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "clip-path": "url(#c)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "mask": "url(#m)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "filter": "url(#f)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "cursor": "pointer"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewbox": "0 0 24 24"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "lower-case viewbox: only the canonical case is stored"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "viewBox": "0 0 24 24"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "title",
+      "attributes": {
+        "class": "x"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url(#a)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "histos-svg-text-v1: a gradient of the same document"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "url(https://x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "stroke": "red;"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "M0 0 url(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "viewBox": "0 0 24"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "&#117;rl(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": "\\75 rl(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "rect",
+      "attributes": {
+        "width": "auto"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "auto only on svg width/height and rx/ry"
+    },
+    {
+      "tag": "g",
+      "attributes": {
+        "transform": "translate(1 2) url(x)"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "aria-label": "<b>"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "svg",
+      "attributes": {
+        "shape-rendering": "crispedges"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "SVG grammars are case-sensitive"
+    },
+    {
+      "tag": "path",
+      "attributes": {
+        "d": "{props.d}"
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "circle",
+      "attributes": {
+        "fill": true
+      },
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "submit"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "button",
+        "class": "menu__apri",
+        "aria-expanded": "false",
+        "aria-controls": "menu",
+        "data-azione": "apri"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "RESET",
+        "name": "x",
+        "value": "{item.slug}",
+        "disabled": true
+      },
+      "ctx": {
+        "parent": "form",
+        "svg": false,
+        "form": true,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "enums compare after lower-casing; value may be dynamic"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "formmethod": "get"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "formaction": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "form": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "popovertarget": "menu"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "autofocus": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "onclick": "x()"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "menu"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "{t}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "dir": "sideways"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "dir is an enumeration on the new elements"
+    },
+    {
+      "tag": "button",
+      "attributes": {},
+      "ctx": {
+        "parent": "span",
+        "svg": false,
+        "form": false,
+        "button": true
+      },
+      "expect": "context",
+      "note": "button in button"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/cerca/",
+        "method": "get",
+        "role": "search"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "https://newsletter.example.org/iscrizione",
+        "method": "POST",
+        "enctype": "multipart/form-data"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/invio?a=1&amp;b=2",
+        "method": "post",
+        "autocomplete": "off",
+        "novalidate": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "email",
+        "name": "email",
+        "autocomplete": "email",
+        "required": true
+      },
+      "ctx": {
+        "parent": "form",
+        "svg": false,
+        "form": true,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "search",
+        "name": "q",
+        "placeholder": "Cerca",
+        "inputmode": "search",
+        "enterkeyhint": "search",
+        "spellcheck": "false",
+        "pattern": "[a-z]+"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "checkbox",
+        "name": "privacy",
+        "value": "1",
+        "checked": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "label",
+      "attributes": {
+        "for": "email",
+        "class": "campo__etichetta"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "select",
+      "attributes": {
+        "name": "tema",
+        "autocomplete": "off",
+        "required": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "optgroup",
+      "attributes": {
+        "label": "Temi"
+      },
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "option",
+      "attributes": {
+        "value": "{item.slug}"
+      },
+      "ctx": {
+        "parent": "optgroup",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a dynamic option value"
+    },
+    {
+      "tag": "option",
+      "attributes": {
+        "value": "tutto",
+        "selected": true
+      },
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "textarea",
+      "attributes": {
+        "name": "messaggio",
+        "rows": "4",
+        "wrap": "soft"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "fieldset",
+      "attributes": {
+        "disabled": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "legend",
+      "attributes": {
+        "class": "x"
+      },
+      "ctx": {
+        "parent": "fieldset",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "output",
+      "attributes": {
+        "for": "a b",
+        "name": "totale"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form",
+      "note": "no method"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form",
+      "note": "no action"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "javascript:alert(1)",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "javascript&colon;alert(1)",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "//evil.example/x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "https://u:p@x.example/",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "https:///x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "http://example.org/x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "#frag",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/invio\u0085x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form",
+      "note": "U+0085 (NEL) is a control character"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/invio\ufeffx",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form",
+      "note": "U+FEFF"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "{a}",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": true,
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "method": "dialog"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "method": "{m}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "action": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "METHOD": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "method": "post",
+        "target": "_blank"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "password"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "file"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "image"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "autocomplete": "current-password"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "autocomplete": "cc-number"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "autocomplete": "one-time-code"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "autocomplete": "shipping email"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "method": "post",
+        "enctype": "text/plain"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "list": "suggerimenti"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "inputmode": "full"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "textarea",
+      "attributes": {
+        "wrap": "off"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "pattern": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "input",
+      "attributes": {
+        "type": "{t}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": "div",
+        "svg": false,
+        "form": true,
+        "button": false
+      },
+      "expect": "context",
+      "note": "nested form"
+    },
+    {
+      "tag": "div",
+      "attributes": {},
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "optgroup",
+      "attributes": {},
+      "ctx": {
+        "parent": "optgroup",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "option",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "b",
+      "attributes": {},
+      "ctx": {
+        "parent": "option",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "b",
+      "attributes": {},
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "attributes": {
+        "class": "foto"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "type": "image/avif",
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://b2222222-2222-4222-8222-222222222222 1x, histos-media://c3333333-3333-4333-8333-333333333333 2x",
+        "media": "(min-width: 64em)",
+        "width": "800",
+        "height": "600"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "histos-media://d4444444-4444-4444-8444-444444444444",
+        "alt": "Foto"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "histos-media://d4444444-4444-4444-8444-444444444444",
+        "srcset": "histos-media://b2222222-2222-4222-8222-222222222222 480w, histos-media://c3333333-3333-4333-8333-333333333333 960w",
+        "sizes": "(min-width: 40em) 50vw, 100vw",
+        "alt": ""
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "img srcset with w descriptors"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "https://cdn.example/x.avif"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "the shape is valid; the media rule refuses it in a document"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context",
+      "note": "source outside picture"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111",
+        "src": "histos-media://a1111111-1111-4111-8111-111111111111"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111",
+        "class": "x"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "source has no global attributes"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "type": "image/avif"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "srcset is required"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111",
+        "type": "image/svg+xml"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "data:image/png;base64,AAAA 1x"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "javascript:alert(1) 1x"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "{props.srcset}"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "/a0.png 1x, /a1.png 2x, /a2.png 3x, /a3.png 4x, /a4.png 5x, /a5.png 6x, /a6.png 7x, /a7.png 8x, /a8.png 9x, /a9.png 10x, /a10.png 11x, /a11.png 12x, /a12.png 13x, /a13.png 14x, /a14.png 15x, /a15.png 16x, /a16.png 17x"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value",
+      "note": "at most 16 candidates"
+    },
+    {
+      "tag": "source",
+      "attributes": {
+        "srcset": "histos-media://a1111111-1111-4111-8111-111111111111",
+        "width": "1e3"
+      },
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "histos-media://d4444444-4444-4444-8444-444444444444",
+        "sizes": "100vw;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "div",
+      "attributes": {},
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "details",
+      "attributes": {
+        "open": true,
+        "name": "faq-1"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "summary",
+      "attributes": {
+        "class": "faq__domanda"
+      },
+      "ctx": {
+        "parent": "details",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "details",
+      "attributes": {
+        "ontoggle": "x()"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "details",
+      "attributes": {
+        "name": "1faq"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "value"
+    },
+    {
+      "tag": "summary",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "?a=1&b=2"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a bare & stays legal"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "//example.org"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "protocol-relative links pass"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "mailto:info@example.org"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "tel:+390000000"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "https://example.org/{item.slug}/"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "title": "&eacute;&#233;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "dir": "sideways",
+        "data-colonne": "3",
+        "aria-label": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "dir is an enumeration on the new elements only; data-* and aria-* stay open"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "{props.immagine}",
+        "alt": "{props.titolo}",
+        "loading": "lazy"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "color: red; padding: var(--xb-space-m)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "x-data": "{}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "hx-post": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-hx-get": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-ng-click": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "ng_click": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-bind": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-on-click": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-xb-uid": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "v-if": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "ng-if": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "@click": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        ":class": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "onclick": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "TITLE": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "upper-case names are refused (G2)"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "SRC": "https://tracker.example/x.png"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-Foo": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "p",
+      "attributes": {
+        "background": "x.png"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "ping": "https://tracker.example/"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "javascript:alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "JAVASCRIPT:alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "java\tscript:alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": " javascript:alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "javascript&colon;alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "sms:1"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "blockquote",
+      "attributes": {
+        "cite": "vbscript:x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "javascript&#58alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference",
+      "note": "a numeric reference without ;"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#128;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference",
+      "note": "C1 range: windows-1252 in browsers, undecoded in PHP"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#9;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#0;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#xD800;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#x110000;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#x1FFFF;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference",
+      "note": "noncharacters of every plane"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "title": "&#xFDD0;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background: url(x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background: &#117;rl(x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background: \\75 rl(x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background: u/**/rl(x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background-image: image-set('a.png' 1x)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background-image: -webkit-image-set('a.png' 1x)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "behavior: url(x.htc)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "x: expression(alert(1))"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "@import 'x.css'"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "color: red /* url(x)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style",
+      "note": "any /* is refused: inside a CSS string it starts no comment"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "--a:'/*';background:url(https://tracker.example/x.gif);--b:'*/'"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style",
+      "note": "a /* inside a CSS string hid url() from comment stripping"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "font-family:\"/*\";background-image:image-set(\"https://x.example/a.png\" 1x);font-family:\"*/\""
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background:\\75\r\nrl(https://tracker.example/x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style",
+      "note": "CR LF after a hex escape is one LF, which the escape consumes"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background:\\69\r\nmage-set(\"a.png\" 1x)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background:\\75\frl(x.png)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "style",
+      "note": "FF is a newline too"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "background:{page.title}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic",
+      "note": "an expression could bring url() at render time"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "color:{props.colore}"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "dynamic"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "style": "color:red&lt/style"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference",
+      "note": "a legacy named reference without ; decodes in browsers, not in PHP"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "title": "a&amp b"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "title": "&AMP"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x?a=1&copy=2"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "followed by = a legacy reference is not decoded in an attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "title": "&notit"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "followed by a letter it is not decoded either"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "title": "&amp;&nbsp;&copy;"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/cerca/?q=a&nbsp",
+        "method": "get"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "https://@evil.example/x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form",
+      "note": "an empty userinfo is still userinfo"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "https://:@evil.example/x",
+        "method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "form"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/eventi/2026:10",
+        "method": "get"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a relative path may contain a colon after the first segment"
+    },
+    {
+      "tag": "form",
+      "attributes": {
+        "action": "/a:80",
+        "method": "get"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "interestfor": "menu"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "interest invokers open popovers by id"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "interestfor": "menu"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "DIV",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag",
+      "note": "tags must be lower-case (G1)"
+    },
+    {
+      "tag": "Svg",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "iframe",
+      "attributes": {
+        "src": "https://example.org/"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "script",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "video",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "link",
+      "attributes": {},
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "tag"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "target": "_blank",
+        "rel": "noopener",
+        "hreflang": "it",
+        "type": "application/pdf",
+        "download": true,
+        "referrerpolicy": "no-referrer"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "histos-media://d4444444-4444-4444-8444-444444444444",
+        "alt": "",
+        "width": "{props.larghezza}",
+        "height": "600",
+        "loading": "lazy",
+        "decoding": "async",
+        "fetchpriority": "high"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "width and height may stay dynamic"
+    },
+    {
+      "tag": "ol",
+      "attributes": {
+        "start": "3",
+        "reversed": true,
+        "type": "i"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "li",
+      "attributes": {
+        "value": "5"
+      },
+      "ctx": {
+        "parent": "ol",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "td",
+      "attributes": {
+        "colspan": "2",
+        "rowspan": "1",
+        "headers": "a b"
+      },
+      "ctx": {
+        "parent": "tr",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "th",
+      "attributes": {
+        "scope": "col",
+        "abbr": "Q"
+      },
+      "ctx": {
+        "parent": "tr",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "del",
+      "attributes": {
+        "cite": "/note/",
+        "datetime": "2026-11-04"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "q",
+      "attributes": {
+        "cite": "https://example.org/"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "time",
+      "attributes": {
+        "datetime": "2026-11-04"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "class": "schede",
+        "data-xb-tabs": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "Histeon's behaviours"
+    },
+    {
+      "tag": "section",
+      "attributes": {
+        "data-xb-reveal": true,
+        "aria-labelledby": "t"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "figure",
+      "attributes": {
+        "class": "xb-video",
+        "data-xb-video": "https://www.youtube-nocookie.com/embed/abcdefghijk"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-stato": "aperto",
+        "data-bs-parent": "#faq",
+        "data-text-colore": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "other data-* names stay open"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "itemscope": true,
+        "itemtype": "https://schema.org/Person",
+        "translate": "no"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "microdata and translate are global attributes"
+    },
+    {
+      "tag": "span",
+      "attributes": {
+        "itemprop": "name"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "up-target": "#x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "outside the allowlist: Unpoly"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "script": "on click call alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "hyperscript"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "contenteditable": "true"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "popover": true
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "p",
+      "attributes": {
+        "align": "center"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "obsolete presentational attributes"
+    },
+    {
+      "tag": "table",
+      "attributes": {
+        "border": "1"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "img",
+      "attributes": {
+        "src": "histos-media://d4444444-4444-4444-8444-444444444444",
+        "alt": "",
+        "usemap": "#m"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "name": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "span",
+      "attributes": {
+        "slot": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "href": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "an attribute of another element"
+    },
+    {
+      "tag": "li",
+      "attributes": {
+        "start": "2"
+      },
+      "ctx": {
+        "parent": "ol",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "itemscope": true,
+        "itemtype": "javascript:alert(1)"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url",
+      "note": "itemtype is a URL"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-text": "$utente"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "data-* read as code: Datastar"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-signals": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-attr-href": "$x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "data-method": "delete"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "Rails UJS"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "/x",
+        "data-turbo-method": "post"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "button",
+      "attributes": {
+        "type": "submit",
+        "data-disable-with": "<b>x</b>"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "on the new elements too"
+    },
+    {
+      "tag": "span",
+      "attributes": {
+        "data-bs-html": "true",
+        "data-bs-title": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute",
+      "note": "Bootstrap tooltips with HTML"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-template": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-dojo-props": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-ic-post-to": "/x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "div",
+      "attributes": {
+        "data-script": "x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "histos-media://e5555555-5555-4555-8555-555555555555"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "a link to a media file of the project (histos-media-links-v1)"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "histos-media://E5555555-5555-4555-8555-555555555555"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url",
+      "note": "the identity is lower-case only"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "histos-media://e5555555-5555-4555-8555-555555555555#x"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "tag": "a",
+      "attributes": {
+        "href": "HISTOS-MEDIA://e5555555-5555-4555-8555-555555555555"
+      },
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    }
+  ],
+  "children": [
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:source",
+        "space",
+        "element:img"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:source",
+        "element:source",
+        "element:img"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:img"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:img",
+        "element:source"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:source"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:img",
+        "element:img"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "control",
+        "element:img"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "text",
+        "element:img"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "picture",
+      "kinds": [
+        "element:img",
+        "component"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "details",
+      "kinds": [
+        "element:summary",
+        "element:p"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "details",
+      "kinds": [
+        "space",
+        "element:summary",
+        "element:p"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "details",
+      "kinds": [
+        "element:p"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "details",
+      "kinds": [
+        "element:p",
+        "element:summary"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "details",
+      "kinds": [
+        "element:summary",
+        "element:summary"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "textarea",
+      "kinds": [],
+      "expect": "accept"
+    },
+    {
+      "tag": "textarea",
+      "kinds": [
+        "verbatim"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "textarea",
+      "kinds": [
+        "text"
+      ],
+      "expect": "text"
+    },
+    {
+      "tag": "textarea",
+      "kinds": [
+        "space"
+      ],
+      "expect": "text"
+    },
+    {
+      "tag": "textarea",
+      "kinds": [
+        "verbatim",
+        "verbatim"
+      ],
+      "expect": "text"
+    },
+    {
+      "tag": "option",
+      "kinds": [
+        "text"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "option",
+      "kinds": [
+        "text",
+        "space",
+        "text"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "option",
+      "kinds": [
+        "element:b"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "option",
+      "kinds": [
+        "control"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "select",
+      "kinds": [
+        "element:option",
+        "space",
+        "control",
+        "element:optgroup"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "select",
+      "kinds": [
+        "text"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "optgroup",
+      "kinds": [
+        "space",
+        "element:option"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "optgroup",
+      "kinds": [
+        "text",
+        "element:option"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "img",
+      "kinds": [],
+      "expect": "accept"
+    },
+    {
+      "tag": "img",
+      "kinds": [
+        "space"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "input",
+      "kinds": [
+        "text"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "source",
+      "kinds": [
+        "element:img"
+      ],
+      "expect": "context"
+    },
+    {
+      "tag": "br",
+      "kinds": [],
+      "expect": "accept"
+    },
+    {
+      "tag": "div",
+      "kinds": [
+        "text",
+        "component",
+        "slot",
+        "control",
+        "space",
+        "element:p"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "svg",
+      "kinds": [
+        "element:title",
+        "space",
+        "control",
+        "element:path"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "text",
+      "kinds": [
+        "text",
+        "element:tspan",
+        "space",
+        "element:tspan",
+        "control"
+      ],
+      "expect": "accept"
+    },
+    {
+      "tag": "linearGradient",
+      "kinds": [
+        "space",
+        "element:stop",
+        "control",
+        "element:stop"
+      ],
+      "expect": "accept"
+    }
+  ],
+  "texts": [
+    {
+      "content": "Scrivi qui",
+      "verbatim": true,
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "Dì \"ciao\" > 'tu'",
+      "verbatim": true,
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": true,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "{page.title}",
+      "verbatim": true,
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text",
+      "note": "a textarea is printed verbatim: no expressions"
+    },
+    {
+      "content": "a &amp; b",
+      "verbatim": true,
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "</textarea><script>alert(1)</script>",
+      "verbatim": true,
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "x",
+      "verbatim": true,
+      "ctx": {
+        "parent": "div",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text",
+      "note": "verbatim text outside textarea"
+    },
+    {
+      "content": "x",
+      "verbatim": true,
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Ciao",
+      "verbatim": false,
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": " \n\t ",
+      "verbatim": false,
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "{props.label}",
+      "verbatim": false,
+      "ctx": {
+        "parent": "title",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "Cerca nel sito",
+      "verbatim": false,
+      "ctx": {
+        "parent": "desc",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "<b>x</b>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "title",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Πα {item.nota} &amp; Βου",
+      "verbatim": false,
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "histos-svg-text-v1: plain text and expressions"
+    },
+    {
+      "content": "A",
+      "verbatim": false,
+      "ctx": {
+        "parent": "tspan",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": " ",
+      "verbatim": false,
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "<tspan>x</tspan>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text",
+      "note": "a tspan is an element, never markup in the text"
+    },
+    {
+      "content": "<a href=\"/x\">x</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "tspan",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "x &#0; y",
+      "verbatim": false,
+      "ctx": {
+        "parent": "text",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "content": "Ciao",
+      "verbatim": false,
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Ciao",
+      "verbatim": false,
+      "ctx": {
+        "parent": "defs",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Ciao",
+      "verbatim": false,
+      "ctx": {
+        "parent": "linearGradient",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Ciao",
+      "verbatim": false,
+      "ctx": {
+        "parent": "stop",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Prima {item.label}",
+      "verbatim": false,
+      "ctx": {
+        "parent": "option",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "<b>x</b>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "option",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "x",
+      "verbatim": false,
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": " ",
+      "verbatim": false,
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "x",
+      "verbatim": false,
+      "ctx": {
+        "parent": "optgroup",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "x",
+      "verbatim": false,
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Testo <a href=\"/x\">link</a> e <strong>forte</strong>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "<abbr title=\"Histeon\">H</abbr><br><time datetime=\"2026-10-26\">oggi</time>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "a < b e 3 > 2",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "x {a < b ? \"<i>\" : \"y\"} z",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept",
+      "note": "interpolations are skipped"
+    },
+    {
+      "content": "Vai <a href=\"?a=1&b=2\">qui</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "content": "<a href=\"https://x.example/\">x</ a> resto",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text",
+      "note": "</ a> is a bogus comment in the tokenizer: the link stays open"
+    },
+    {
+      "content": "<b>x</\tb>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "< b>x</b>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<iframe src=\"https://example.org/\"></iframe>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "Testo <!-- x -->",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<?php echo 1 ?>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<a href=/x>y</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text",
+      "note": "unquoted attribute"
+    },
+    {
+      "content": "<a href=\"{page.url}\">y</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<b onclick=\"x()\">y</b>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "content": "<a HREF=\"/x\">y</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "content": "<a href=\"javascript:alert(1)\">y</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "url"
+    },
+    {
+      "content": "<a href=\"java&#x09;script:alert(1)\">y</a>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "content": "<B>x</B>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<b>x",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<b>x</i>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "</br>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "text"
+    },
+    {
+      "content": "<b class=\"x\">y</b>",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "attribute"
+    },
+    {
+      "content": "Tab&#9;",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "reference"
+    },
+    {
+      "content": "Caff&#232; &amp; latte",
+      "verbatim": false,
+      "ctx": {
+        "parent": "p",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    }
+  ],
+  "blocks": [
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/slot",
+      "ctx": {
+        "parent": "g",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/slot-fill",
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "optgroup",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "option",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/slot",
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/component",
+      "ctx": {
+        "parent": "div",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/slot",
+      "ctx": {
+        "parent": "form",
+        "svg": false,
+        "form": true,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/if",
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/loop",
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/loop",
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "svg",
+        "svg": true,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "select",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "option",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "textarea",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "picture",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "context"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": "div",
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    },
+    {
+      "name": "xb/passthrough",
+      "ctx": {
+        "parent": null,
+        "svg": false,
+        "form": false,
+        "button": false
+      },
+      "expect": "accept"
+    }
+  ],
+  "documents": [
+    {
+      "name": "icona in un componente: svg, title con prop, condizione e spazi",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000010\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\",\"width\":\"24\",\"height\":\"24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"stroke-width\":\"2\",\"aria-hidden\":\"true\",\"focusable\":\"false\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"title\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{props.label}\"} /--><!-- /wp:xb/element --><!-- wp:xb/text {\"uid\":\"fx000008\",\"content\":\" \"} /--><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"circle\",\"attributes\":{\"cx\":\"11\",\"cy\":\"11\",\"r\":\"8\"}} /--><!-- wp:xb/text {\"uid\":\"fx000009\",\"content\":\" \"} /--><!-- wp:xb/if {\"uid\":\"fx000006\"} --><!-- wp:xb/branch {\"uid\":\"fx000005\",\"test\":\"props.big\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"rect\",\"attributes\":{\"x\":\"2\",\"y\":\"2\",\"width\":\"20\",\"height\":\"20\",\"rx\":\"4\"}} /--><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"path\",\"attributes\":{\"d\":\"m21 21-4.3-4.3\"}} /--><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "modulo di ricerca GET",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000006\",\"tag\":\"form\",\"attributes\":{\"action\":\"/cerca/\",\"method\":\"get\",\"role\":\"search\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"label\",\"attributes\":{\"for\":\"q\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Cerca\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"input\",\"attributes\":{\"id\":\"q\",\"type\":\"search\",\"name\":\"q\",\"autocomplete\":\"off\"}} /--><!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"button\",\"attributes\":{\"type\":\"submit\"}} --><!-- wp:xb/text {\"uid\":\"fx000004\",\"content\":\"Cerca\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "newsletter POST con select, loop di option e textarea",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000015\",\"tag\":\"form\",\"attributes\":{\"action\":\"https://newsletter.example.org/iscrizione\",\"method\":\"POST\",\"enctype\":\"multipart/form-data\"}} --><!-- wp:xb/element {\"uid\":\"fx000012\",\"tag\":\"fieldset\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"legend\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Iscrizione\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"input\",\"attributes\":{\"type\":\"email\",\"name\":\"email\",\"autocomplete\":\"email\",\"required\":true}} /--><!-- wp:xb/element {\"uid\":\"fx000008\",\"tag\":\"select\",\"attributes\":{\"name\":\"tema\"}} --><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"optgroup\",\"attributes\":{\"label\":\"Temi\"}} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"props.temi\"},\"as\":\"tema\"} --><!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"option\",\"attributes\":{\"value\":\"{tema.slug}\"}} --><!-- wp:xb/text {\"uid\":\"fx000004\",\"content\":\"{tema.label}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/loop --><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000010\",\"tag\":\"textarea\",\"attributes\":{\"name\":\"note\",\"rows\":\"3\"}} --><!-- wp:xb/text {\"uid\":\"fx000009\",\"content\":\"Scrivi qui\",\"verbatim\":true} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000011\",\"tag\":\"output\",\"attributes\":{\"for\":\"email\",\"name\":\"stato\"}} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000014\",\"tag\":\"button\",\"attributes\":{\"type\":\"submit\"}} --><!-- wp:xb/text {\"uid\":\"fx000013\",\"content\":\"Iscriviti\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "picture con due source e img",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111",
+        "b2222222-2222-4222-8222-222222222222",
+        "c3333333-3333-4333-8333-333333333333",
+        "d4444444-4444-4444-8444-444444444444"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"picture\"} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"source\",\"attributes\":{\"type\":\"image/avif\",\"srcset\":\"histos-media://a1111111-1111-4111-8111-111111111111\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"source\",\"attributes\":{\"srcset\":\"histos-media://b2222222-2222-4222-8222-222222222222 1x, histos-media://c3333333-3333-4333-8333-333333333333 2x\"}} /--><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://d4444444-4444-4444-8444-444444444444\",\"alt\":\"Foto\"}} /--><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "references": [
+        {
+          "blockUid": "fx000001",
+          "path": "attrs.attributes.srcset",
+          "targetId": "a1111111-1111-4111-8111-111111111111",
+          "index": 0
+        },
+        {
+          "blockUid": "fx000002",
+          "path": "attrs.attributes.srcset",
+          "targetId": "b2222222-2222-4222-8222-222222222222",
+          "index": 0
+        },
+        {
+          "blockUid": "fx000002",
+          "path": "attrs.attributes.srcset",
+          "targetId": "c3333333-3333-4333-8333-333333333333",
+          "index": 1
+        },
+        {
+          "blockUid": "fx000003",
+          "path": "attrs.attributes.src",
+          "targetId": "d4444444-4444-4444-8444-444444444444"
+        }
+      ]
+    },
+    {
+      "name": "img con srcset a larghezze",
+      "ownerKind": "document",
+      "assets": [
+        "b2222222-2222-4222-8222-222222222222",
+        "c3333333-3333-4333-8333-333333333333",
+        "d4444444-4444-4444-8444-444444444444"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://d4444444-4444-4444-8444-444444444444\",\"srcset\":\"histos-media://b2222222-2222-4222-8222-222222222222 480w, histos-media://c3333333-3333-4333-8333-333333333333 960w\",\"sizes\":\"(min-width: 40em) 50vw, 100vw\",\"alt\":\"\"}} /-->",
+      "expect": "accept",
+      "references": [
+        {
+          "blockUid": "fx000001",
+          "path": "attrs.attributes.src",
+          "targetId": "d4444444-4444-4444-8444-444444444444"
+        },
+        {
+          "blockUid": "fx000001",
+          "path": "attrs.attributes.srcset",
+          "targetId": "b2222222-2222-4222-8222-222222222222",
+          "index": 0
+        },
+        {
+          "blockUid": "fx000001",
+          "path": "attrs.attributes.srcset",
+          "targetId": "c3333333-3333-4333-8333-333333333333",
+          "index": 1
+        }
+      ]
+    },
+    {
+      "name": "details con summary dopo uno spazio",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000006\",\"tag\":\"details\",\"attributes\":{\"open\":true,\"name\":\"faq-1\"}} --><!-- wp:xb/text {\"uid\":\"fx000005\",\"content\":\" \"} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"summary\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Domanda\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Risposta\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "src dinamico in un componente",
+      "ownerKind": "component",
+      "assets": [],
+      "note": "only a whole component prop is a dynamic media source",
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.immagine}\",\"alt\":\"{props.titolo}\"}} /-->",
+      "expect": "accept"
+    },
+    {
+      "name": "src dinamico da un campo della pagina",
+      "ownerKind": "document",
+      "assets": [],
+      "note": "any other expression could print an arbitrary URL",
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{page.title}\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "src dinamico da un campo annidato",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.immagine.url}\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "src dinamico con un'espressione composta",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"{props.immagine || page.title}\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "due violazioni: media prima, attributo dopo",
+      "ownerKind": "document",
+      "assets": [],
+      "note": "both sides check media and markup block by block, in document order",
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"div\"} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"https://x.example/y.png\",\"alt\":\"\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"div\",\"attributes\":{\"x-data\":\"a\"}} /--><!-- /wp:xb/element -->",
+      "expect": "media"
+    },
+    {
+      "name": "link con query e protocol-relative",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000006\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000005\",\"content\":\"\\u003ca href=\\u0022?a=1\\u0026b=2\\u0022\\u003ex\\u003c/a\\u003e \\u003ca href=\\u0022//example.org\\u0022\\u003ey\\u003c/a\\u003e\"} /--><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "componente dentro svg",
+      "ownerKind": "document",
+      "assets": [],
+      "componentRefs": [
+        "ui/icona"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/component {\"uid\":\"fx000001\",\"ref\":\"ui/icona\"} /--><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "slot dentro svg",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/slot {\"uid\":\"fx000001\",\"name\":\"default\"} /--><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "testo dentro svg",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Ciao\"} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "use dentro svg",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"use\",\"attributes\":{\"href\":\"#a\"}} /--><!-- /wp:xb/element -->",
+      "expect": "tag"
+    },
+    {
+      "name": "svg con testo, sfumatura e stile (histos-svg-text-v1)",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000016\",\"tag\":\"svg\",\"attributes\":{\"class\":\"ruota\",\"viewBox\":\"0 0 100 100\",\"style\":\"\\u002d\\u002dmc:#d4a843\",\"data-impasto\":\"classico\"}} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"defs\"} --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"linearGradient\",\"attributes\":{\"id\":\"ph1\",\"x1\":\"0\",\"y1\":\"0\",\"x2\":\"1\",\"y2\":\"1\"}} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"stop\",\"attributes\":{\"offset\":\"0\",\"stop-color\":\"#16224a\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"stop\",\"attributes\":{\"offset\":\"1\",\"stop-color\":\"#05070f\",\"stop-opacity\":\".45\"}} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"rect\",\"attributes\":{\"width\":\"100\",\"height\":\"100\",\"fill\":\"url(#ph1)\"}} /--><!-- wp:xb/element {\"uid\":\"fx000015\",\"tag\":\"g\",\"attributes\":{\"font-family\":\"'GFS Didot', serif\",\"font-size\":\"11\",\"text-anchor\":\"middle\",\"lang\":\"el\",\"aria-pressed\":\"true\"}} --><!-- wp:xb/if {\"uid\":\"fx000014\"} --><!-- wp:xb/branch {\"uid\":\"fx000013\",\"test\":\"props.nota\"} --><!-- wp:xb/element {\"uid\":\"fx000012\",\"tag\":\"text\",\"attributes\":{\"x\":\"50\",\"y\":\"40\",\"class\":\"ruota__nota\"}} --><!-- wp:xb/text {\"uid\":\"fx000010\",\"content\":\"{props.nota} \"} /--><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"tspan\",\"attributes\":{\"class\":\"ruota__lettera\",\"style\":\"\\u002d\\u002dk:0\"}} --><!-- wp:xb/text {\"uid\":\"fx000006\",\"content\":\"A\"} /--><!-- /wp:xb/element --><!-- wp:xb/text {\"uid\":\"fx000011\",\"content\":\" \"} /--><!-- wp:xb/element {\"uid\":\"fx000009\",\"tag\":\"tspan\",\"attributes\":{\"class\":\"ruota__lettera\",\"style\":\"\\u002d\\u002dk:1\"}} --><!-- wp:xb/text {\"uid\":\"fx000008\",\"content\":\"B\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/if --><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "componente dentro text",
+      "ownerKind": "document",
+      "assets": [],
+      "componentRefs": [
+        "ui/icona"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"text\",\"attributes\":{\"x\":\"0\",\"y\":\"10\"}} --><!-- wp:xb/component {\"uid\":\"fx000001\",\"ref\":\"ui/icona\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "tspan fuori da text",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"g\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"tspan\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "markup in linea dentro text",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"text\",\"attributes\":{\"x\":\"0\",\"y\":\"10\"}} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Ciao \\u003ca href=\\u0022/x\\u0022\\u003ex\\u003c/a\\u003e\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "stile con url() su un elemento svg",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"g\",\"attributes\":{\"style\":\"fill:url(#a)\"}} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"path\",\"attributes\":{\"d\":\"M0 0\"}} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "style"
+    },
+    {
+      "name": "espressione in un attributo di text",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"text\",\"attributes\":{\"x\":\"{props.x}\",\"y\":\"10\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "dynamic"
+    },
+    {
+      "name": "img esterna",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"https://example.org/x.png\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "percorso /__cms-media/ in un profilo",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"/__cms-media/12345678-1234-4234-8234-123456789abc/a1111111-1111-4111-8111-111111111111\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "media sconosciuto",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://e5555555-5555-4555-8555-555555555555\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "UUID maiuscolo",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://A1111111-1111-4111-8111-111111111111\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "srcset esterno",
+      "ownerKind": "document",
+      "assets": [
+        "d4444444-4444-4444-8444-444444444444"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"picture\"} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"source\",\"attributes\":{\"srcset\":\"https://cdn.example/x.avif\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://d4444444-4444-4444-8444-444444444444\",\"alt\":\"\"}} /--><!-- /wp:xb/element -->",
+      "expect": "media"
+    },
+    {
+      "name": "srcset con /__cms-media/",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111",
+        "d4444444-4444-4444-8444-444444444444"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://d4444444-4444-4444-8444-444444444444\",\"srcset\":\"/__cms-media/12345678-1234-4234-8234-123456789abc/a1111111-1111-4111-8111-111111111111 2x\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "src misto statico e dinamico",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"https://cdn.example/{props.nome}.png\",\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "src senza valore",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":true,\"alt\":\"\"}} /-->",
+      "expect": "media"
+    },
+    {
+      "name": "textarea con espressione",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"textarea\",\"attributes\":{\"name\":\"n\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{page.title}\",\"verbatim\":true} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "textarea con entità",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"textarea\",\"attributes\":{\"name\":\"n\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"a \\u0026amp; b\",\"verbatim\":true} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "textarea che si chiude da sola",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"textarea\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"\\u003c/textarea\\u003e\\u003cscript\\u003ealert(1)\\u003c/script\\u003e\",\"verbatim\":true} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "textarea con figlio non letterale",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"textarea\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"Testo\"} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "testo letterale in un div",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"div\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"x\",\"verbatim\":true} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "tag con maiuscole",
+      "ownerKind": "document",
+      "assets": [],
+      "note": "the block grammar reads it, the transfer refuses any upper-case letter",
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"dIV\"} /-->",
+      "expect": "tag"
+    },
+    {
+      "name": "attributo SRC maiuscolo",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"SRC\":\"https://tracker.example/x.png\",\"alt\":\"\"}} /-->",
+      "expect": "attribute"
+    },
+    {
+      "name": "commento nel testo",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"Testo \\u003c!\\u002d\\u002d x \\u002d\\u002d\\u003e\"} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "iframe nel testo",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"\\u003ciframe src=\\u0022https://example.org/\\u0022\\u003e\\u003c/iframe\\u003e\"} /--><!-- /wp:xb/element -->",
+      "expect": "text"
+    },
+    {
+      "name": "modulo annidato",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"form\",\"attributes\":{\"action\":\"/a\",\"method\":\"get\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"div\"} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"form\",\"attributes\":{\"action\":\"/b\",\"method\":\"get\"}} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "picture con img prima di source",
+      "ownerKind": "document",
+      "assets": [
+        "a1111111-1111-4111-8111-111111111111",
+        "d4444444-4444-4444-8444-444444444444"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"picture\"} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://d4444444-4444-4444-8444-444444444444\",\"alt\":\"\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"source\",\"attributes\":{\"srcset\":\"histos-media://a1111111-1111-4111-8111-111111111111\"}} /--><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "summary dopo un paragrafo",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"details\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"summary\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"D\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "testo libero in select",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"select\",\"attributes\":{\"name\":\"x\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "modulo senza method",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"form\",\"attributes\":{\"action\":\"/x\"}} /-->",
+      "expect": "form"
+    },
+    {
+      "name": "campo password",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"form\",\"attributes\":{\"action\":\"/x\",\"method\":\"post\"}} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"input\",\"attributes\":{\"type\":\"password\",\"name\":\"p\"}} /--><!-- /wp:xb/element -->",
+      "expect": "value"
+    },
+    {
+      "name": "x-data su un div",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"div\",\"attributes\":{\"x-data\":\"aperto\"}} /-->",
+      "expect": "attribute"
+    },
+    {
+      "name": "loop con {:else}",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"ul\"} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"page.items\"},\"as\":\"voce\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{voce.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/branch {\"uid\":\"fx000005\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Nessuna voce\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/loop --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "loop di option con {:else} in un componente",
+      "ownerKind": "component",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"select\",\"attributes\":{\"name\":\"tema\"}} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"props.temi\"},\"as\":\"tema\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"option\",\"attributes\":{\"value\":\"{tema.slug}\"}} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{tema.label}\"} /--><!-- /wp:xb/element --><!-- wp:xb/branch {\"uid\":\"fx000005\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"option\",\"attributes\":{\"value\":\"\"}} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"{props.vuoto}\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/loop --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "loop annidato: {:else} del loop interno con la variabile del loop esterno",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/loop {\"uid\":\"fx000008\",\"source\":{\"kind\":\"expr\",\"expr\":\"page.gruppi\"},\"as\":\"gruppo\"} --><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"section\"} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"gruppo.voci\"},\"as\":\"voce\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{voce.title}\"} /--><!-- /wp:xb/element --><!-- wp:xb/branch {\"uid\":\"fx000005\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"{gruppo.title}: vuoto\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/loop --><!-- /wp:xb/element --><!-- /wp:xb/loop -->",
+      "expect": "accept"
+    },
+    {
+      "name": "loop con due {:else}",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/loop {\"uid\":\"fx000001\",\"source\":{\"kind\":\"expr\",\"expr\":\"page.items\"},\"as\":\"voce\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"{voce}\"} /--><!-- wp:xb/branch {\"uid\":\"fx000003\"} /--><!-- wp:xb/branch {\"uid\":\"fx000004\"} /--><!-- /wp:xb/loop -->",
+      "expect": "context"
+    },
+    {
+      "name": "{:else} non in fondo al loop",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/loop {\"uid\":\"fx000001\",\"source\":{\"kind\":\"expr\",\"expr\":\"page.items\"},\"as\":\"voce\"} --><!-- wp:xb/branch {\"uid\":\"fx000003\"} --><!-- wp:xb/text {\"uid\":\"fx000004\",\"content\":\"vuoto\"} /--><!-- /wp:xb/branch --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"{voce}\"} /--><!-- /wp:xb/loop -->",
+      "expect": "context"
+    },
+    {
+      "name": "ramo con condizione in un loop",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/loop {\"uid\":\"fx000001\",\"source\":{\"kind\":\"expr\",\"expr\":\"page.items\"},\"as\":\"voce\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"{voce}\"} /--><!-- wp:xb/branch {\"uid\":\"fx000003\",\"test\":\"page.ok\"} /--><!-- /wp:xb/loop -->",
+      "expect": "context"
+    },
+    {
+      "name": "{:else} fuori da un loop",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"div\"} --><!-- wp:xb/branch {\"uid\":\"fx000002\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"vuoto\"} /--><!-- /wp:xb/branch --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "{:else} in cima al documento",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/branch {\"uid\":\"fx000001\"} --><!-- wp:xb/text {\"uid\":\"fx000002\",\"content\":\"vuoto\"} /--><!-- /wp:xb/branch -->",
+      "expect": "context"
+    },
+    {
+      "name": "blocco di WordPress dentro svg",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\"}} --><!-- wp:xb/passthrough {\"uid\":\"fx000002\"} --><!-- wp:paragraph --><p>x</p><!-- /wp:paragraph --><!-- /wp:xb/passthrough --><!-- /wp:xb/element -->",
+      "expect": "context"
+    },
+    {
+      "name": "blocco di WordPress dentro un div",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"div\"} --><!-- wp:xb/passthrough {\"uid\":\"fx000002\"} --><!-- wp:paragraph --><p>x</p><!-- /wp:paragraph --><!-- /wp:xb/passthrough --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "attributo fuori dall'elenco su un tag di sempre",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"section\",\"attributes\":{\"up-target\":\"#x\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "attribute"
+    },
+    {
+      "name": "comportamenti di Histeon e data-* liberi",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"div\",\"attributes\":{\"class\":\"schede\",\"data-xb-tabs\":true,\"data-stato\":\"chiuso\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"x\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept"
+    },
+    {
+      "name": "render: icona svg con title",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"svg\",\"attributes\":{\"viewBox\":\"0 0 24 24\",\"width\":\"24\",\"height\":\"24\",\"fill\":\"none\",\"stroke\":\"currentColor\",\"stroke-width\":\"2\",\"aria-hidden\":\"true\",\"focusable\":\"false\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"title\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Cerca\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"circle\",\"attributes\":{\"cx\":\"11\",\"cy\":\"11\",\"r\":\"8\"}} /--><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"path\",\"attributes\":{\"d\":\"m21 21-4.3-4.3\"}} /--><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\" focusable=\"false\"><title>Cerca</title><circle cx=\"11\" cy=\"11\" r=\"8\"></circle><path d=\"m21 21-4.3-4.3\"></path></svg>"
+    },
+    {
+      "name": "render: modulo con fieldset, campi e testo iniziale",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000016\",\"tag\":\"form\",\"attributes\":{\"action\":\"/cerca/\",\"method\":\"get\",\"role\":\"search\"}} --><!-- wp:xb/element {\"uid\":\"fx000015\",\"tag\":\"fieldset\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"legend\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Ricerca\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"label\",\"attributes\":{\"for\":\"q\"}} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Parola\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"input\",\"attributes\":{\"id\":\"q\",\"type\":\"search\",\"name\":\"q\",\"required\":true}} /--><!-- wp:xb/element {\"uid\":\"fx000010\",\"tag\":\"select\",\"attributes\":{\"name\":\"tipo\"}} --><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"option\",\"attributes\":{\"value\":\"tutto\",\"selected\":true}} --><!-- wp:xb/text {\"uid\":\"fx000006\",\"content\":\"Tutto\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000009\",\"tag\":\"option\",\"attributes\":{\"value\":\"opere\"}} --><!-- wp:xb/text {\"uid\":\"fx000008\",\"content\":\"Opere\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000012\",\"tag\":\"textarea\",\"attributes\":{\"name\":\"nota\",\"rows\":\"2\"}} --><!-- wp:xb/text {\"uid\":\"fx000011\",\"content\":\"Dì \\u0022ciao\\u0022 \\u003e 'tu'\",\"verbatim\":true} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000014\",\"tag\":\"button\",\"attributes\":{\"type\":\"submit\"}} --><!-- wp:xb/text {\"uid\":\"fx000013\",\"content\":\"Cerca\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<form action=\"/cerca/\" method=\"get\" role=\"search\"><fieldset><legend>Ricerca</legend><label for=\"q\">Parola</label><input id=\"q\" type=\"search\" name=\"q\" required><select name=\"tipo\"><option value=\"tutto\" selected>Tutto</option><option value=\"opere\">Opere</option></select><textarea name=\"nota\" rows=\"2\">Dì &quot;ciao&quot; &gt; &#039;tu&#039;</textarea><button type=\"submit\">Cerca</button></fieldset></form>"
+    },
+    {
+      "name": "render: details e summary",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"details\",\"attributes\":{\"open\":true,\"name\":\"faq-1\"}} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"summary\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"Domanda\"} /--><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"p\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Risposta\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<details open name=\"faq-1\"><summary>Domanda</summary><p>Risposta</p></details>"
+    },
+    {
+      "name": "render: loop vuoto con {:else}",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"ul\",\"attributes\":{\"class\":\"voci\"}} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"[]\"},\"as\":\"voce\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{voce}\"} /--><!-- /wp:xb/element --><!-- wp:xb/branch {\"uid\":\"fx000005\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Nessuna voce\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/loop --><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<ul class=\"voci\"><li>Nessuna voce</li></ul>"
+    },
+    {
+      "name": "render: loop pieno con {:else}",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"ul\",\"attributes\":{\"class\":\"voci\"}} --><!-- wp:xb/loop {\"uid\":\"fx000006\",\"source\":{\"kind\":\"expr\",\"expr\":\"[\\u0022uno\\u0022, \\u0022due\\u0022]\"},\"as\":\"voce\"} --><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000001\",\"content\":\"{voce}\"} /--><!-- /wp:xb/element --><!-- wp:xb/branch {\"uid\":\"fx000005\"} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"li\"} --><!-- wp:xb/text {\"uid\":\"fx000003\",\"content\":\"Nessuna voce\"} /--><!-- /wp:xb/element --><!-- /wp:xb/branch --><!-- /wp:xb/loop --><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<ul class=\"voci\"><li>uno</li><li>due</li></ul>"
+    },
+    {
+      "name": "render: svg con testo, sfumatura e stile",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000014\",\"tag\":\"svg\",\"attributes\":{\"class\":\"ruota\",\"viewBox\":\"0 0 100 100\",\"style\":\"\\u002d\\u002dmc:#d4a843\",\"data-impasto\":\"classico\"}} --><!-- wp:xb/element {\"uid\":\"fx000004\",\"tag\":\"defs\"} --><!-- wp:xb/element {\"uid\":\"fx000003\",\"tag\":\"linearGradient\",\"attributes\":{\"id\":\"ph1\",\"x1\":\"0\",\"y1\":\"0\",\"x2\":\"1\",\"y2\":\"1\",\"gradientUnits\":\"objectBoundingBox\"}} --><!-- wp:xb/element {\"uid\":\"fx000001\",\"tag\":\"stop\",\"attributes\":{\"offset\":\"0\",\"stop-color\":\"#16224a\"}} /--><!-- wp:xb/element {\"uid\":\"fx000002\",\"tag\":\"stop\",\"attributes\":{\"offset\":\"1\",\"stop-color\":\"#05070f\",\"stop-opacity\":\".45\"}} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- wp:xb/element {\"uid\":\"fx000005\",\"tag\":\"rect\",\"attributes\":{\"width\":\"100\",\"height\":\"100\",\"fill\":\"url(#ph1)\"}} /--><!-- wp:xb/element {\"uid\":\"fx000013\",\"tag\":\"g\",\"attributes\":{\"font-size\":\"11\",\"text-anchor\":\"middle\",\"lang\":\"el\",\"aria-pressed\":\"true\"}} --><!-- wp:xb/element {\"uid\":\"fx000012\",\"tag\":\"text\",\"attributes\":{\"x\":\"50\",\"y\":\"40\",\"class\":\"ruota__nota\"}} --><!-- wp:xb/text {\"uid\":\"fx000010\",\"content\":\"Nota \"} /--><!-- wp:xb/element {\"uid\":\"fx000007\",\"tag\":\"tspan\",\"attributes\":{\"class\":\"ruota__lettera\",\"style\":\"\\u002d\\u002dk:0\"}} --><!-- wp:xb/text {\"uid\":\"fx000006\",\"content\":\"A\"} /--><!-- /wp:xb/element --><!-- wp:xb/text {\"uid\":\"fx000011\",\"content\":\" \"} /--><!-- wp:xb/element {\"uid\":\"fx000009\",\"tag\":\"tspan\",\"attributes\":{\"class\":\"ruota__lettera\",\"style\":\"\\u002d\\u002dk:1\"}} --><!-- wp:xb/text {\"uid\":\"fx000008\",\"content\":\"B\"} /--><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- /wp:xb/element --><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "expectedBody": "<svg class=\"ruota\" viewBox=\"0 0 100 100\" style=\"--mc:#d4a843\" data-impasto=\"classico\"><defs><linearGradient id=\"ph1\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\" gradientUnits=\"objectBoundingBox\"><stop offset=\"0\" stop-color=\"#16224a\"></stop><stop offset=\"1\" stop-color=\"#05070f\" stop-opacity=\".45\"></stop></linearGradient></defs><rect width=\"100\" height=\"100\" fill=\"url(#ph1)\"></rect><g font-size=\"11\" text-anchor=\"middle\" lang=\"el\" aria-pressed=\"true\"><text x=\"50\" y=\"40\" class=\"ruota__nota\">Nota <tspan class=\"ruota__lettera\" style=\"--k:0\">A</tspan> <tspan class=\"ruota__lettera\" style=\"--k:1\">B</tspan></text></g></svg>"
+    },
+    {
+      "name": "link al file di un media che contiene la sua immagine",
+      "ownerKind": "document",
+      "assets": [
+        "e5555555-5555-4555-8555-555555555555"
+      ],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000121\",\"tag\":\"a\",\"attributes\":{\"href\":\"histos-media://e5555555-5555-4555-8555-555555555555\"}} --><!-- wp:xb/element {\"uid\":\"fx000122\",\"tag\":\"img\",\"attributes\":{\"src\":\"histos-media://e5555555-5555-4555-8555-555555555555\",\"alt\":\"Foto\",\"width\":\"10\",\"height\":\"10\"}} /--><!-- /wp:xb/element -->",
+      "expect": "accept",
+      "references": [
+        {
+          "blockUid": "fx000121",
+          "path": "attrs.attributes.href",
+          "targetId": "e5555555-5555-4555-8555-555555555555"
+        },
+        {
+          "blockUid": "fx000122",
+          "path": "attrs.attributes.src",
+          "targetId": "e5555555-5555-4555-8555-555555555555"
+        }
+      ]
+    },
+    {
+      "name": "link a un media che non è nel profilo",
+      "ownerKind": "document",
+      "assets": [],
+      "content": "<!-- wp:xb/element {\"uid\":\"fx000123\",\"tag\":\"a\",\"attributes\":{\"href\":\"histos-media://e5555555-5555-4555-8555-555555555555\"}} /-->",
+      "expect": "media"
+    }
+  ]
+}

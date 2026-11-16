@@ -1,0 +1,14 @@
+{
+  "extends": "./vendor/histos/tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "rootDir": "vendor/histos/packages/dsl/src",
+    "outDir": ".generated/histos-dsl",
+    "noEmit": false,
+    "rewriteRelativeImportExtensions": true,
+    "types": []
+  },
+  "include": ["vendor/histos/packages/dsl/src/**/*.ts"]
+}
